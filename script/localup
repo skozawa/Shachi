@@ -1,0 +1,16 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use lib 'local/lib/perl5';
+use Proclet;
+
+my $proclet = Proclet->new( color => 1 );
+$proclet->service(
+    code => sub {
+        exec('carton exec -- plackup -s Starlet --max-worker=4 -R lib script/app.psgi')
+    },
+    tag  => 'server',
+);
+
+$proclet->run;

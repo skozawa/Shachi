@@ -34,3 +34,9 @@ requires 'DBIx::Handler';
 requires 'DBIx::Lite';
 requires 'DBIx::Lite::Row';
 requires 'SQL::Abstract::Plugin::InsertMulti';
+
+on develop => sub {
+    requires 'Proclet';
+
+    requires 'Devel::KYTProf';
+};
