@@ -5,13 +5,14 @@ requires 'Config::ENV';
 
 requires 'Class::Accessor::Lite';
 requires 'Class::Accessor::Lite::Lazy';
+requires 'Module::Load';
 requires 'List::Util';
 requires 'List::MoreUtils';
 requires 'List::UtilsBy';
 requires 'JSON::Types';
 requires 'Path::Class';
 requires 'Try::Tiny';
-requires 'Module::Load';
+requires 'Hash::MultiValue';
 
 # route
 requires 'Router::Simple';
@@ -25,3 +26,11 @@ requires 'HTTP::Throwable';
 # view
 requires 'Text::Xslate';
 requires 'Text::Xslate::Bridge::TT2Like';
+
+# db
+requires 'SQL::Maker';
+requires 'DBD::mysql';
+requires 'DBIx::Handler';
+requires 'DBIx::Lite';
+requires 'DBIx::Lite::Row';
+requires 'SQL::Abstract::Plugin::InsertMulti';

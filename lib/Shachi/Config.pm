@@ -13,6 +13,14 @@ sub root { $Root }
 sub router { $Rooter }
 
 common {
+    'db' => {
+        shachi => {
+            user     => 'root',
+            password => '',
+            dsn      => 'dbi:mysql:dbname=shachi;host=localhost',
+        }
+    },
+
     'static.root' => 'static',
 };
 

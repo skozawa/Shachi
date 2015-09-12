@@ -2,16 +2,17 @@ package Shachi::Context;
 use strict;
 use warnings;
 
-use Shachi::Config;
+use Shachi::Config ();
 use Shachi::Request;
 use Shachi::Response;
 use Shachi::View::Xslate;
+use Shachi::Database;
 
 use Class::Accessor::Lite::Lazy (
     new => 1,
     ro  => [qw/env/],
     ro_lazy => [qw/
-        req res route
+        req res route db
     /],
 );
 
@@ -25,6 +26,10 @@ sub _build_res {
 
 sub _build_route {
     return Shachi::Config->router->match($_[0]->env);
+}
+
+sub _build_db {
+    return Shachi::Database->new;
 }
 
 sub config {
