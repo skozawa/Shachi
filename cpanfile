@@ -13,13 +13,15 @@ requires 'Path::Class';
 requires 'Try::Tiny';
 requires 'Module::Load';
 
-# http
+# route
 requires 'Router::Simple';
-requires 'HTTP::Response::Maker::PSGI';
-requires 'HTTP::Response::Maker::Plack';
 
 # server
 requires 'Plack';
 requires 'Starlet';
 requires 'Plack::Middleware::ServerStatus::Lite';
 requires 'HTTP::Throwable';
+
+# view
+requires 'Text::Xslate';
+requires 'Text::Xslate::Bridge::TT2Like';

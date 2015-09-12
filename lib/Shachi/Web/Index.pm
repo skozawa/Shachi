@@ -4,7 +4,7 @@ use warnings;
 
 sub default {
     my ($class, $c) = @_;
-    return $c->respond_raw(200, '', 'hello world');
+    return $c->html('index.html');
 }
 
 1;

@@ -33,7 +33,7 @@ sub run {
     my $c = Shachi::Context->new(env => $env);
 
     try {
-        my $route = $c->route or die;
+        my $route = $c->route or die $c->throw_not_found;
         my $controller = $route->{dispatch};
         my $action     = $route->{action} || 'default';
 
