@@ -13,6 +13,8 @@ requires 'JSON::Types';
 requires 'Path::Class';
 requires 'Try::Tiny';
 requires 'Hash::MultiValue';
+requires 'Smart::Args';
+requires 'Carp';
 
 # route
 requires 'Router::Simple';
@@ -45,6 +47,7 @@ on test => sub {
     requires 'Test::More';
     requires 'Test::Class';
     requires 'Test::Deep';
+    requires 'Test::Fatal';
     requires 'Test::Mock::Guard';
     requires 'Test::WWW::Stub';
     requires 'Test::Time';

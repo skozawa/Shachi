@@ -26,6 +26,7 @@ sub import {
         use Test::More;
         use Test::Time;
         use Test::Deep;
+        use Test::Fatal qw/dies_ok lives_ok/;
         use Test::Mock::Guard;
         use Test::WWW::Stub;
 

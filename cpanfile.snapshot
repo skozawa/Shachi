@@ -2374,6 +2374,13 @@ DISTRIBUTIONS
       Module::Runtime 0.013
       perl 5.006
       strictures 2.000000
+  PadWalker-2.1
+    pathname: R/RO/ROBIN/PadWalker-2.1.tar.gz
+    provides:
+      PadWalker 2.1
+    requirements:
+      ExtUtils::MakeMaker 0
+      perl 5.008001
   Parallel-Prefork-0.17
     pathname: K/KA/KAZUHO/Parallel-Prefork-0.17.tar.gz
     provides:
@@ -2751,6 +2758,21 @@ DISTRIBUTIONS
       POSIX 0
       strict 0
       warnings 0
+  Smart-Args-0.12
+    pathname: T/TO/TOKUHIROM/Smart-Args-0.12.tar.gz
+    provides:
+      Smart::Args 0.12
+    requirements:
+      CPAN::Meta 0
+      CPAN::Meta::Prereqs 0
+      Exporter 5.63
+      ExtUtils::CBuilder 0
+      Module::Build 0.38
+      Mouse 0.92
+      Mouse::Util::TypeConstraints 0
+      PadWalker 1.92
+      Scalar::Util 1.21
+      perl 5.008001
   Starlet-0.25
     pathname: K/KA/KAZUHO/Starlet-0.25.tar.gz
     provides:

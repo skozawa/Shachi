@@ -16,7 +16,7 @@ sub create : Tests {
         my $mail = $name . '@test.ne.jp';
         my $org  = random_regex('\w{10}');
 
-        my $annotator = Shachi::Service::Annotator->create($db, {
+        my $annotator = Shachi::Service::Annotator->create(db => $db, args => {
             name => $name,
             mail => $mail,
             organization => $org,
@@ -24,9 +24,37 @@ sub create : Tests {
 
         ok $annotator;
         isa_ok $annotator, 'Shachi::Model::Annotator';
-        is $annotator->name, $name;
-        is $annotator->mail, $mail;
-        is $annotator->organization, $org;
-        ok $annotator->id;
+        is $annotator->name, $name, 'equal name';
+        is $annotator->mail, $mail, 'equal mail';
+        is $annotator->organization, $org, 'equal organization';
+        ok $annotator->id, 'has id';
+    };
+
+    subtest 'name, mail, organizationが必要' => sub {
+        my $db = Shachi::Database->new;
+        my $name = random_regex('\w{8}');
+        my $mail = $name . '@test.ne.jp';
+        my $org  = random_regex('\w{10}');
+
+        dies_ok {
+            Shachi::Service::Annotator->create(db => $db, args => {
+                mail => $mail,
+                organization => $org,
+            });
+        } 'require name';
+
+        dies_ok {
+            Shachi::Service::Annotator->create(db => $db, args => {
+                name => $name,
+                organization => $org,
+            });
+        } 'require mail';
+
+        dies_ok {
+            Shachi::Service::Annotator->create(db => $db, args => {
+                name => $name,
+                mail => $mail,
+            });
+        } 'require organization';
     };
 }
