@@ -24,4 +24,14 @@ common {
     'static.root' => 'static',
 };
 
+config test => {
+    'db' => {
+        shachi => {
+            user     => 'root',
+            password => '',
+            dsn      => 'dbi:mysql:dbname=shachi_test;host=localhost',
+        }
+    },
+};
+
 1;
