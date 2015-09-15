@@ -2,7 +2,6 @@ package t::Shachi::Service::Annotator;
 use t::test;
 use String::Random qw/random_regex/;
 use Shachi::Database;
-use Shachi::Model::Annotator;
 use Shachi::Service::Annotator;
 
 sub _require : Test(startup => 1) {
