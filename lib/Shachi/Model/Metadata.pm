@@ -2,6 +2,13 @@ package Shachi::Model::Metadata;
 use strict;
 use warnings;
 use parent qw/Shachi::Model/;
+use Exporter::Lite;
+
+use constant VALUE_TYPE_LANGUAGE => 'language';
+
+our @EXPORT = qw/
+    VALUE_TYPE_LANGUAGE
+/;
 
 use Class::Accessor::Lite::Lazy (
     new => 1,

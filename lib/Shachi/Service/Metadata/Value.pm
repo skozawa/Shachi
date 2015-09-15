@@ -22,4 +22,16 @@ sub create {
     );
 }
 
+sub find_by_values {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $value_type => { isa => 'Str' },
+         my $value => { isa => 'Str' };
+
+    $db->shachi->table('metadata_value')->search({
+        value_type => $value_type,
+        value      => $value,
+    })->single;
+}
+
 1;
