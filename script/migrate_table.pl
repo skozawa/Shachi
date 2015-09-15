@@ -165,7 +165,7 @@ sub migrate_scheme {
     }
 }
 
-# 旧resourcesテーブルの要素を新resourceテーブルとresources_metadataに移行
+# 旧resourcesテーブルの要素を新resourceテーブルとresource_metadataに移行
 sub migrate_resources {
     my ($dbix_old, $dbix_new) = @_;
     warn "Migrate Resources";
@@ -251,7 +251,7 @@ sub migrate_resources {
                     next;
                 }
 
-                $dbix_new->table('resources_metadata')->insert({
+                $dbix_new->table('resource_metadata')->insert({
                     resource_id => $data->{id},
                     metadata_id => $meta->{data}->{id},
                     language_id => $eng_language_id,
@@ -264,7 +264,7 @@ sub migrate_resources {
     }
 }
 
-# resources_metadataの要素を作成
+# resource_metadataの要素を作成
 sub _meta_value {
     my ($dbix_new, $meta, $val, $text) = @_;
     my $input_type = $meta->{data}->{input_type};

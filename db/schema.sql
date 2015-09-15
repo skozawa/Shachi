@@ -62,8 +62,8 @@ CREATE TABLE `resource` (
   KEY `idx_created` (`created`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-DROP TABLE IF EXISTS `resources_metadata`;
-CREATE TABLE `resources_metadata` (
+DROP TABLE IF EXISTS `resource_metadata`;
+CREATE TABLE `resource_metadata` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `resource_id` bigint NOT NULL,
   `metadata_id` bigint NOT NULL,
