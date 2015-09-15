@@ -40,3 +40,13 @@ on develop => sub {
 
     requires 'Devel::KYTProf';
 };
+
+on test => sub {
+    requires 'Test::More';
+    requires 'Test::Class';
+    requires 'Test::Deep';
+    requires 'Test::Mock::Guard';
+    requires 'Test::WWW::Stub';
+    requires 'Test::Time';
+    requires 'Test::WWW::Mechanize::PSGI';
+};
