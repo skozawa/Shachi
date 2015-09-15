@@ -49,4 +49,5 @@ on test => sub {
     requires 'Test::WWW::Stub';
     requires 'Test::Time';
     requires 'Test::WWW::Mechanize::PSGI';
+    requires 'String::Random';
 };
