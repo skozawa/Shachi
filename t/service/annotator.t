@@ -10,7 +10,7 @@ sub _require : Test(startup => 1) {
 }
 
 sub create : Tests {
-    subtest '正常に作成できる' => sub {
+    subtest 'create normally' => sub {
         my $db = Shachi::Database->new;
         my $name = random_regex('\w{8}');
         my $mail = $name . '@test.ne.jp';
@@ -30,7 +30,7 @@ sub create : Tests {
         ok $annotator->id, 'has id';
     };
 
-    subtest 'name, mail, organizationが必要' => sub {
+    subtest 'require name, mail, organization' => sub {
         my $db = Shachi::Database->new;
         my $name = random_regex('\w{8}');
         my $mail = $name . '@test.ne.jp';
