@@ -22,28 +22,4 @@ sub create {
     );
 }
 
-sub shachi_id {
-    args my $class => 'ClassName',
-         my $resource_id,
-         my $resource_subject => { optional => 1 };
-
-    my $prefix = do {
-        if ( !defined $resource_subject ) {
-            'N';
-        } elsif ( $resource_subject eq 'corpus' ) {
-            'C';
-        } elsif ( $resource_subject eq 'dictionary' ) {
-            'D';
-        } elsif ( $resource_subject eq 'glossary' ) {
-            'G';
-        } elsif ( $resource_subject eq 'thesaurus' ) {
-            'T';
-        } else {
-            'O';
-        }
-    };
-
-    return sprintf '%s-%06d', $prefix, $resource_id;
-}
-
 1;
