@@ -4,6 +4,7 @@ use warnings;
 use Carp qw/croak/;
 use Smart::Args;
 use Shachi::Model::Resource;
+use Shachi::Service::Metadata;
 use Shachi::Service::Resource::Metadata;
 
 sub create {
@@ -56,6 +57,38 @@ sub shachi_id {
     };
 
     return sprintf '%s-%06d', $prefix, $resource_id;
+}
+
+sub find_by_id {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $id;
+
+    $db->shachi->table('resource')->search({ id => $id })->single;
+}
+
+sub find_resource_detail {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $id,
+         my $args  => { isa => 'HashRef', default => {} };
+
+    my $resource = $class->find_by_id(db => $db, id => $id) or return;
+    my $metadata_list = delete $args->{metadata_list};
+    $metadata_list ||= Shachi::Service::Metadata->find_shown_metadata(db => $db);
+
+    my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
+        db => $db, resource => $resource, metadata_list => $metadata_list,
+        args => { with_value => 1 },
+    );
+
+    $resource->metadata_list($resource_metadata_list);
+    if (my $title_metadata = $metadata_list->grep(sub { $_->name eq 'title' })->first) {
+        my $titles = $resource->metadata($title_metadata);
+        $resource->title($titles->[0]->content) if @$titles;
+    }
+
+    return ($resource, $metadata_list);
 }
 
 sub search_all {

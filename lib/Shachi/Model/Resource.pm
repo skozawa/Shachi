@@ -27,7 +27,15 @@ our @EXPORT = qw/
 use Class::Accessor::Lite::Lazy (
     new => 1,
     ro  => [qw/id shachi_id status annotator_id edit_status/],
-    rw  => [qw/title/],
+    rw  => [qw/title metadata_list/],
 );
+
+sub metadata {
+    my ($self, $metadata) = @_;
+    return unless $metadata && $self->metadata_list;
+    $self->{_metadata_by_id} ||= $self->metadata_list->hash_by('metadata_id');
+    my @list = $self->{_metadata_by_id}->get_all($metadata->id);
+    return \@list;
+}
 
 1;

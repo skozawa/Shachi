@@ -5,6 +5,7 @@ use Carp qw/croak/;
 use Smart::Args;
 use Shachi::Model::Resource::Metadata;
 use Shachi::Service::Metadata;
+use Shachi::Service::Metadata::Value;
 
 sub create {
     args my $class => 'ClassName',
@@ -34,6 +35,33 @@ sub find_resource_titles {
         metadata_id => $title_metadata->id,
         resource_id => { -in => $resource_ids },
     })->list;
+}
+
+sub find_resource_metadata {
+    args my $class         => 'ClassName',
+         my $db            => { isa => 'Shachi::Database' },
+         my $resource      => { isa => 'Shachi::Model::Resource' },
+         my $metadata_list => { isa => 'Shachi::Model::List' },
+         my $args          => { isa => 'HashRef', default => {} };
+
+    my $resource_metadata_list = $db->shachi->table('resource_metadata')->search({
+        resource_id => $resource->id,
+        metadata_id => { -in => $metadata_list->map('id')->to_a }
+    })->order_by('id asc')->list;
+
+    if ( $args->{with_value} ) {
+        my $metadata_value_by_id = Shachi::Service::Metadata::Value->find_by_ids(
+            db => $db, ids => $resource_metadata_list->map(sub {
+                $_->value_id ? $_->value_id : ()
+            })->to_a,
+        )->hash_by('id');
+        foreach my $resource_metadata ( @$resource_metadata_list ) {
+            my $metadata_value = $metadata_value_by_id->{$resource_metadata->value_id};
+            $resource_metadata->value($metadata_value);
+        }
+    }
+
+    return $resource_metadata_list;
 }
 
 1;

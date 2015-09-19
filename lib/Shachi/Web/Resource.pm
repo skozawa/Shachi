@@ -10,4 +10,18 @@ sub list {
     return $c->html('list.html', { resources => $resources });
 }
 
+sub detail {
+    my ($class, $c) = @_;
+    my $resource_id = $c->route->{resource_id};
+    my ($resource, $metadata_list) = Shachi::Service::Resource->find_resource_detail(
+        db => $c->db, id => $resource_id,
+    );
+    return $c->throw_not_found unless $resource;
+
+    return $c->html('detail.html', {
+        resource => $resource,
+        metadata_list => $metadata_list,
+    });
+}
+
 1;

@@ -37,4 +37,13 @@ sub find_by_name {
     $db->shachi->table('metadata')->search({ name => $name })->single;
 }
 
+sub find_shown_metadata {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' };
+
+    $db->shachi->table('metadata')->search({
+        shown => 1,
+    })->order_by('order_num asc')->list;
+}
+
 1;
