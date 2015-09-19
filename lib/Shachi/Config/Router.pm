@@ -8,7 +8,8 @@ my $router = Router::Simple::Declare::router {
         dispatch => 'Shachi::Web::Index',
     };
     connect '/list/' => {
-        dispatch => 'Shachi::Web::List',
+        dispatch => 'Shachi::Web::Resource',
+        action   => 'list',
     };
 };
 

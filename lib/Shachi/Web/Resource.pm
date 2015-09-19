@@ -1,9 +1,9 @@
-package Shachi::Web::List;
+package Shachi::Web::Resource;
 use strict;
 use warnings;
 use Shachi::Service::Resource;
 
-sub default {
+sub list {
     my ($class, $c) = @_;
     my $resources = Shachi::Service::Resource->search_all(db => $c->db);
     Shachi::Service::Resource->embed_title(db => $c->db, resources => $resources);
