@@ -41,6 +41,7 @@ sub run {
         $controller->$action($c);
     } catch {
         # TODO
+        warn $_;
     };
 
     return $c->res->finalize;
