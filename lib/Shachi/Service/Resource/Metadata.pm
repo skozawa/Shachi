@@ -64,4 +64,42 @@ sub find_resource_metadata {
     return $resource_metadata_list;
 }
 
+sub statistics_by_year {
+    args my $class    => 'ClassName',
+         my $db       => { isa => 'Shachi::Database' },
+         my $metadata => { isa => 'Shachi::Model::Metadata' };
+
+    my $resource_metadata_list = $db->shachi->table('resource_metadata')->search({
+        metadata_id => $metadata->id,
+    })->list;
+
+    my $metadata_value_by_id = Shachi::Service::Metadata::Value->find_by_ids(
+        db => $db, ids => $resource_metadata_list->map(sub {
+            $_->value_id ? $_->value_id : ()
+        })->to_a,
+    )->hash_by('id');
+
+    my $issued_metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => 'date_issued');
+    my $issued_by_resource_id = $db->shachi->table('resource_metadata')->search({
+        metadata_id => $issued_metadata->id,
+        resource_id => { -in => $resource_metadata_list->map('resource_id')->to_a },
+    })->list->hash_by('resource_id');
+
+    my $statistics = {};
+    foreach my $resource_metadata ( @$resource_metadata_list ) {
+        my $issued = $issued_by_resource_id->{$resource_metadata->resource_id};
+        my $value  = $metadata_value_by_id->{$resource_metadata->value_id} or next;
+
+        my $year = $issued && $issued->content ? (split/\-/, $issued->content)[0] || 'UNK' : 'UNK';
+        $statistics->{$year} ||= {};
+        $statistics->{$year}->{$value->value}++;
+        $statistics->{$year}->{total}++;
+        $statistics->{total}->{$value->value}++;
+        $statistics->{total}->{total}++;
+    }
+
+    return $statistics;
+}
+
+
 1;

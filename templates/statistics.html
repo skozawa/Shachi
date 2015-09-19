@@ -1,0 +1,49 @@
+[%- WRAPPER '_wrapper.tt' %]
+<h3>Statistics</h3>
+
+<form name="statistics-form" method="post">
+  <select name="target" onchange="document.statistics-form.submit()">
+    [%- FOREACH m IN metadata_list %]
+      <option value="[% m.name %]"[% ' selected' IF metadata && metadata.id == m.id %]>[% m.name %]</option>
+    [%- END # FOREACH m IN metadata_list %]
+  </select>
+</form>
+
+[%- IF statistics %]
+  <h4>Statistics for [% metadata.name %]</h4>
+  <div class="statistics-container">
+    <table>
+      [%- SET years = statistics.keys().sort() %]
+      <tr>
+        <td>value</td>
+        [%- FOREACH year IN years %]
+        [%- NEXT IF year == 'total' %]
+        <td>[% year %]</td>
+        [%- END # FOREACH year IN statistics.keys %]
+        <td>total</td>
+      </tr>
+      [% FOREACH value IN statistics.total.keys().sort() %]
+        [% NEXT IF value == 'total' %]
+        <tr>
+          <td>[% value %]</td>
+          [%- FOREACH year IN years %]
+            [%- NEXT IF year == 'total' %]
+            <td>[% statistics.${year}.${value} %]</td>
+          [%- END # FOREACH year IN statistics.keys().sort() %]
+          <td>[% statistics.total.${value} %]</td>
+        </tr>
+      [% END # FOREACH value IN statistics.total.keys() %]
+      <tr>
+        <td>total</td>
+        [%- FOREACH year IN years %]
+          [%- NEXT IF year == 'total' %]
+          <td>[% statistics.${year}.total %]</td>
+        [%- END # FOREACH year IN statistics.keys().sort() %]
+        <td>[% statistics.total.total %]</td>
+      </tr>
+    </table>
+  </div>
+[%- END # IF statistics %]
+
+[% END # WRAPPER '_wrapper.tt' %]
+

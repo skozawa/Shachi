@@ -65,6 +65,12 @@ sub render_file {
     });
 }
 
+sub throw_bad_request {
+    my $self = shift;
+    $self->res->code(400);
+    $self->res->body('Bad Request');
+}
+
 sub throw_not_found {
     my $self = shift;
     $self->res->code(404);

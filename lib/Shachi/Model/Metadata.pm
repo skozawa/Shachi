@@ -82,4 +82,11 @@ use Class::Accessor::Lite::Lazy (
     ro  => [qw/id name label order_num shown multi_value input_type value_type color/],
 );
 
+sub allow_statistics {
+    my $self = shift;
+    return 1 if $self->input_type eq INPUT_TYPE_SELECT ||
+        $self->input_type eq INPUT_TYPE_SELECTONLY;
+    return 0;
+}
+
 1;

@@ -46,4 +46,15 @@ sub find_shown_metadata {
     })->order_by('order_num asc')->list;
 }
 
+sub find_by_input_types {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $input_types => { isa => 'ArrayRef' };
+
+    $db->shachi->table('metadata')->search({
+        shown => 1,
+        input_type => { -in => $input_types }
+    })->order_by('order_num asc')->list;
+}
+
 1;
