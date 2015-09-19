@@ -29,4 +29,12 @@ sub create {
     );
 }
 
+sub find_by_name {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $name  => { isa => 'Str' };
+
+    $db->shachi->table('metadata')->search({ name => $name })->single;
+}
+
 1;

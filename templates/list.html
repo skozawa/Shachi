@@ -1,4 +1,13 @@
 [%- WRAPPER '_wrapper.tt' %]
 <h3>Hello World</h3>
+<div class="resource-list-container">
+  <ul class="resource-list">
+    [%- FOREACH resource IN resources %]
+      <li>
+        [% resource.shachi_id %]: [% resource.title %]
+      </li>
+    [%- END # FOREACH resource IN resources %]
+  </ul>
+</div>
 [% END # WRAPPER '_wrapper.tt' %]
 
