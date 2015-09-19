@@ -7,13 +7,13 @@ my $router = Router::Simple::Declare::router {
     connect '/' => {
         dispatch => 'Shachi::Web::Index',
     };
-    connect '/list/' => {
+    connect '/resources' => {
         dispatch => 'Shachi::Web::Resource',
         action   => 'list',
     };
-    connect "/list/detail/{resource_id:[0-9]+}" => {
+    connect "/resources/{resource_id:[0-9]+}" => {
         dispatch => 'Shachi::Web::Resource',
-        action   => 'detail',
+        action   => 'find_by_id',
     };
 };
 
