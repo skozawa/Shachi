@@ -10,13 +10,14 @@ CREATE TABLE `annotator` (
 DROP TABLE IF EXISTS `language`;
 CREATE TABLE `language` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `code` varchar(3) NOT NULL,  -- metadata_value.value
-  `name` varchar(100) NOT NULL,
+  `code` varchar(3) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,  -- collate for umlaut, metadata_value.value
   `area` varchar(100) NOT NULL,
   `value_id` bigint NOT NULL DEFAULT 0, -- metadata_value.id
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_code` (`code`),
   UNIQUE KEY `idx_value_id` (`value_id`),
+  UNIQUE KEY `idx_name` (`name`),
   KEY (`name`),
   KEY (`area`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -41,7 +42,7 @@ DROP TABLE IF EXISTS `metadata_value`;
 CREATE TABLE `metadata_value` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `value_type` varchar(100) NOT NULL, -- metadata.value_type
-  `value` varchar(100) NOT NULL,
+  `value` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL, -- collate for umlaut
   PRIMARY KEY(`id`),
   UNIQUE KEY `idx_type_value` (`value_type`, `value`),
   KEY `idx_value` (`value`)

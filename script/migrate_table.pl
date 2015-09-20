@@ -72,7 +72,7 @@ sub migrate_languages {
         my $data = $language->{data};
         my $value = $dbix_new->table('metadata_value')->insert({
             value_type => "language",
-            value => $data->{code},
+            value => $data->{name},
         });
         $dbix_new->table('language')->insert({
             id => $data->{id},
@@ -273,7 +273,7 @@ sub _meta_value {
     my $input_type = $meta->{data}->{input_type};
     if ( $input_type eq 'text' || $input_type eq 'textarea' ) {
         return (0, $text);
-    } elsif ( $input_type eq 'select' || $input_type eq 'select_only' || $input_type eq 'relation' || $input_type eq 'language') {
+    } elsif ( $input_type eq 'select' || $input_type eq 'select_only' || $input_type eq 'relation') {
         my $val_id = !$val ? 0 : do {
             my $mv = $dbix_new->table('metadata_value')->search({
                 value_type => $meta->{data}->{value_type},
@@ -282,6 +282,14 @@ sub _meta_value {
             $mv && $mv->{data}->{id};
         };
         # warn $val, "\t", $meta->{data}->{input_type}, "\t", $meta->{data}->{class} || '' if !defined $val_id && $meta->{data}->{class} ne 'motherTongue' && $meta->{data}->{class} ne 'con_role';
+        return ($val_id || 0, undef, $text);
+    } elsif ( $input_type eq 'language' ) {
+        my $val_id = !$val ? 0 : do {
+            my $lang = $dbix_new->table('language')->search({
+                code => $val,
+            })->single;
+            $lang && $lang->{data}->{value_id};
+        };
         return ($val_id || 0, undef, $text);
     } elsif ( $input_type eq 'date' || $input_type eq 'range' ) {
         return (0, $val, $text);
