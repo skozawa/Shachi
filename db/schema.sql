@@ -28,7 +28,7 @@ CREATE TABLE `metadata` (
   `label` varchar(100) NOT NULL,
   `order_num` int NOT NULL,
   `shown` boolean NOT NULL DEFAULT true,
-  `multi_value` boolean NOT NULL,
+  `multi_value` boolean NOT NULL DEFAULT false,
   `input_type` enum('text', 'textarea', 'select', 'select_only', 'relation', 'language', 'date', 'range') NOT NULL DEFAULT 'text',
   `value_type` varchar(100) NOT NULL, -- metadata_value.value_type
   `color` varchar(20) NOT NULL,
@@ -51,7 +51,7 @@ DROP TABLE IF EXISTS `resource`;
 CREATE TABLE `resource` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `shachi_id` varchar(20) NOT NULL,
-  `status` enum('public', 'private') NOT NULL DEFAULT 'public',
+  `status` enum('public', 'limited_by_ELRA', 'limited_by_LDC', 'private') NOT NULL DEFAULT 'public',
   `annotator_id` bigint NOT NULL DEFAULT 1,
   `edit_status` enum('new', 'editing', 'complete', 'pending', 'revised', 'proofed') NOT NULL DEFAULT 'new', 
   `created` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',

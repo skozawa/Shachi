@@ -187,10 +187,13 @@ sub migrate_resources {
     my @resources = $dbix_old->table('resources')->all;
     foreach my $resource ( @resources ) {
         my $data = $resource->{data};
+        my $status = $data->{is_public} ? 'public' :
+            $data->{identifier} =~ /,LDC/ ? 'limited_by_LDC' :
+                $data->{identifier} =~ /,ELRA/ ? 'limited_by_ELRA' : 'private';
         $dbix_new->table('resource')->insert({
             id => $data->{id},
             shachi_id => $data->{shachi_id},
-            status => $data->{is_public} ? 'public' : 'private',
+            status => $status,
             annotator_id => $data->{annotator},
             edit_status => $status_map->{$data->{status}},
             created => $data->{created},
