@@ -1,0 +1,16 @@
+[%- WRAPPER '_wrapper.tt' %]
+<h3>Search Language Resources</h3>
+
+<form action="GET">
+  <div>
+    <ul>
+      [%- FOREACH metadata IN facet_metadata_list %]
+      <li>
+        <span>[% metadata.name %]</span>
+      </li>
+      [%- END # FOREACH metadata IN facet_metadata_list %]
+    </ul>
+  </div>
+</form>
+[% END # WRAPPER '_wrapper.tt' %]
+

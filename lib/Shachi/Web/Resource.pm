@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Shachi::Model::Metadata;
 use Shachi::Service::Metadata;
+use Shachi::Service::FacetSearch;
 use Shachi::Service::Resource;
 use Shachi::Service::Resource::Metadata;
 
@@ -25,6 +26,18 @@ sub list {
     my $resources = Shachi::Service::Resource->search_all(db => $c->db);
     Shachi::Service::Resource->embed_title(db => $c->db, resources => $resources);
     return $c->html('list.html', { resources => $resources });
+}
+
+sub facet {
+    my ($class, $c) = @_;
+
+    my $facet_metadata_list = Shachi::Service::FacetSearch->facet_metadata_list(
+        db => $c->db,
+    );
+
+    return $c->html('facet.html', {
+        facet_metadata_list => $facet_metadata_list,
+    });
 }
 
 sub statistics {

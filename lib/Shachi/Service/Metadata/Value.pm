@@ -41,4 +41,14 @@ sub find_by_ids {
     $db->shachi->table('metadata_value')->search({ id => { -in => $ids } })->list;
 }
 
+sub find_by_value_types {
+    args my $class       => 'ClassName',
+         my $db          => { isa => 'Shachi::Database' },
+         my $value_types => { isa => 'ArrayRef' };
+
+    $db->shachi->table('metadata_value')->search({
+        value_type => { -in => $value_types }
+    })->list;
+}
+
 1;

@@ -60,6 +60,18 @@ use constant METADATA_VALUE_TYPES => [
     VALUE_TYPE_ANNOTATION, VALUE_TYPE_LANGUAGE_AREA, VALUE_TYPE_RELATION,
 ];
 
+use constant FACET_METADATA_NAMES => [qw/
+    description_language language_area language type subject_monoMultilingual
+    subject_resourceSubject type_style type_form type_sentence
+    type_linguisticType type_discourseType type_purpose subject_linguisticField
+    contributor_author_level contributor_speaker_level
+    contributor_author_motherTongue contributor_speaker_motherTongue
+    contributor_author_dialect contributor_speaker_dialect
+    contributor_author_age contributor_speaker_age
+    contributor_author_gender contributor_speaker_gender
+    type_annotation
+/];
+
 our @EXPORT = qw/
     INPUT_TYPE_TEXT INPUT_TYPE_TEXTAREA INPUT_TYPE_SELECT INPUT_TYPE_SELECTONLY
     INPUT_TYPE_RELATION INPUT_TYPE_LANGUAGE INPUT_TYPE_DATE INPUT_TYPE_RANGE
@@ -75,6 +87,8 @@ our @EXPORT = qw/
     VALUE_TYPE_STYLE VALUE_TYPE_FORM VALUE_TYPE_SENTENCE
     VALUE_TYPE_ANNOTATION VALUE_TYPE_LANGUAGE_AREA VALUE_TYPE_RELATION
     METADATA_VALUE_TYPES
+
+    FACET_METADATA_NAMES
 /;
 
 use Class::Accessor::Lite::Lazy (

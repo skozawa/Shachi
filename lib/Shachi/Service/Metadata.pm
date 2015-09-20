@@ -5,6 +5,7 @@ use Carp qw/croak/;
 use Smart::Args;
 use List::MoreUtils qw/any/;
 use Shachi::Model::Metadata;
+use Shachi::Service::Metadata::Value;
 
 sub create {
     args my $class => 'ClassName',
@@ -35,6 +36,46 @@ sub find_by_name {
          my $name  => { isa => 'Str' };
 
     $db->shachi->table('metadata')->search({ name => $name })->single;
+}
+
+sub find_by_names {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $names => { isa => 'ArrayRef' },
+         my $args  => { isa => 'HashRef', default => {} };
+
+    my $metadata_list = $db->shachi->table('metadata')->search({
+        name  => { -in => $names },
+        shown => 1,
+    })->order_by('order_num asc')->list;
+
+    if ( $args->{order_by_names} ) {
+        my $index = 0;
+        my %name_indices = map { $_ => $index++ } @$names;
+        $metadata_list = $metadata_list->sort_by(sub { $name_indices{$_->name} });
+    }
+
+    if ( $args->{with_values} ) {
+        $class->embed_metadata_values(db => $db, metadata_list => $metadata_list);
+    }
+
+    return $metadata_list;
+}
+
+sub embed_metadata_values {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $metadata_list => { isa => 'Shachi::Model::List' };
+
+    my $values_by_type = Shachi::Service::Metadata::Value->find_by_value_types(
+        db => $db, value_types => $metadata_list->map('value_type')->to_a,
+    )->hash_by('value_type');
+    foreach my $metadata ( @$metadata_list ) {
+        my @values = $values_by_type->get_all($metadata->value_type);
+        $metadata->values([ @values ]);
+    }
+
+    return $metadata_list;
 }
 
 sub find_shown_metadata {
