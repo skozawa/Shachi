@@ -100,6 +100,15 @@ sub search_all {
     })->order_by('id asc')->list;
 }
 
+sub count_not_private {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' };
+
+    return $db->shachi->table('resource')->search({
+        status => { '!=' => 'private' }
+    })->count;
+}
+
 sub embed_title {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },

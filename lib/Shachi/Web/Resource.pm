@@ -4,7 +4,6 @@ use warnings;
 use Shachi::Model::Metadata;
 use Shachi::Service::Metadata;
 use Shachi::Service::FacetSearch;
-use Shachi::Service::Resource;
 use Shachi::Service::Resource::Metadata;
 
 sub find_by_id {

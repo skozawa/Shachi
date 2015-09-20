@@ -94,6 +94,7 @@ our @EXPORT = qw/
 use Class::Accessor::Lite::Lazy (
     new => 1,
     ro  => [qw/id name label order_num shown multi_value input_type value_type color/],
+    rw  => [qw/values no_metadata_resource_count/],
 );
 
 sub allow_statistics {

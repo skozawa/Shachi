@@ -7,6 +7,15 @@
       [%- FOREACH metadata IN facet_metadata_list %]
       <li>
         <span>[% metadata.name %]</span>
+        <select>
+          <option></option>
+          [%- FOREACH metadata_value IN metadata.values %]
+            <option>[% metadata_value.value %] ([% metadata_value.resource_count %])</option>
+          [%- END # FOREACH value IN metadata.values %]
+          [%- IF metadata.no_metadata_resource_count > 0 %]
+            <option>no information ([% metadata.no_metadata_resource_count %])</option>
+          [%- END # IF metadata.no_metadata_resource_count > 0 %]
+        </select>
       </li>
       [%- END # FOREACH metadata IN facet_metadata_list %]
     </ul>
