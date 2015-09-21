@@ -1,6 +1,7 @@
 package Shachi::Web::Resource;
 use strict;
 use warnings;
+use Shachi::FacetSearchQuery;
 use Shachi::Model::Metadata;
 use Shachi::Service::Metadata;
 use Shachi::Service::FacetSearch;
@@ -30,12 +31,27 @@ sub list {
 sub facet {
     my ($class, $c) = @_;
 
-    my $facet_metadata_list = Shachi::Service::FacetSearch->facet_metadata_list(
-        db => $c->db,
+    my $query = Shachi::FacetSearchQuery->new(params => $c->req->parameters);
+    my $facet_metadata_list = Shachi::Service::Metadata->find_by_names(
+        db => $c->db, names => FACET_METADATA_NAMES,
+        args => { order_by_names => 1 },
     );
+    my $resources;
+    if ( $query->has_any_query ) {
+        $resources = Shachi::Service::FacetSearch->search(
+            db => $c->db, query => $query, metadata_list => $facet_metadata_list,
+            args => { offset => 0, limit => 20 },
+        );
+    } else {
+        Shachi::Service::FacetSearch->embed_metadata_counts(
+            db => $c->db, metadata_list => $facet_metadata_list,
+        )
+    }
 
     return $c->html('facet.html', {
+        query => $query,
         facet_metadata_list => $facet_metadata_list,
+        resources => $resources,
     });
 }
 

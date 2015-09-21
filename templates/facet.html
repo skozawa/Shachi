@@ -1,19 +1,41 @@
 [%- WRAPPER '_wrapper.tt' %]
 <h3>Search Language Resources</h3>
 
-<form action="GET">
+<form name="facet-form" method="POST">
+  <div>
+    <ul>
+      [%- FOREACH metadata IN facet_metadata_list %]
+        [%- SET value_ids = query.value_ids(metadata.name) %]
+        [%- IF value_ids.size() %]
+          <li>
+            <span>[% metadata.name %]</span>
+            [%- FOREACH value_id IN value_ids %]
+              [%- IF value_id %]
+                [%- SET metadata_value = query.value_by_id(value_id) %]
+                <span>[% metadata_value.value %]</span>
+                <input type="hidden" name="[% metadata.name %]" value="[% metadata_value.id %]">
+              [%- ELSE %]
+                <span>no information</span>
+                <input type="hidden" name="[% metadata.name %]" value="0">
+              [%- END # IF value_id %]
+            [%- END # FOREACH value_id IN value_ids %]
+          </li>
+        [%- END # IF value_ids.size() %]
+      [%- END # FOREACH metadata IN facet_metadata_list %]
+    </ul>
+  </div>
   <div>
     <ul>
       [%- FOREACH metadata IN facet_metadata_list %]
       <li>
         <span>[% metadata.name %]</span>
-        <select>
+        <select name="[% metadata.name %]" onchange="document.facet-form.submit()">
           <option></option>
           [%- FOREACH metadata_value IN metadata.values %]
-            <option>[% metadata_value.value %] ([% metadata_value.resource_count %])</option>
+            <option value="[% metadata_value.id %]">[% metadata_value.value %] ([% metadata_value.resource_count %])</option>
           [%- END # FOREACH value IN metadata.values %]
           [%- IF metadata.no_metadata_resource_count > 0 %]
-            <option>no information ([% metadata.no_metadata_resource_count %])</option>
+            <option value="0">no information ([% metadata.no_metadata_resource_count %])</option>
           [%- END # IF metadata.no_metadata_resource_count > 0 %]
         </select>
       </li>
@@ -21,5 +43,13 @@
     </ul>
   </div>
 </form>
-[% END # WRAPPER '_wrapper.tt' %]
 
+<div>
+  <ul>
+    [%- FOREACH resource IN resources %]
+      <li>[% resource.shachi_id %]</li>
+    [%- END # FOREACH resource IN resources %]
+  </ul>
+</div>
+
+[% END # WRAPPER '_wrapper.tt' %]
