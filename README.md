@@ -9,6 +9,8 @@ plenv rehash
 plenv install-cpanm
 cpanm Carton
 carton install
+
+npm install
 ```
 
 # local

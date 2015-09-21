@@ -1,0 +1,14 @@
+{
+  "name": "Shachi",
+  "version": "0.0.1",
+  "description": "Language Resource Metadata Database",
+  "author": "Shunsuke Kozawa",
+  "repository": "git@github.com:skozawa/Shachi.git",
+  "devDependencies": {
+    "gulp": "^3.8.10",
+    "gulp-watch": "^1.1.0",
+    "gulp-less": "^1.3.6",
+    "gulp-minify-css": "^0.3.11",
+    "gulp-logger": "^0.0.2"
+  }
+}
