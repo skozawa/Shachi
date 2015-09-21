@@ -23,6 +23,10 @@ my $router = Router::Simple::Declare::router {
         dispatch => 'Shachi::Web::Resource',
         action   => 'statistics',
     };
+
+    connect '/admin/' => {
+        dispatch => 'Shachi::Web::Admin',
+    };
 };
 
 sub router { $router }

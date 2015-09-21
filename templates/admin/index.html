@@ -1,0 +1,28 @@
+[%- WRAPPER '/admin/_wrapper.tt' %]
+
+<h3>admin</h3>
+
+<div>
+  <form name="annotator-form" method="GET">
+    <select name="annotator_id" onchange="document.annotator-form.submit()">
+      [%- FOREACH annotator IN annotators %]
+        [%- IF annotator.resource_count %]
+          <option value="[% annotator.id %]"[% ' selected' IF annotator.id == c.req.param('annotator_id') %]>[% annotator.name %] ([% annotator.resource_count %])</option>
+        [%- END # IF annotator.resource_count %]
+      [%- END # FOREACH annotator IN annotators %]
+    </select>
+  </form>
+</div>
+
+[%- IF annotator %]
+  <div>
+    <h3>[% annotator.name %]</h3>
+    <ul>
+      [%- FOREACH resource IN annotator.resources %]
+        <li>[% resource.shachi_id %]</li>
+      [%- END # FOREACH resource IN resources %]
+    </ul>
+  </div>
+[%- END # IF annotator %]
+
+[%- END # WRAPPER '/admin/_wrapper.tt' %]
