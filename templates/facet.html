@@ -25,6 +25,10 @@
     </ul>
   </div>
   <div>
+    <input type="text" name="keyword" value="[% query.keyword %]">
+    <input type="submit" value="search">
+  </div>
+  <div>
     <ul>
       [%- FOREACH metadata IN facet_metadata_list %]
       <li>

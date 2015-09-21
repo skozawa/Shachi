@@ -72,6 +72,10 @@ use constant FACET_METADATA_NAMES => [qw/
     type_annotation
 /];
 
+use constant KEYWORD_SEARCH_METADATA_NAMES => [qw/
+    title title_alternative description type_purpose
+/];
+
 our @EXPORT = qw/
     INPUT_TYPE_TEXT INPUT_TYPE_TEXTAREA INPUT_TYPE_SELECT INPUT_TYPE_SELECTONLY
     INPUT_TYPE_RELATION INPUT_TYPE_LANGUAGE INPUT_TYPE_DATE INPUT_TYPE_RANGE
@@ -89,6 +93,7 @@ our @EXPORT = qw/
     METADATA_VALUE_TYPES
 
     FACET_METADATA_NAMES
+    KEYWORD_SEARCH_METADATA_NAMES
 /;
 
 use Class::Accessor::Lite::Lazy (

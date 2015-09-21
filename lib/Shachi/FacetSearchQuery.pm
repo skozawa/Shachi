@@ -2,17 +2,35 @@ package Shachi::FacetSearchQuery;
 use strict;
 use warnings;
 use List::MoreUtils qw/any uniq/;
+use Search::Query;
+use Search::Query::Dialect::SQL;
 use Shachi::Model::Metadata;
 use Class::Accessor::Lite::Lazy (
     new => 1,
     ro  => [qw/params/],
     rw  => [qw/current_values/],
-    ro_lazy => [qw/all_value_ids/],
+    ro_lazy => [qw/all_value_ids search_query/],
 );
 
 sub _build_all_value_ids {
     my $self = shift;
     [ map { @{$self->valid_value_ids($_)} } @{FACET_METADATA_NAMES()} ];
+}
+
+sub _build_search_query {
+    my $self = shift;
+    my $parser = Search::Query->parser(
+        query_class => 'Search::Query::Dialect::SQL',
+        fields      => ['content'],
+    );
+    return $parser->parse($self->keyword);
+}
+
+sub search_query_sql {
+    my $self = shift;
+    my $keyword_sql = $self->search_query->stringify;
+    $keyword_sql =~ s!content='!content REGEXP '!g;
+    return $keyword_sql;
 }
 
 # includes 0 (= no information)
@@ -27,8 +45,19 @@ sub valid_value_ids {
     $self->{"_$name-valid-value"} ||= [ grep { $_ } @{$self->value_ids($name)} ];
 }
 
+sub keyword {
+    my $self = shift;
+    $self->params->{keyword};
+}
+
+sub has_keyword {
+    my $self = shift;
+    length $self->keyword ? 1 : 0;
+}
+
 sub has_any_query {
     my $self = shift;
+    return 1 if $self->has_keyword;
     any { @{$self->value_ids($_)} } @{FACET_METADATA_NAMES()};
 }
 

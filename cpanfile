@@ -15,6 +15,7 @@ requires 'Try::Tiny';
 requires 'Hash::MultiValue';
 requires 'Smart::Args';
 requires 'Carp';
+requires 'Search::Query';
 
 # route
 requires 'Router::Simple';

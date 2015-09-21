@@ -449,6 +449,20 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 6.36
       Test::More 0.96
       Try::Tiny 0
+  Data-Dump-1.23
+    pathname: G/GA/GAAS/Data-Dump-1.23.tar.gz
+    provides:
+      Data::Dump 1.23
+      Data::Dump::FilterContext undef
+      Data::Dump::Filtered undef
+      Data::Dump::Trace 0.02
+      Data::Dump::Trace::Call 0.02
+      Data::Dump::Trace::Wrapper 0.02
+    requirements:
+      ExtUtils::MakeMaker 0
+      Symbol 0
+      Test 0
+      perl 5.006
   Data-MessagePack-0.48
     pathname: G/GF/GFUJI/Data-MessagePack-0.48.tar.gz
     provides:
@@ -482,6 +496,13 @@ DISTRIBUTIONS
       Class::Accessor::Chained::Fast 0
       Test::Exception 0
       Test::More 0
+  Data-Transformer-0.04
+    pathname: B/BA/BALDUR/Data-Transformer-0.04.tar.gz
+    provides:
+      Data::Transformer 0.04
+    requirements:
+      ExtUtils::MakeMaker 0
+      Test::Simple 0.44
   Data-Validator-1.07
     pathname: G/GF/GFUJI/Data-Validator-1.07.tar.gz
     provides:
@@ -2186,6 +2207,22 @@ DISTRIBUTIONS
       YAML::Tiny 1.38
       autodie 0
       perl 5.006
+  Module-Pluggable-5.2
+    pathname: S/SI/SIMONW/Module-Pluggable-5.2.tar.gz
+    provides:
+      Devel::InnerPackage 0.4
+      Module::Pluggable 5.2
+      Module::Pluggable::Object 5.2
+    requirements:
+      Exporter 5.57
+      ExtUtils::MakeMaker 0
+      File::Basename 0
+      File::Find 0
+      File::Spec 3.00
+      File::Spec::Functions 0
+      if 0
+      perl 5.00503
+      strict 0
   Module-Runtime-0.014
     pathname: Z/ZE/ZEFRAM/Module-Runtime-0.014.tar.gz
     provides:
@@ -2732,6 +2769,30 @@ DISTRIBUTIONS
       ExtUtils::MakeMaker 0
       Test::More 0
       perl 5.006001
+  Search-Query-0.305
+    pathname: K/KA/KARMAN/Search-Query-0.305.tar.gz
+    provides:
+      Search::Query 0.305
+      Search::Query::Clause 0.305
+      Search::Query::Dialect 0.305
+      Search::Query::Dialect::Native 0.305
+      Search::Query::Dialect::SQL 0.305
+      Search::Query::Dialect::SWISH 0.305
+      Search::Query::Field 0.305
+      Search::Query::Field::SQL 0.305
+      Search::Query::Field::SWISH 0.305
+      Search::Query::Parser 0.305
+    requirements:
+      Data::Dump 0
+      Data::Transformer 0
+      ExtUtils::MakeMaker 0
+      Module::Pluggable 0
+      Moo 0
+      Scalar::Util 0
+      Test::More 0
+      Type::Tiny 0
+      namespace::autoclean 0
+      perl 5.008003
   Server-Starter-0.32
     pathname: K/KA/KAZUHO/Server-Starter-0.32.tar.gz
     provides:
@@ -3594,6 +3655,19 @@ DISTRIBUTIONS
       Lexical::SealRequireHints 0.005
       Test::More 0.88
       XSLoader 0
+      strict 0
+      warnings 0
+  namespace-autoclean-0.27
+    pathname: E/ET/ETHER/namespace-autoclean-0.27.tar.gz
+    provides:
+      namespace::autoclean 0.27
+    requirements:
+      B::Hooks::EndOfScope 0.12
+      ExtUtils::MakeMaker 0
+      List::Util 0
+      Sub::Identify 0
+      namespace::clean 0.20
+      perl 5.006
       strict 0
       warnings 0
   namespace-clean-0.25

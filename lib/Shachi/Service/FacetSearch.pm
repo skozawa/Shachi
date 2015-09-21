@@ -48,7 +48,7 @@ sub search {
     }
 
     my $searched_resource_ids = $db->shachi->table('resource_metadata')
-        ->select(\'resource_id')
+        ->select('resource_id')
         ->left_join('resource', { resource_id => 'id' })->search({
             status => { '!=' => 'private' },
             @$metadata_conditions ? (-or => $metadata_conditions) : (),
@@ -56,6 +56,20 @@ sub search {
         })->group_by('resource_id')
           ->having('COUNT(*) >= ' . (scalar @$metadata_conditions))
           ->list->map('resource_id')->to_a;
+
+    if ( $query->has_keyword ) {
+        my $metadata_for_keyword = Shachi::Service::Metadata->find_by_names(
+            db => $db, names => KEYWORD_SEARCH_METADATA_NAMES,
+        );
+        my ($sql, @bind) = $db->shachi->table('resource_metadata')->select('resource_id')->search({
+            resource_id => { -in => $searched_resource_ids },
+            metadata_id => { -in => $metadata_for_keyword->map('id')->to_a },
+        })->select_sql;
+        $sql .= ' AND ' . $query->search_query_sql . ' GROUP BY resource_id';
+        my $sth = $db->shachi->dbh->prepare($sql);
+        $sth->execute(@bind);
+        $searched_resource_ids = [ keys %{$sth->fetchall_hashref('resource_id')} ];
+    }
 
     my $resources = $db->shachi->table('resource')->search({
         status => { '!=' => 'private' },
