@@ -56,11 +56,11 @@ sub create_annotator {
 sub create_metadata {
     my (%args) = @_;
 
-    my $name = $args{name} || random_word;
-    my $label = $args{label} || random_word;
-    my $order_num = $args{order_num} || int(rand(100));
-    my $input_type = $args{input_type} || INPUT_TYPE_TEXT;
-    my $value_type = $args{value_type} || '';
+    my $name = delete $args{name} || random_word;
+    my $label = delete $args{label} || random_word;
+    my $order_num = delete $args{order_num} || int(rand(100));
+    my $input_type = delete $args{input_type} || INPUT_TYPE_TEXT;
+    my $value_type = delete $args{value_type} || '';
 
     return Shachi::Service::Metadata->create(db => db, args => {
         name       => $name,
@@ -68,6 +68,7 @@ sub create_metadata {
         order_num  => $order_num,
         input_type => $input_type,
         value_type => $value_type,
+        %args,
     });
 }
 

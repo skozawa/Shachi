@@ -30,7 +30,7 @@ sub create : Tests {
         ok $language->id, 'has id';
         ok $language->value_id, 'has value_id';
 
-        my $metadata_value = Shachi::Service::Metadata::Value->find_by_values(
+        my $metadata_value = Shachi::Service::Metadata::Value->find_by_value_and_value_type(
             db => $db, value_type => VALUE_TYPE_LANGUAGE, value => $code
         );
         ok $metadata_value, 'created metadata_value';

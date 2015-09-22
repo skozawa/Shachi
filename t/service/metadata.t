@@ -137,10 +137,10 @@ sub embed_metadata_values : Tests {
         my $db = Shachi::Database->new;
         my $metadata = create_metadata(
             input_type => INPUT_TYPE_SELECT,
-            value_type => VALUE_TYPE_SPEECHMODE,
+            value_type => VALUE_TYPE_SPEECH_MODE,
         );
         my $metadata_values = [ map {
-            create_metadata_value(value_type => VALUE_TYPE_SPEECHMODE)
+            create_metadata_value(value_type => VALUE_TYPE_SPEECH_MODE)
         } (1..5) ];
 
         Shachi::Service::Metadata->embed_metadata_values(

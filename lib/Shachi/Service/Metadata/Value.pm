@@ -22,7 +22,7 @@ sub create {
     );
 }
 
-sub find_by_values {
+sub find_by_value_and_value_type {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
          my $value_type => { isa => 'Str' },
