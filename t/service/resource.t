@@ -1,6 +1,5 @@
 package t::Shachi::Service::Resource;
 use t::test;
-use String::Random qw/random_regex/;
 use Shachi::Database;
 use Shachi::Service::Resource;
 use Shachi::Model::Resource;
@@ -75,5 +74,17 @@ sub shachi_id : Tests {
             resource_id => $resource_id,
         );
         is $shachi_id, sprintf 'N-%06d', $resource_id;
+    };
+}
+
+sub find_by_id : Tests {
+    subtest 'find normally' => sub {
+        my $db = Shachi::Database->new;
+        my $resource = create_resource;
+
+        my $found_resource = Shachi::Service::Resource->find_by_id(
+            db => $db, id => $resource->id,
+        );
+        is $resource->id, $found_resource->id;
     };
 }

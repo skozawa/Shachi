@@ -8,17 +8,21 @@ use Exporter::Lite;
 use String::Random qw/random_regex/;
 use Shachi::Model::Metadata;
 use Shachi::Service::Annotator;
+use Shachi::Service::Language;
 use Shachi::Service::Metadata;
 use Shachi::Service::Metadata::Value;
 use Shachi::Service::Resource;
+use Shachi::Service::Resource::Metadata;
 
 our @EXPORT = qw/
     create_mech
     random_word
     create_annotator
+    create_language
     create_metadata
     create_metadata_value
     create_resource
+    create_resource_metadata
 
     truncate_db
 /;
@@ -50,6 +54,21 @@ sub create_annotator {
         name => $name,
         mail => $mail,
         organization => $org,
+    });
+}
+
+sub create_language {
+    my (%args) = @_;
+
+    my $code = delete $args{code} || random_word(3);
+    my $name = delete $args{name} || random_word;
+    my $area = delete $args{area} || random_word;
+
+    return Shachi::Service::Language->create(db => db, args => {
+        code => $code,
+        name => $name,
+        area => $area,
+        %args,
     });
 }
 
@@ -90,6 +109,21 @@ sub create_resource {
 
     return Shachi::Service::Resource->create(db => db, args => {
         annotator_id => $annotator->id,
+        %args,
+    });
+}
+
+sub create_resource_metadata {
+    my (%args) = @_;
+
+    my $resource = delete $args{resource} || create_resource;
+    my $metadata = delete $args{metadata} || create_metadata;
+    my $language = delete $args{language} || create_language;
+
+    return Shachi::Service::Resource::Metadata->create(db => db, args => {
+        resource_id => $resource->id,
+        metadata_id => $metadata->id,
+        language_id => $language->id,
         %args,
     });
 }
