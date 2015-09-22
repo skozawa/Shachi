@@ -13,4 +13,11 @@ $proclet->service(
     tag  => 'server',
 );
 
+$proclet->service(
+    code => sub {
+        exec('gulp')
+    },
+    tag  => 'gulp',
+);
+
 $proclet->run;
