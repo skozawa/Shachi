@@ -6,14 +6,21 @@ use warnings;
 use lib glob '{.,t,modules/*}/lib';
 use Exporter::Lite;
 use String::Random qw/random_regex/;
+use Shachi::Model::Metadata;
 use Shachi::Service::Annotator;
+use Shachi::Service::Metadata;
+use Shachi::Service::Metadata::Value;
 use Shachi::Service::Resource;
 
 our @EXPORT = qw/
     create_mech
     random_word
     create_annotator
+    create_metadata
+    create_metadata_value
     create_resource
+
+    truncate_db
 /;
 
 sub db {
@@ -46,6 +53,35 @@ sub create_annotator {
     });
 }
 
+sub create_metadata {
+    my (%args) = @_;
+
+    my $name = $args{name} || random_word;
+    my $label = $args{label} || random_word;
+    my $order_num = $args{order_num} || int(rand(100));
+    my $input_type = $args{input_type} || INPUT_TYPE_TEXT;
+    my $value_type = $args{value_type} || '';
+
+    return Shachi::Service::Metadata->create(db => db, args => {
+        name       => $name,
+        label      => $label,
+        order_num  => $order_num,
+        input_type => $input_type,
+        value_type => $value_type,
+    });
+}
+
+sub create_metadata_value {
+    my (%args) = @_;
+
+    my $value_type = $args{value_type} || random_word;
+    my $value      = $args{value} || random_word(15);
+
+    return Shachi::Service::Metadata::Value->create(db => db, args => {
+        value => $value, value_type => $value_type,
+    });
+}
+
 sub create_resource {
     my (%args) = @_;
 
@@ -55,6 +91,11 @@ sub create_resource {
         annotator_id => $annotator->id,
         %args,
     });
+}
+
+sub truncate_db {
+    my $tables = db->shachi->dbh->table_info('', '', '%', 'TABLE')->fetchall_arrayref({});
+    db->shachi->dbh->do("truncate table `$_`") for map { $_->{TABLE_NAME} } @$tables;
 }
 
 1;

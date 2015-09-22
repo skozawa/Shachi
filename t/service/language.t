@@ -1,6 +1,5 @@
 package t::Shachi::Service::Language;
 use t::test;
-use String::Random qw/random_regex/;
 use Shachi::Database;
 use Shachi::Model::Metadata;
 use Shachi::Service::Language;
@@ -13,9 +12,9 @@ sub _require : Test(startup => 1) {
 sub create : Tests {
     subtest 'create normally with metadata_value' => sub {
         my $db = Shachi::Database->new;
-        my $code = random_regex('\w{3}');
-        my $name = random_regex('\w{10}');
-        my $area = random_regex('\w{10}');
+        my $code = random_word(3);
+        my $name = random_word;
+        my $area = random_word;
 
         my $language = Shachi::Service::Language->create(db => $db, args => {
             code => $code,
@@ -40,9 +39,9 @@ sub create : Tests {
 
     subtest 'create normally (only language)' => sub {
         my $db = Shachi::Database->new;
-        my $code = random_regex('\w{3}');
-        my $name = random_regex('\w{10}');
-        my $area = random_regex('\w{10}');
+        my $code = random_word(3);
+        my $name = random_word;
+        my $area = random_word;
 
         my $metadata_value = Shachi::Service::Metadata::Value->create(db => $db, args => {
             value_type => 'language',
@@ -66,9 +65,9 @@ sub create : Tests {
 
     subtest 'require code, name, area' => sub {
         my $db = Shachi::Database->new;
-        my $code = random_regex('\w{3}');
-        my $name = random_regex('\w{10}');
-        my $area = random_regex('\w{10}');
+        my $code = random_word(3);
+        my $name = random_word;
+        my $area = random_word;
 
         dies_ok {
             Shachi::Service::Metadata::Value->create(db => $db, args => {

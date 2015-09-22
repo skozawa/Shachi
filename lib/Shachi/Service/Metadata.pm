@@ -5,6 +5,7 @@ use Carp qw/croak/;
 use Smart::Args;
 use List::MoreUtils qw/any/;
 use Shachi::Model::Metadata;
+use Shachi::Model::List;
 use Shachi::Service::Metadata::Value;
 
 sub create {
@@ -19,7 +20,7 @@ sub create {
         unless any { $args->{input_type} eq $_ } @{METADATA_INPUT_TYPES()};
 
     croak 'invalue value_type'
-        unless $args->{value_type} && any { $args->{value_type} eq $_ } @{METADATA_VALUE_TYPES()};
+        if $args->{value_type} && !any { $args->{value_type} eq $_ } @{METADATA_VALUE_TYPES()};
 
     my $metadata = $db->shachi->table('metadata')->insert($args);
     my $last_insert_id = $db->shachi->dbh->last_insert_id(undef, undef, 'metadata', undef);
@@ -72,7 +73,7 @@ sub embed_metadata_values {
     )->hash_by('value_type');
     foreach my $metadata ( @$metadata_list ) {
         my @values = $values_by_type->get_all($metadata->value_type);
-        $metadata->values([ @values ]);
+        $metadata->values(Shachi::Model::List->new( list => [ @values ] ));
     }
 
     return $metadata_list;
