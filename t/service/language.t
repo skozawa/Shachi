@@ -91,3 +91,42 @@ sub create : Tests {
         } 'require area';
     };
 }
+
+sub search_by_query : Tests {
+    truncate_db;
+
+    my $language_name_by_code = {
+        eng => 'English Europe',
+        enm => 'Middle English',
+        fpe => 'Fernando Po Creole English',
+        jpn => 'Japanese',
+        jpr => 'Judeo-Persian',
+    };
+    foreach my $code ( keys %$language_name_by_code ) {
+        create_language(code => $code, name => $language_name_by_code->{$code});
+    }
+
+    subtest 'search code by two strings' => sub {
+        my $db = Shachi::Database->new;
+        my $languages = Shachi::Service::Language->search_by_query(
+            db => $db, query => 'jp',
+        );
+        is $languages->size, 2;
+    };
+
+    subtest 'search code by three strings' => sub {
+        my $db = Shachi::Database->new;
+        my $languages = Shachi::Service::Language->search_by_query(
+            db => $db, query => 'jpn',
+        );
+        is $languages->size, 1;
+    };
+
+    subtest 'search name' => sub {
+        my $db = Shachi::Database->new;
+        my $languages = Shachi::Service::Language->search_by_query(
+            db => $db, query => 'english',
+        );
+        is $languages->size, 3;
+    };
+}

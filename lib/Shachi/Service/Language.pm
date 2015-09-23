@@ -34,4 +34,17 @@ sub create {
     );
 }
 
+sub search_by_query {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $query => { isa => 'Str' };
+
+    $db->shachi->table('language')->search({
+        -or => [
+            { code => { regexp => $query } },
+            { name => { regexp => $query } }
+        ]
+    })->list;
+}
+
 1;
