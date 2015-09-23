@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Carp qw/croak/;
 use Smart::Args;
+use List::MoreUtils qw/any/;
 use Shachi::Model::Resource;
 use Shachi::Service::Metadata;
 use Shachi::Service::Resource::Metadata;
@@ -125,6 +126,34 @@ sub embed_title {
     }
 
     return $resources;
+}
+
+sub update_status {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $id,
+         my $status;
+
+    croak 'invalid status'
+        unless any { $status eq $_ } @{STATUSES()};
+
+    $db->shachi->table('resource')->search({
+        id => $id,
+    })->update({ status => $status });
+}
+
+sub update_edit_status {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $id,
+         my $edit_status;
+
+    croak 'invalid edit_status'
+        unless any { $edit_status eq $_ } @{EDIT_STATUSES()};
+
+    $db->shachi->table('resource')->search({
+        id => $id,
+    })->update({ edit_status => $edit_status });
 }
 
 1;

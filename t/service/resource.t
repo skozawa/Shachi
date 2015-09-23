@@ -88,3 +88,57 @@ sub find_by_id : Tests {
         is $resource->id, $found_resource->id;
     };
 }
+
+sub update_status : Tests {
+    subtest 'update normally' => sub {
+        my $db = Shachi::Database->new;
+        my $resource = create_resource;
+        is $resource->status, STATUS_PUBLIC;
+
+        Shachi::Service::Resource->update_status(
+            db => $db, id => $resource->id, status => STATUS_PRIVATE,
+        );
+        my $updated_resource = Shachi::Service::Resource->find_by_id(
+            db => $db, id => $resource->id,
+        );
+        is $updated_resource->status, STATUS_PRIVATE;
+    };
+
+    subtest 'invalid status' => sub {
+        my $db = Shachi::Database->new;
+        my $resource = create_resource;
+
+        dies_ok {
+            Shachi::Service::Resource->update_status(
+                db => $db, id => $resource->id, status => 'public_and_private',
+            );
+        } 'invalid status';
+    };
+}
+
+sub update_edit_status : Tests {
+    subtest 'update normally' => sub {
+        my $db = Shachi::Database->new;
+        my $resource = create_resource;
+        is $resource->edit_status, EDIT_STATUS_NEW;
+
+        Shachi::Service::Resource->update_edit_status(
+            db => $db, id => $resource->id, edit_status => EDIT_STATUS_COMPLETE,
+        );
+        my $updated_resource = Shachi::Service::Resource->find_by_id(
+            db => $db, id => $resource->id,
+        );
+        is $updated_resource->edit_status, EDIT_STATUS_COMPLETE;
+    };
+
+    subtest 'invalid status' => sub {
+        my $db = Shachi::Database->new;
+        my $resource = create_resource;
+
+        dies_ok {
+            Shachi::Service::Resource->update_edit_status(
+                db => $db, id => $resource->id, edit_status => 'new_and_complete',
+            );
+        } 'invalid edit_status';
+    };
+}
