@@ -30,18 +30,21 @@ sub search_query_sql {
     my $self = shift;
     my $keyword_sql = $self->search_query->stringify;
     $keyword_sql =~ s!content='!content REGEXP '!g;
+    $keyword_sql =~ s!;!!g; # for sql injection
     return $keyword_sql;
 }
 
 # includes 0 (= no information)
 sub value_ids {
     my ($self, $name) = @_;
+    return [] unless $name;
     $self->{"_$name-value"} ||= [ uniq grep { length $_ } $self->params->get_all($name) ];
 }
 
 # not includes 0
 sub valid_value_ids {
     my ($self, $name) = @_;
+    return [] unless $name;
     $self->{"_$name-valid-value"} ||= [ grep { $_ } @{$self->value_ids($name)} ];
 }
 
