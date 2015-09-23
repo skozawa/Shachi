@@ -65,7 +65,8 @@ sub statistics {
     return $c->html('statistics.html', { metadata_list => $metadata_list }) unless $target;
 
     my $metadata = Shachi::Service::Metadata->find_by_name(db => $c->db, name => $target);
-    return $c->throw_not_found unless $metadata->allow_statistics;
+    return $c->throw_not_found unless $metadata;
+    return $c->throw_bad_request unless $metadata->allow_statistics;
 
     my $statistics = Shachi::Service::Resource::Metadata->statistics_by_year(
         db => $c->db, metadata => $metadata,

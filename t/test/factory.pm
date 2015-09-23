@@ -6,6 +6,7 @@ use warnings;
 use lib glob '{.,t,modules/*}/lib';
 use Exporter::Lite;
 use String::Random qw/random_regex/;
+use Shachi::Database;
 use Shachi::Model::Metadata;
 use Shachi::Service::Annotator;
 use Shachi::Service::Language;

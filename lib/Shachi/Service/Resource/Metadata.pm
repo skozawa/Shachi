@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Carp qw/croak/;
 use Smart::Args;
+use Shachi::Model::List;
 use Shachi::Model::Resource::Metadata;
 use Shachi::Service::Metadata;
 use Shachi::Service::Metadata::Value;
@@ -31,6 +32,7 @@ sub find_resource_titles {
          my $resource_ids => { isa => 'ArrayRef' };
 
     my $title_metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => 'title');
+    return Shachi::Model::List->new( list => [] ) unless $title_metadata;
     $db->shachi->table('resource_metadata')->search({
         metadata_id => $title_metadata->id,
         resource_id => { -in => $resource_ids },
