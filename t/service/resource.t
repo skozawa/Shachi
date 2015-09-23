@@ -90,6 +90,28 @@ sub find_by_id : Tests {
     };
 }
 
+sub search_titles : Tests {
+    truncate_db;
+    my $title_metadata = create_metadata(name => 'title');
+    my $titles = [
+        "Arabic Data Set",
+        "Biology Database",
+        "Chinese Lexicon",
+        "Dictionary of Law",
+    ];
+    create_resource_metadata(metadata => $title_metadata, content => $_) for @$titles;
+
+    subtest 'search normally' => sub {
+        my $db = Shachi::Database->new;
+        my $query = 'data';
+
+        my $resources = Shachi::Service::Resource->search_titles(
+            db => $db, query => $query,
+        );
+        is $resources->size, 2;
+    };
+}
+
 sub update_status : Tests {
     subtest 'update normally' => sub {
         my $db = Shachi::Database->new;

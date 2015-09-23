@@ -4,6 +4,7 @@ use warnings;
 use Carp qw/croak/;
 use Smart::Args;
 use List::MoreUtils qw/any/;
+use Shachi::Model::List;
 use Shachi::Model::Resource;
 use Shachi::Service::Metadata;
 use Shachi::Service::Resource::Metadata;
@@ -68,6 +69,14 @@ sub find_by_id {
     $db->shachi->table('resource')->search({ id => $id })->single;
 }
 
+sub find_by_ids {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $ids   => { isa => 'ArrayRef' };
+
+    $db->shachi->table('resource')->search({ id => { -in => $ids } })->list;
+}
+
 sub find_resource_detail {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
@@ -99,6 +108,31 @@ sub search_all {
     return $db->shachi->table('resource')->search({
         status => 'public',
     })->order_by('id asc')->list;
+}
+
+sub search_titles {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $query => { isa => 'Str' };
+
+    my $title_metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => 'title');
+    return Shachi::Model::List->new( list => [] ) unless $title_metadata;
+    my $resource_metadata_list = $db->shachi->table('resource_metadata')->search({
+        metadata_id => $title_metadata->id,
+        content => { regexp => $query },
+    })->list;
+
+    my $title_by_resource_id = $resource_metadata_list->hash_by('resource_id');
+    my $resources = $class->find_by_ids(
+        db => $db, ids => $resource_metadata_list->map('id')->to_a,
+    );
+
+    foreach my $resource ( @$resources ) {
+        my $title_metadata = $title_by_resource_id->{$resource->id} or next;
+        $resource->title($title_metadata->content);
+    }
+
+    return $resources;
 }
 
 sub count_not_private {
