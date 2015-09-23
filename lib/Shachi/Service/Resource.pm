@@ -156,4 +156,17 @@ sub update_edit_status {
     })->update({ edit_status => $edit_status });
 }
 
+sub delete_by_id {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $id;
+
+    $db->shachi->table('resource')->search({
+        id => $id,
+    })->delete;
+    $db->shachi->table('resource_metadata')->search({
+        resource_id => $id,
+    })->delete;
+}
+
 1;

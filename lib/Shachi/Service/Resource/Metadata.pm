@@ -25,6 +25,15 @@ sub create {
     );
 }
 
+sub find_by_ids {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $ids   => { isa => 'ArrayRef' };
+
+    $db->shachi->table('resource_metadata')->search({
+        id => { -in => $ids }
+    })->list;
+}
 
 sub find_resource_titles {
     args my $class => 'ClassName',

@@ -2,6 +2,7 @@ package t::Shachi::Service::Resource;
 use t::test;
 use Shachi::Database;
 use Shachi::Service::Resource;
+use Shachi::Service::Resource::Metadata;
 use Shachi::Model::Resource;
 
 sub _require : Test(startup => 1) {
@@ -140,5 +141,25 @@ sub update_edit_status : Tests {
                 db => $db, id => $resource->id, edit_status => 'new_and_complete',
             );
         } 'invalid edit_status';
+    };
+}
+
+sub delete_by_id : Tests {
+    subtest 'delete normally' => sub {
+        my $db = Shachi::Database->new;
+        my $resource = create_resource;
+        my $resource_metadata_list = [ map {
+            create_resource_metadata(resource => $resource)
+        } (1..3) ];
+
+        Shachi::Service::Resource->delete_by_id(
+            db => $db, id => $resource->id,
+        );
+
+        ok ! Shachi::Service::Resource->find_by_id(db => $db, id => $resource->id), 'delete resource normally';
+        my $metadata_list = Shachi::Service::Resource::Metadata->find_by_ids(
+            db => $db, ids => [ map { $_->id } @$resource_metadata_list ],
+        );
+        is $metadata_list->size, 0;
     };
 }
