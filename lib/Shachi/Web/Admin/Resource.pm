@@ -17,4 +17,19 @@ sub find_by_id {
     });
 }
 
+sub update_edit_status {
+    my ($class, $c) = @_;
+    my $resource_id = $c->route->{resource_id};
+    my $edit_status = $c->req->param('edit_status') or return $c->throw_bad_request;
+
+    my $resource = Shachi::Service::Resource->find_by_id(db => $c->db, id => $resource_id);
+    return $c->throw_not_found unless $resource;
+
+    Shachi::Service::Resource->update_edit_status(
+        db => $c->db, id => $resource_id, edit_status => $edit_status,
+    );
+
+    $c->json({ edit_status => $edit_status });
+}
+
 1;

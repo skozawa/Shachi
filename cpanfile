@@ -9,6 +9,7 @@ requires 'Module::Load';
 requires 'List::Util';
 requires 'List::MoreUtils';
 requires 'List::UtilsBy';
+requires 'JSON::XS';
 requires 'JSON::Types';
 requires 'Path::Class';
 requires 'Try::Tiny';

@@ -2,6 +2,7 @@ package Shachi::Context;
 use strict;
 use warnings;
 
+use JSON::XS;
 use Shachi::Config ();
 use Shachi::Request;
 use Shachi::Response;
@@ -58,6 +59,13 @@ sub respond_raw {
     $self->res->code($code);
     $self->res->headers($headers);
     $self->res->body($body);
+}
+
+sub json {
+    my ($self, $res) = @_;
+    $self->res->code(200);
+    $self->res->content_type('application/json; charset=utf-8');
+    $self->res->content(encode_json($res));
 }
 
 sub html {
