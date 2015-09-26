@@ -5,6 +5,7 @@ use Carp qw/croak/;
 use Smart::Args;
 use Shachi::Model::Annotator;
 use Shachi::Model::List;
+use Shachi::Service::Resource;
 
 sub create {
     args my $class => 'ClassName',
@@ -42,12 +43,17 @@ sub find_all {
 sub embed_resources {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
-         my $annotators => { isa => 'Shachi::Model::List' };
+         my $annotators => { isa => 'Shachi::Model::List' },
+         my $args => { isa => 'HashRef', default => {} };
 
-    my $resources_by_annotator_id = $db->shachi->table('resource')->search({
+    my $resources = $db->shachi->table('resource')->search({
         annotator_id => { -in => $annotators->map('id')->to_a },
-    })->list->hash_by('annotator_id');
+    })->list;
+    if ( $args->{with_resource_title} ) {
+        Shachi::Service::Resource->embed_title(db => $db, resources => $resources);
+    }
 
+    my $resources_by_annotator_id = $resources->hash_by('annotator_id');
     foreach my $annotator ( @$annotators ) {
         my @resources = $resources_by_annotator_id->get_all($annotator->id);
         $annotator->resources(Shachi::Model::List->new(list => [@resources]));

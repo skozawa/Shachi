@@ -1,9 +1,8 @@
 [%- WRAPPER '/admin/_wrapper.tt' %]
 
-<h3>admin</h3>
-
 <div>
   <form name="annotator-form" method="GET">
+    Annotator:
     <select name="annotator_id" onchange="document.annotator-form.submit()">
       [%- FOREACH annotator IN annotators %]
         [%- IF annotator.resource_count %]
@@ -17,9 +16,32 @@
 [%- IF annotator %]
   <div>
     <h3>[% annotator.name %]</h3>
-    <ul>
+    <ul class="annotator-resource-list">
+      <li class="annotator-resource header">
+        <ul>
+          <li class="shachi-id">ID</li>
+          <li class="edit-status"></li>
+          <li class="status">Status</li>
+          <li class="title">Title</li>
+          <li class="delete"></li>
+          <li class="modified">Last updated</li>
+        </ul>
+      </li>
       [%- FOREACH resource IN annotator.resources %]
-        <li>[% resource.shachi_id %]</li>
+        <li class="annotator-resource">
+          <ul>
+            <li class="shachi-id">[% resource.shachi_id %]</li>
+            <li class="edit-status [% resource.edit_status%]" title="[% resource.edit_status %]">
+              <img src="/images/admin/[% resource.edit_status %].png">
+            </li>
+            <li class="status [% resource.status %]">[% resource.status_label %]</li>
+            <li class="title"><a href="[% resource.admin_link %]">[% resource.title %]</a></li>
+            <li class="delete">
+              <img src="/images/admin/del.png">
+            </li>
+            <li class="modified">[% resource.modified.strftime('%Y/%m/%d %T') %]</li>
+          </ul>
+        </li>
       [%- END # FOREACH resource IN resources %]
     </ul>
   </div>

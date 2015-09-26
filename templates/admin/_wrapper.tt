@@ -3,11 +3,18 @@
   <head>
     <meta charset="utf-8">
     <title>[% title || 'SHACHI' %]</title>
+    <link rel="stylesheet" href="/css/admin.css">
   </head>
 
   <body>
+    <header>
+      <div><a href="/"><img src="/images/admin/logo.jpg"></a></div>
+    </header>
     <div class="container">
       [% content %]
     </div>
+    <footer>
+      <div class="copyright">&copy; 2008 SHACHI</div>
+    </footer>
   </body>
 </html>

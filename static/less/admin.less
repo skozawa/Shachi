@@ -1,7 +1,71 @@
 html,
 body {
-    font-family: "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif;
-    color: $text;
-    font-size: 18px;
-    word-wrap: break-word;
+  font-family: "メイリオ", "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif;
+  font-size: 18px;
+  word-wrap: break-word;
+}
+
+header {
+  border-bottom: solid 1px #999999;
+  padding-bottom: 5px;
+}
+
+div.container {
+  margin: 10px 5px 5px 10px;
+}
+
+ul.annotator-resource-list {
+  list-style: none;
+  padding-left: 0;
+
+  li.annotator-resource {
+    border-bottom: solid 1px #666666;
+    padding: 3px 0 3px 0;
+
+    &.header {
+      font-weight: bold;
+    }
+
+    ul {
+      list-style: none;
+
+      li {
+        display: inline-block;
+        vertical-align: middle;
+
+        &.shachi-id {
+          width: 90px;
+        }
+        &.edit-status {
+          cursor: pointer;
+          width: 20px;
+          img {
+            width: 20px;
+          }
+        }
+        &.status {
+          cursor: pointer;
+          width: 110px;
+          font-size: 15px;
+        }
+        &.title {
+          width: 800px;
+        }
+        &.delete {
+          cursor: pointer;
+          width: 20px;
+        }
+        &.modified {
+          font-size: 15px;
+        }
+      }
+    }
+  }
+}
+
+footer {
+  font-size: 13px;
+  text-align: center;
+  border-top: solid 1px #999999;
+  padding-top: 5px;
 }
