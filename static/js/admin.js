@@ -74,19 +74,44 @@ var Shachi;
                 });
             }
         }
-        changeEditStatus(newStatus) {
-            console.log(newStatus);
-            this.hide();
-        }
         showWithSet(resource, elem) {
+            this.resourceId = resource.getAttribute('data-resource-id');
+            if (!this.resourceId) {
+                this.hide();
+                return;
+            }
+            this.currentElem = elem;
             super.showAndMove(elem);
+        }
+        changeEditStatus(newStatus) {
+            if (!this.resourceId || !this.currentElem ||
+                this.currentElem.getAttribute('data-edit-status') === newStatus) {
+                this.hide();
+                return;
+            }
+            var self = this;
+            Shachi.XHR.request('POST', '/admin/resources/' + this.resourceId + '/edit_status', {
+                body: "edit_status=" + newStatus,
+                completeHandler: function (req) { self.complete(req); },
+            });
+        }
+        complete(res) {
+            try {
+                var json = JSON.parse(res.responseText);
+                var editStatus = json.edit_status;
+                this.currentElem.setAttribute('data-edit-status', editStatus);
+                var img = this.currentElem.querySelector('img');
+                img.src = '/images/admin/' + editStatus + '.png';
+            }
+            catch (err) { }
+            this.hide();
         }
     }
     Shachi.EditStatusPopupEditor = EditStatusPopupEditor;
 })(Shachi || (Shachi = {}));
 document.addEventListener("DOMContentLoaded", function (event) {
     var editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-editor');
-    var resources = document.querySelectorAll('li.annotator-resource[data-id]');
+    var resources = document.querySelectorAll('li.annotator-resource[data-resource-id]');
     Array.prototype.forEach.call(resources, function (resource) {
         var editStatus = resource.querySelector('li.edit-status');
         if (editStatus) {
