@@ -45,6 +45,17 @@
       [%- END # FOREACH resource IN resources %]
     </ul>
   </div>
+
+  <div class="edit-status-editor" style="display:none">
+    <ul>
+      [%- FOREACH edit_status IN ['new', 'editing', 'complete', 'pending', 'revised', 'proofed', 'proofed2'] %]
+        <li class="[% edit_status %]">
+          <img src="/images/admin/[% edit_status %].png">
+        </li>
+      [%- END # FOREACH %]
+      <li class="close">x</li>
+    </ul>
+  </div>
 [%- END # IF annotator %]
 
 [%- END # WRAPPER '/admin/_wrapper.tt' %]

@@ -1,3 +1,19 @@
+// Mixin
+.border-radius (@arguments) {
+  border-radius: @arguments;
+  -webkit-border-radius: @arguments;
+}
+
+.box-shadow (@arguments) {
+  box-shadow:@arguments;
+  -moz-box-shadow:@arguments;
+  -webkit-box-shadow:@arguments;
+  -o-box-shadow:@arguments;
+  -ms-box-shadow:@arguments;
+}
+
+
+// less
 html,
 body {
   font-family: "メイリオ", "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif;
@@ -24,6 +40,9 @@ ul.annotator-resource-list {
 
     &.header {
       font-weight: bold;
+    }
+    &:hover {
+      background-color: #ffccff;
     }
 
     ul {
@@ -58,6 +77,48 @@ ul.annotator-resource-list {
         &.modified {
           font-size: 15px;
         }
+      }
+    }
+  }
+}
+
+div.edit-status-editor {
+  position: absolute;
+  width: 230px;
+  height: 70px;
+  border: solid 1px #CCCCCC;
+  .box-shadow(0 2px 4px rgba(0,0,0,0.2));
+  .border-radius(3px);
+  padding-left: 10px;
+
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 40px;
+    margin-bottom: 0;
+
+    li {
+      display: inline-block;
+      width: 20px;
+      cursor: pointer;
+      padding: 0 3px;
+
+      img {
+        width: 20px;
+      }
+
+      &.close {
+        position: absolute;
+        height: 20px;
+        top: 2px;
+        right: 2px;
+        padding: 1px;
+        text-align: center;
+        vertical-align: middle;
+        font-size: 15px;
+        color: #999999;
+        border: solid 1px #CCCCCC;
+        .border-radius(3px);
       }
     }
   }
