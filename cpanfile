@@ -37,6 +37,7 @@ requires 'DBIx::Handler';
 requires 'DBIx::Lite';
 requires 'DBIx::Lite::Row';
 requires 'SQL::Abstract::Plugin::InsertMulti';
+requires 'DateTime::Format::MySQL';
 
 on develop => sub {
     requires 'Proclet';

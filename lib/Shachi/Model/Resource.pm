@@ -50,4 +50,14 @@ sub metadata {
     return \@list;
 }
 
+sub created {
+    my $self = shift;
+    $self->{_created} ||= $self->_from_db_timestamp($self->{created});
+}
+
+sub modified {
+    my $self = shift;
+    $self->{_modified} ||= $self->_from_db_timestamp($self->{modified});
+}
+
 1;
