@@ -9,10 +9,7 @@ var filter = require('gulp-filter');
 var ts = require('gulp-typescript');
 var path = require('path');
 
-gulp.task('default', ['less', 'typescript', 'typescript:admin'], function() {
-    gulp.watch('static/ts/*.ts', ['typescript']);
-    gulp.watch('static/ts/admin/*.ts', ['typescript:admin']);
-});
+gulp.task('default', ['less', 'typescript:watch']);
 
 gulp.task('less', function () {
     return gulp.src('static/less/**/*.less')
@@ -44,4 +41,9 @@ gulp.task('typescript:admin', function () {
                 out: 'admin.js'
             }));
     return tsResult.js.pipe(gulp.dest('static/js'));
+});
+
+gulp.task('typescript:watch', function () {
+    gulp.watch('static/ts/*.ts', ['typescript']);
+    gulp.watch('./static/ts/admin/*.ts', ['typescript:admin']);
 });
