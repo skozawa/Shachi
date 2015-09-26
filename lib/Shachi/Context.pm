@@ -14,6 +14,7 @@ use Class::Accessor::Lite::Lazy (
     ro_lazy => [qw/
         req res route db
     /],
+    rw_lazy => [qw/page_id/],
 );
 
 sub _build_req {
@@ -30,6 +31,19 @@ sub _build_route {
 
 sub _build_db {
     return Shachi::Database->new;
+}
+
+sub _build_page_id {
+    my $self = shift;
+    return undef unless $self->route;
+    return $self->route->{page_id} if $self->route->{page_id};
+
+    my ($engine) = $self->route->{dispatch} =~ /^Shachi::Web::(\S+)/ or return undef;
+    my $page_id = join '-', map lc, split /::/, $engine;
+    if (my $action = $self->route->{action}) {
+        $page_id .= "-$action" if $action ne 'default';
+    }
+    return $page_id;
 }
 
 sub config {
