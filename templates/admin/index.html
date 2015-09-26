@@ -28,7 +28,7 @@
         </ul>
       </li>
       [%- FOREACH resource IN annotator.resources %]
-        <li class="annotator-resource">
+        <li class="annotator-resource" data-id="[% resource.id %]">
           <ul>
             <li class="shachi-id">[% resource.shachi_id %]</li>
             <li class="edit-status [% resource.edit_status%]" title="[% resource.edit_status %]">
@@ -49,7 +49,7 @@
   <div class="edit-status-editor" style="display:none">
     <ul>
       [%- FOREACH edit_status IN ['new', 'editing', 'complete', 'pending', 'revised', 'proofed', 'proofed2'] %]
-        <li class="[% edit_status %]">
+        <li class="edit-status" data-edit-status="[% edit_status %]">
           <img src="/images/admin/[% edit_status %].png">
         </li>
       [%- END # FOREACH %]
