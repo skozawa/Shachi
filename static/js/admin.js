@@ -27,9 +27,8 @@ class EditStatusEditor {
         this.hide();
     }
     showWithSet(resource, elem) {
-        var rect = elem.getBoundingClientRect();
-        this.container.style.top = (rect.top + 20) + 'px';
-        this.container.style.left = rect.left + 'px';
+        this.container.style.top = (elem.offsetTop + 20) + 'px';
+        this.container.style.left = elem.offsetLeft + 'px';
         this.show();
     }
     show() {
