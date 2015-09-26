@@ -1,6 +1,33 @@
 "use strict";
 var Shachi;
 (function (Shachi) {
+    var XHR;
+    (function (XHR) {
+        function request(method, url, options) {
+            var req = new XMLHttpRequest();
+            req.onreadystatechange = function (evt) {
+                if (req.readyState == 4) {
+                    if (req.status == 200) {
+                        if (options.completeHandler)
+                            options.completeHandler(req);
+                    }
+                    else {
+                        if (options.errorHandler)
+                            options.errorHandler(req);
+                    }
+                }
+            };
+            req.open(method, url, true);
+            if (method === 'POST' && 'body' in options)
+                req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            req.send(('body' in options) ? options.body : null);
+            return req;
+        }
+        XHR.request = request;
+    })(XHR = Shachi.XHR || (Shachi.XHR = {}));
+})(Shachi || (Shachi = {}));
+var Shachi;
+(function (Shachi) {
     class PopupEditor {
         constructor(cssSelector) {
             this.container = document.querySelector(cssSelector);
