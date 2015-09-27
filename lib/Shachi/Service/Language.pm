@@ -42,7 +42,7 @@ sub search_by_query {
     $db->shachi->table('language')->search({
         -or => [
             { code => { regexp => $query } },
-            { name => { regexp => $query } }
+            { 'name COLLATE utf8mb4_unicode_ci' => { regexp => $query } }
         ]
     })->list;
 }

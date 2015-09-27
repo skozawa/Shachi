@@ -113,6 +113,9 @@ sub search_titles : Tests {
 }
 
 sub update_status : Tests {
+    truncate_db;
+    my $identifier_metadata = create_metadata(name => 'identifier');
+
     subtest 'update normally' => sub {
         my $db = Shachi::Database->new;
         my $resource = create_resource;
@@ -125,6 +128,38 @@ sub update_status : Tests {
             db => $db, id => $resource->id,
         );
         is $updated_resource->status, STATUS_PRIVATE;
+    };
+
+    subtest 'limited_by_LDC' => sub {
+        my $db = Shachi::Database->new;
+        my $resource = create_resource;
+        create_resource_metadata(
+            resource => $resource, metadata => $identifier_metadata, content => 'LDC',
+        );
+
+        Shachi::Service::Resource->update_status(
+            db => $db, id => $resource->id, status => STATUS_PUBLIC,
+        );
+        my $updated_resource = Shachi::Service::Resource->find_by_id(
+            db => $db, id => $resource->id,
+        );
+        is $updated_resource->status, STATUS_LIMITED_BY_LDC;
+    };
+
+    subtest 'limited_by_ELRA' => sub {
+        my $db = Shachi::Database->new;
+        my $resource = create_resource;
+        create_resource_metadata(
+            resource => $resource, metadata => $identifier_metadata, content => 'ELRA',
+        );
+
+        Shachi::Service::Resource->update_status(
+            db => $db, id => $resource->id, status => STATUS_PUBLIC,
+        );
+        my $updated_resource = Shachi::Service::Resource->find_by_id(
+            db => $db, id => $resource->id,
+        );
+        is $updated_resource->status, STATUS_LIMITED_BY_ELRA;
     };
 
     subtest 'invalid status' => sub {

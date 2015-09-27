@@ -49,7 +49,7 @@ sub create : Tests {
     };
 }
 
-sub find_resource_titles : Tests {
+sub find_resource_metadata_by_name : Tests {
     truncate_db;
     my $title_metadata = create_metadata(name => 'title');
 
@@ -65,8 +65,8 @@ sub find_resource_titles : Tests {
             resource => $resource2, metadata => $title_metadata, content => 'test2',
         );
 
-        my $titles = Shachi::Service::Resource::Metadata->find_resource_titles(
-            db => $db, resource_ids => [ $resource1->id, $resource2->id ],
+        my $titles = Shachi::Service::Resource::Metadata->find_resource_metadata_by_name(
+            db => $db, name => 'title', resource_ids => [ $resource1->id, $resource2->id ],
         );
         $titles = $titles->sort_by(sub { $_->resource_id });
         is $titles->size, 2;

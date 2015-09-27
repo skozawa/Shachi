@@ -35,15 +35,16 @@ sub find_by_ids {
     })->list;
 }
 
-sub find_resource_titles {
+sub find_resource_metadata_by_name {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
+         my $name  => { isa => 'Str' },
          my $resource_ids => { isa => 'ArrayRef' };
 
-    my $title_metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => 'title');
-    return Shachi::Model::List->new( list => [] ) unless $title_metadata;
+    my $metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => $name);
+    return Shachi::Model::List->new( list => [] ) unless $metadata;
     $db->shachi->table('resource_metadata')->search({
-        metadata_id => $title_metadata->id,
+        metadata_id => $metadata->id,
         resource_id => { -in => $resource_ids },
     })->list;
 }

@@ -60,14 +60,6 @@ sub modified {
     $self->{_modified} ||= $self->_from_db_timestamp($self->{modified});
 }
 
-sub status_label {
-    my $self = shift;
-    return 'private'       if $self->status eq STATUS_PRIVATE;
-    return 'limited(ELRA)' if $self->status eq STATUS_LIMITED_BY_ELRA;
-    return 'limited(LDC)'  if $self->status eq STATUS_LIMITED_BY_LDC;
-    return 'public';
-}
-
 sub admin_link {
     my $self = shift;
     '/admin/resources/' . $self->id;

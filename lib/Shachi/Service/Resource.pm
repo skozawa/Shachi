@@ -149,8 +149,8 @@ sub embed_title {
          my $db    => { isa => 'Shachi::Database' },
          my $resources => { isa => 'Shachi::Model::List' };
 
-    my $resource_titles = Shachi::Service::Resource::Metadata->find_resource_titles(
-        db => $db, resource_ids => $resources->map('id')->to_a,
+    my $resource_titles = Shachi::Service::Resource::Metadata->find_resource_metadata_by_name(
+        db => $db, name => 'title', resource_ids => $resources->map('id')->to_a,
     );
     my $title_by_resource_id = $resource_titles->hash_by('resource_id');
 
@@ -171,9 +171,23 @@ sub update_status {
     croak 'invalid status'
         unless any { $status eq $_ } @{STATUSES()};
 
+    $status = _status($db, $id, $status);
+
     $db->shachi->table('resource')->search({
         id => $id,
     })->update({ status => $status });
+}
+
+sub _status {
+    my ($db, $id, $status) = @_;
+    return $status if $status eq STATUS_PRIVATE;
+    my $identifiers = Shachi::Service::Resource::Metadata->find_resource_metadata_by_name(
+        db => $db, name => 'identifier', resource_ids => [ $id ],
+    );
+    return STATUS_PUBLIC unless $identifiers->size;
+    return STATUS_LIMITED_BY_LDC  if $identifiers->first->content =~ /^LDC/;
+    return STATUS_LIMITED_BY_ELRA if $identifiers->first->content =~ /^ELRA/;
+    return STATUS_PUBLIC;
 }
 
 sub update_edit_status {
