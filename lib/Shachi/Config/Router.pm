@@ -30,7 +30,11 @@ my $router = Router::Simple::Declare::router {
     connect "/admin/resources/{resource_id:[0-9]+}" => {
         dispatch => 'Shachi::Web::Admin::Resource',
         action   => 'find_by_id',
-    };
+    }, { method => 'GET' };
+    connect "/admin/resources/{resource_id:[0-9]+}" => {
+        dispatch => 'Shachi::Web::Admin::Resource',
+        action   => 'delete',
+    }, { method => 'DELETE' };
     connect "/admin/resources/{resource_id:[0-9]+}/status" => {
         dispatch => 'Shachi::Web::Admin::Resource',
         action   => 'update_status',

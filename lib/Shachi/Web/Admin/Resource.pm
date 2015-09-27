@@ -1,6 +1,7 @@
 package Shachi::Web::Admin::Resource;
 use strict;
 use warnings;
+use JSON::Types;
 use Shachi::Service::Resource;
 
 sub find_by_id {
@@ -15,6 +16,17 @@ sub find_by_id {
         resource => $resource,
         metadata_list => $metadata_list,
     });
+}
+
+sub delete {
+    my ($class, $c) = @_;
+    my $resource_id = $c->route->{resource_id};
+    my $resource = Shachi::Service::Resource->find_by_id(db => $c->db, id => $resource_id);
+    return $c->throw_not_found unless $resource;
+
+    Shachi::Service::Resource->delete_by_id(db => $c->db, id => $resource->id);
+
+    $c->json({ success => JSON::Types::bool(1) });
 }
 
 sub update_status {
