@@ -79,7 +79,28 @@ var Shachi;
             super(cssSelector, buttonSelector);
         }
         change(elem) {
-            console.log(elem);
+            var newStatus = elem.getAttribute('data-status');
+            if (!this.resourceId || !this.currentElem || !newStatus ||
+                this.currentElem.getAttribute('data-status') === newStatus) {
+                this.hide();
+                return;
+            }
+            var self = this;
+            Shachi.XHR.request('POST', '/admin/resources/' + this.resourceId + '/status', {
+                body: 'status=' + newStatus,
+                completeHandler: function (req) { self.complete(req); },
+            });
+        }
+        complete(res) {
+            try {
+                var json = JSON.parse(res.responseText);
+                var status = json.status;
+                this.currentElem.setAttribute('data-status', status);
+                var label = this.currentElem.querySelector('.label');
+                label.textContent = status;
+            }
+            catch (err) { }
+            this.hide();
         }
     }
     Shachi.StatusPopupEditor = StatusPopupEditor;
