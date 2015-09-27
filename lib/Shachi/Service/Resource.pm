@@ -6,6 +6,7 @@ use Smart::Args;
 use List::MoreUtils qw/any/;
 use Shachi::Model::List;
 use Shachi::Model::Resource;
+use Shachi::Service::Annotator;
 use Shachi::Service::Metadata;
 use Shachi::Service::Resource::Metadata;
 
@@ -97,6 +98,9 @@ sub find_resource_detail {
         my $titles = $resource->metadata($title_metadata);
         $resource->title($titles->[0]->content) if @$titles;
     }
+
+    my $annotator = Shachi::Service::Annotator->find_by_id(db => $db, id => $resource->annotator_id);
+    $resource->annotator($annotator);
 
     return ($resource, $metadata_list);
 }
