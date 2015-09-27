@@ -132,23 +132,43 @@ module Shachi {
     }
 }
 
+module Shachi {
+    export class ResourceListEditor {
+        resource;
+        statusEditor;
+        editStatusEditor;
+        constructor(resource: HTMLElement,
+                    statusEditor: StatusPopupEditor,
+                    editStatusEditor: EditStatusPopupEditor) {
+            this.resource = resource;
+            this.statusEditor = statusEditor;
+            this.editStatusEditor = editStatusEditor;
+            this.registerEvent();
+        }
+        registerEvent() {
+            var self = this;
+            var statusElem = this.resource.querySelector('li.status');
+            if ( statusElem && this.statusEditor ) {
+                statusElem.addEventListener('click', function () {
+                    self.statusEditor.showWithSet(self.resource, statusElem);
+                });
+            }
+            var editStatusElem = this.resource.querySelector('li.edit-status');
+            if ( editStatusElem && this.editStatusEditor ) {
+                editStatusElem.addEventListener('click', function () {
+                    self.editStatusEditor.showWithSet(self.resource, editStatusElem);
+                });
+            }
+        }
+    }
+}
+
 document.addEventListener("DOMContentLoaded", function(event) {
-    var editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');
     var statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor', 'li.status');
+    var editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');
 
     var resources = document.querySelectorAll('li.annotator-resource[data-resource-id]');
     Array.prototype.forEach.call(resources, function(resource) {
-        var editStatus= resource.querySelector('li.edit-status');
-        if ( editStatus ) {
-            editStatus.addEventListener('click', function () {
-                 editStatusEditor.showWithSet(resource, editStatus);
-            });
-        }
-        var status = resource.querySelector('li.status');
-        if ( status ) {
-            status.addEventListener('click', function () {
-                statusEditor.showWithSet(resource, status);
-            });
-        }
+        new Shachi.ResourceListEditor(resource, statusEditor, editStatusEditor);
     });
 });
