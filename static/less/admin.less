@@ -64,8 +64,14 @@ ul.annotator-resource-list {
         }
         &.status {
           cursor: pointer;
-          width: 110px;
+          width: 60px;
           font-size: 15px;
+          .label {
+            background-color: #CCCCCC;
+            padding: 1px;
+            .border-radius(5px);
+            .box-shadow(0 1px 1px rgba(0,0,0,0.8));
+          }
         }
         &.title {
           width: 800px;
@@ -82,7 +88,7 @@ ul.annotator-resource-list {
   }
 }
 
-div.edit-status-editor {
+div.edit-status-popup-editor {
   position: absolute;
   width: 230px;
   height: 70px;
@@ -116,6 +122,58 @@ div.edit-status-editor {
         right: 2px;
         padding: 1px;
         text-align: center;
+        vertical-align: middle;
+        font-size: 15px;
+        color: #999999;
+        border: solid 1px #CCCCCC;
+        .border-radius(3px);
+      }
+    }
+  }
+}
+
+div.status-popup-editor {
+  position: absolute;
+  width: 170px;
+  height: 70px;
+  border: solid 1px #CCCCCC;
+  .box-shadow(0 2px 4px rgba(0,0,0,0.2));
+  .border-radius(3px);
+  padding-left: 10px;
+  background-color: #ffffff;
+  z-index: 15;
+
+  ul {
+    list-style: none;
+    padding-left: 0;
+    margin-top: 30px;
+    margin-bottom: 0;
+
+    li {
+      display: inline-block;
+      width: 20px;
+      cursor: pointer;
+      padding: 0 3px;
+      text-align: center;
+      font-size: 20px;
+
+      &.status {
+        width: 70px;
+        border: solid 1px #CCCCCC;
+        .border-radius(5px);
+        .box-shadow(0 1px 1px rgba(0,0,0,0.1));
+
+        &:hover {
+          background-color: #CCCCCC;
+        }
+      }
+
+      &.close {
+        position: absolute;
+        height: 20px;
+        top: 2px;
+        right: 2px;
+        padding: 1px;
         vertical-align: middle;
         font-size: 15px;
         color: #999999;
