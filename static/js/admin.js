@@ -29,11 +29,12 @@ var Shachi;
 var Shachi;
 (function (Shachi) {
     class PopupEditor {
-        constructor(cssSelector) {
+        constructor(cssSelector, buttonSelector) {
             this.container = document.querySelector(cssSelector);
             if (!this.container)
                 return;
             this.closeButton = this.container.querySelector('.close');
+            this.buttons = this.container.querySelectorAll(buttonSelector);
             this.registerEvent();
         }
         registerEvent() {
@@ -43,6 +44,23 @@ var Shachi;
                     self.hide();
                 });
             }
+            if (self.buttons) {
+                Array.prototype.forEach.call(self.buttons, function (button) {
+                    button.addEventListener('click', function () {
+                        self.change(button);
+                    });
+                });
+            }
+        }
+        change(elem) { }
+        showWithSet(resource, elem) {
+            this.resourceId = resource.getAttribute('data-resource-id');
+            if (!this.resourceId) {
+                this.hide();
+                return;
+            }
+            this.currentElem = elem;
+            this.showAndMove(elem);
         }
         showAndMove(elem) {
             this.container.style.top = (elem.offsetTop + 20) + 'px';
@@ -57,65 +75,20 @@ var Shachi;
         }
     }
     class StatusPopupEditor extends PopupEditor {
-        constructor(cssSelector) {
-            super(cssSelector);
-            if (!this.container)
-                return;
-            this.statusButtons = this.container.querySelectorAll('li.status');
-            this.register();
+        constructor(cssSelector, buttonSelector) {
+            super(cssSelector, buttonSelector);
         }
-        register() {
-            var self = this;
-            if (this.statusButtons) {
-                Array.prototype.forEach.call(this.statusButtons, function (button) {
-                    button.addEventListener('click', function () {
-                        self.changeStatus(button.getAttribute('data-status'));
-                    });
-                });
-            }
-        }
-        showWithSet(resource, elem) {
-            this.resourceId = resource.getAttribute('data-resource-id');
-            if (!this.resourceId) {
-                this.hide();
-                return;
-            }
-            this.currentElem = elem;
-            super.showAndMove(elem);
-        }
-        changeStatus(newStatus) {
-            console.log(newStatus);
+        change(elem) {
+            console.log(elem);
         }
     }
     Shachi.StatusPopupEditor = StatusPopupEditor;
     class EditStatusPopupEditor extends PopupEditor {
-        constructor(cssSelector) {
-            super(cssSelector);
-            if (!this.container)
-                return;
-            this.statusButtons = this.container.querySelectorAll('li.edit-status');
-            this.register();
+        constructor(cssSelector, buttonSelector) {
+            super(cssSelector, buttonSelector);
         }
-        register() {
-            var self = this;
-            if (this.statusButtons) {
-                Array.prototype.forEach.call(this.statusButtons, function (button) {
-                    button.addEventListener('click', function () {
-                        self.changeEditStatus(button.getAttribute('data-edit-status'));
-                    });
-                });
-            }
-        }
-        showWithSet(resource, elem) {
-            this.resourceId = resource.getAttribute('data-resource-id');
-            if (!this.resourceId) {
-                this.hide();
-                return;
-            }
-            this.currentElem = elem;
-            super.showAndMove(elem);
-        }
-        changeEditStatus(newStatus) {
+        change(elem) {
+            var newStatus = elem.getAttribute('data-edit-status');
             if (!this.resourceId || !this.currentElem ||
                 this.currentElem.getAttribute('data-edit-status') === newStatus) {
                 this.hide();
@@ -142,8 +115,8 @@ var Shachi;
     Shachi.EditStatusPopupEditor = EditStatusPopupEditor;
 })(Shachi || (Shachi = {}));
 document.addEventListener("DOMContentLoaded", function (event) {
-    var editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor');
-    var statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor');
+    var editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');
+    var statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor', 'li.status');
     var resources = document.querySelectorAll('li.annotator-resource[data-resource-id]');
     Array.prototype.forEach.call(resources, function (resource) {
         var editStatus = resource.querySelector('li.edit-status');
