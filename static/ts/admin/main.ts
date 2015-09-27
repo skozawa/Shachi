@@ -159,6 +159,32 @@ module Shachi {
                     self.editStatusEditor.showWithSet(self.resource, editStatusElem);
                 });
             }
+            var deleteButton = this.resource.querySelector('li.delete');
+            if ( deleteButton ) {
+                deleteButton.addEventListener('click', function () {
+                    self.delete();
+                });
+            }
+        }
+        delete() {
+            var resourceId = this.resource.getAttribute('data-resource-id');
+            var titleElem = this.resource.querySelector('li.title');
+            var message = 'Delete "' + (titleElem ? titleElem.textContent : resourceId) + '" ?';
+            if ( ! window.confirm(message) ) {
+                return;
+            }
+            var self = this;
+            Shachi.XHR.request('DELETE', '/admin/resources/' + resourceId, {
+                completeHandler: function (req) { self.complete(req) },
+            });
+        }
+        complete(res) {
+            try {
+                var json = JSON.parse(res.responseText);
+                if ( json.success ) {
+                    this.resource.parentNode.removeChild(this.resource);
+                }
+            } catch (err) { /* ignore */ }
         }
     }
 }
