@@ -1,0 +1,119 @@
+[%- WRAPPER 'admin/_wrapper.tt' %]
+
+[%- MACRO metadata_input_text(metadata) BLOCK %]
+  <input name="[% metadata.id %]" type="text" class="content">
+[%- END # MACRO metadata_input_text %]
+
+[%- MACRO metadata_input_textarea(metadata) BLOCK %]
+  <textarea name="[% metadata.id %]" class="content"></textarea>
+[%- END # MACRO metadata_input_textarea %]
+
+[%- MACRO metadata_input_select(metadata) BLOCK %]
+  <select name="[% metadata.id %]">
+    <option value=""></option>
+    [%- FOREACH value IN metadata.values %]
+      <option value="[% value.id %]">[% value.value %]</option>
+    [%- END # FOREACH value IN metadata.values %]
+  </select>
+  <input name="[% metadata.id %]" type="text" class="description">
+[%- END # MACRO metadata_input_select %]
+
+[%- MACRO metadata_input_select_only(metadata) BLOCK %]
+  <select name="[% metadata.id %]">
+    <option value=""></option>
+    [%- FOREACH value IN metadata.values %]
+      <option value="[% value.id %]">[% value.value %]</option>
+    [%- END # FOREACH value IN metadata.values %]
+  </select>
+[%- END # MACRO metadata_input_select_only %]
+
+[%- MACRO metadata_input_relation(metadata) BLOCK %]
+  <select name="[% metadata.id %]">
+    <option value=""></option>
+    [%- FOREACH value IN metadata.values %]
+      <option value="[% value.id %]">[% value.value %]</option>
+    [%- END # FOREACH value IN metadata.values %]
+  </select>
+  <input name="[% metadata.id %]" type="text" class="description">
+[%- END # MACRO metadata_input_relation %]
+
+[%- MACRO metadata_input_language(metadata) BLOCK %]
+  <input name="[% metadata.id %]" type="text" class="content">
+  <input name="[% metadata.id %]" type="text" class="description">
+[%- END # MACRO metadata_input_language %]
+
+[%- MACRO metadata_input_date(metadata) BLOCK %]
+  <input name="[% metadata.id %]" type="text" class="year">
+  <input name="[% metadata.id %]" type="text" class="month">
+  <input name="[% metadata.id %]" type="text" class="day">
+  <input name="[% metadata.id %]" type="text" class="description">
+[%- END # MACRO metadata_input_date %]
+
+[%- MACRO metadata_input_range(metadata) BLOCK %]
+  <input name="[% metadata.id %]" type="text" class="year">
+  <input name="[% metadata.id %]" type="text" class="month">
+  <input name="[% metadata.id %]" type="text" class="day"> -
+  <input name="[% metadata.id %]" type="text" class="year">
+  <input name="[% metadata.id %]" type="text" class="month">
+  <input name="[% metadata.id %]" type="text" class="day">
+  <input name="[% metadata.id %]" type="text" class="description">
+[%- END # MACRO metadata_input_range %]
+
+<form id="resource-create-form" method="POST">
+  <div class="resource-detail-container">
+
+    <div class="resource-annotator">
+      Annotator:
+      <select name="annotator_id" class="annotator">
+        [%- FOREACH annotator IN annotators %]
+          <option value="[% annotator.id %]"[% ' selected' IF annotator.id == c.req.param('annotator_id') %]>[% annotator.name %]</option>
+        [%- END # FOREACH annotator IN annotators %]
+      </select>
+    </div>
+
+    <div class="resource-meta">
+      <div class="resource-status">
+        Status:
+        <input type="radio" name="status" id="status-public" value="public"><label class="radio" for="status-public">public</label>
+        <input type="radio" name="status" id="status-private" value="private" checked><label class="radio" for="status-private">private</label>
+      </div>
+    </div>
+
+    [%- FOREACH metadata IN metadata_list %]
+      <div class="resource-metadata [% metadata.name %]">
+        <h3>[% metadata.label %]</h3>
+        <div class="resource-metadata-item">
+          <ul>
+            <li class="[% metadata.input_type %]">
+              [%- IF metadata.input_type == 'textarea' %]
+                [% metadata_input_textarea(metadata) %]
+              [%- ELSIF metadata.input_type ==  'select' %]
+                [% metadata_input_select(metadata) %]
+              [%- ELSIF metadata.input_type ==  'select_only' %]
+                [% metadata_input_select_only(metadata) %]
+              [%- ELSIF metadata.input_type ==  'relation' %]
+                [% metadata_input_relation(metadata) %]
+              [%- ELSIF metadata.input_type ==  'language' %]
+                [% metadata_input_language(metadata) %]
+              [%- ELSIF metadata.input_type ==  'date' %]
+                [% metadata_input_date(metadata) %]
+              [%- ELSIF metadata.input_type ==  'range' %]
+                [% metadata_input_range(metadata) %]
+              [%- ELSE %]
+                [% metadata_input_text(metadata) %]
+              [%- END %]
+            </li>
+          </ul>
+        </div>
+      </div>
+    [%- END # FOREACH metadata IN metadata_list %]
+
+    <div class="resource-create-footer">
+      <button class="cancel"><a href="/admin/">キャンセル</a></button>
+      <button type="submit" class="submit">作成</button>
+    </div>
+  </div>
+</form>
+
+[% END # WRAPPER '_wrapper.tt' %]
+

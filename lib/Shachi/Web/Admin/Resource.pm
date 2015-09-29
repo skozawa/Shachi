@@ -18,6 +18,21 @@ sub find_by_id {
     });
 }
 
+sub create_get {
+    my ($class, $c) = @_;
+
+    my $annotators = Shachi::Service::Annotator->find_all(db => $c->db);
+    my $metadata_list = Shachi::Service::Metadata->find_shown_metadata(db => $c->db);
+    Shachi::Service::Metadata->embed_metadata_values(
+        db => $c->db, metadata_list => $metadata_list
+    );
+
+    return $c->html('admin/create.html', {
+        annotators    => $annotators,
+        metadata_list => $metadata_list,
+    });
+}
+
 sub delete {
     my ($class, $c) = @_;
     my $resource_id = $c->route->{resource_id};

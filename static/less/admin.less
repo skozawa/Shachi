@@ -1,3 +1,6 @@
+// Variables
+@fontfamily: "メイリオ", "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif;
+
 // Mixin
 .border-radius (@arguments) {
   border-radius: @arguments;
@@ -12,11 +15,16 @@
   -ms-box-shadow:@arguments;
 }
 
+.transition (@arguments) {
+  -webkit-transition: @arguments;
+  transition: @arguments;
+}
+
 
 // less
 html,
 body {
-  font-family: "メイリオ", "ヒラギノ明朝 Pro W6", "Hiragino Mincho Pro", "HGS明朝E", "ＭＳ Ｐ明朝", serif;
+  font-family: @fontfamily;
   font-size: 18px;
   word-wrap: break-word;
 }
@@ -201,6 +209,39 @@ div.resource-detail-header {
 }
 
 div.resource-detail-container {
+  select.annotator {
+    width: 260px;
+    font-size: 16px;
+    font-family: @fontfamily;
+  }
+
+  div.resource-meta {
+    div.resource-status {
+      input[type=radio] {
+        display: none;
+      }
+      label.radio {
+        box-sizing: border-box;
+        .transition(background-color 0.2s linear);
+        display: inline-block;
+        padding: 3px 12px;
+        margin: 5px 5px;
+        .border-radius(8px);
+        background-color: #f6f7f8;
+        vertical-align: middle;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #82E85E;
+        }
+      }
+
+      input[type=radio]:checked + .radio {
+        background-color: #60B044;
+      }
+    }
+  }
+
   div.resource-metadata {
     border-bottom: solid 1px #999999;
     padding: 3px 0;
@@ -215,6 +256,65 @@ div.resource-detail-container {
     div.resource-metadata-item {
       display: inline-block;
       width: 800px;
+
+      li.text {
+        input {
+          width: 792px;
+          font-size: 16px;
+        }
+      }
+      li.textarea {
+        textarea {
+          width: 790px;
+          font-size: 16px;
+          font-family: @fontfamily;
+        }
+      }
+      li.select, li.select_only, li.relation {
+        select {
+          width: 260px;
+          font-size: 16px;
+          font-family: @fontfamily;
+        }
+        input {
+          width: 525px;
+          font-size: 16px;
+        }
+      }
+      li.language {
+        input {
+          font-size: 16px;
+
+          &.content {
+            width: 256px;
+          }
+          &.description {
+            width: 525px;
+          }
+        }
+      }
+      li.date, li.range {
+        input {
+          font-size: 16px;
+
+          &.year {
+            width: 70px;
+            text-align: right;
+          }
+          &.month, &.day {
+            width: 40px;
+            text-align: right;
+          }
+        }
+      }
+      li.date input.description {
+        width: 605px;
+        margin-left: 5px;
+      }
+      li.range input.description {
+        width: 410px;
+        margin-left: 5px;
+      }
 
       ul {
         list-style: none;
@@ -231,6 +331,41 @@ div.resource-detail-container {
           .border-radius(5px);
         }
       }
+    }
+  }
+
+  div.resource-create-footer {
+    text-align: center;
+    margin: 10px;
+  }
+  button {
+    padding: 6px 12px;
+    margin: 0 10px;
+    font-size: 13px;
+    font-family: @fontfamily;
+    font-weight: bold;
+    line-height: 20px;
+    color: #333333;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: #EEEEEE;
+    background-image: linear-gradient(#FCFCFC, #EEEEEE);
+    border: 1px solid #D5D5D5;
+    .border-radius(3px);
+
+    &.cancel {
+      a {
+        text-decoration: none;
+        color: #333333;
+      }
+    }
+
+    &.submit {
+      color: #ffffff;
+      background-color: #60B044;
+      background-image: linear-gradient(#8ADD6D, #60B044);
+      border: 1px solid #5CA941;
     }
   }
 }
