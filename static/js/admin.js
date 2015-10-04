@@ -189,6 +189,166 @@ var Shachi;
     }
     Shachi.ResourceListEditor = ResourceListEditor;
 })(Shachi || (Shachi = {}));
+var Shachi;
+(function (Shachi) {
+    class ResourceEditor {
+        constructor(container) {
+            this.container = container;
+            this.setup();
+        }
+        setup() {
+            var self = this;
+            self.metadataEditors = [];
+            var metadataList = this.container.querySelectorAll('.resource-metadata');
+            Array.prototype.forEach.call(metadataList, function (metadata) {
+                self.metadataEditors.push(self.metadataEditor(metadata));
+            });
+        }
+        metadataEditor(metadata) {
+            var inputType = metadata.getAttribute('data-input-type') || '';
+            if (inputType == 'textarea')
+                return new ResourceMetadataTextareaEditor(metadata);
+            if (inputType == 'select')
+                return new ResourceMetadataSelectEditor(metadata);
+            if (inputType == 'select_only')
+                return new ResourceMetadataSelectOnlyEditor(metadata);
+            if (inputType == 'relation')
+                return new ResourceMetadataRelationEditor(metadata);
+            if (inputType == 'language')
+                return new ResourceMetadataLanguageEditor(metadata);
+            if (inputType == 'date')
+                return new ResourceMetadataDateEditor(metadata);
+            if (inputType == 'relation')
+                return new ResourceMetadataRangeEditor(metadata);
+            return new ResourceMetadataTextEditor(metadata);
+        }
+        getValues() {
+            var values = {};
+            Array.prototype.forEach.call(this.metadataEditors, function (editor) {
+                var metadataValues = editor.toValues();
+                if (metadataValues && metadataValues.length > 0) {
+                    values[editor.name] = metadataValues;
+                }
+            });
+            return values;
+        }
+    }
+    Shachi.ResourceEditor = ResourceEditor;
+    class ResourceMetadataEditorBase {
+        constructor(container) {
+            this.container = container;
+            this.name = container.getAttribute('data-name');
+        }
+        toValues() {
+            var self = this;
+            var items = this.container.querySelectorAll('li.resource-metadata-item');
+            var values = [];
+            Array.prototype.forEach.call(items, function (item) {
+                var hash = self.toHash(item);
+                if (hash)
+                    values.push(hash);
+            });
+            return values;
+        }
+        toHash(item) {
+            return undefined;
+        }
+        getDate(prefix) {
+            var year = this.container.querySelector('.' + prefix + 'year');
+            if (!year || year.value === '')
+                return '';
+            var month = this.container.querySelector('.' + prefix + 'month');
+            if (!month || month.value === '')
+                return year.value + '-00-00';
+            var ym = year.value + '-' + month.value;
+            var day = this.container.querySelector('.' + prefix + 'day');
+            if (!day || day.value === '')
+                return ym + '-00';
+            return ym + '-' + day.value;
+        }
+    }
+    class ResourceMetadataTextEditor extends ResourceMetadataEditorBase {
+        toHash() {
+            var content = this.container.querySelector('.content');
+            if (!content || content.value === '')
+                return undefined;
+            return { content: content.value };
+        }
+    }
+    class ResourceMetadataTextareaEditor extends ResourceMetadataEditorBase {
+        toHash() {
+            var content = this.container.querySelector('.content');
+            if (!content || content.value === '')
+                return undefined;
+            return { content: content.value };
+        }
+    }
+    class ResourceMetadataSelectEditor extends ResourceMetadataEditorBase {
+        toHash() {
+            var select = this.container.querySelector('select');
+            var description = this.container.querySelector('.description');
+            var selectValue = select ? select.value : '';
+            var descriptionValue = description ? description.value : '';
+            if (selectValue === '' && descriptionValue === '')
+                return undefined;
+            return { value_id: selectValue, description: descriptionValue };
+        }
+    }
+    class ResourceMetadataSelectOnlyEditor extends ResourceMetadataEditorBase {
+        toHash() {
+            var select = this.container.querySelector('select');
+            if (!select || select.value === '')
+                return undefined;
+            return { value_id: select.value };
+        }
+    }
+    class ResourceMetadataRelationEditor extends ResourceMetadataEditorBase {
+        toHash() {
+            var select = this.container.querySelector('select');
+            var description = this.container.querySelector('.description');
+            var selectValue = select ? select.value : '';
+            var descriptionValue = description ? description.value : '';
+            if (selectValue === '' && descriptionValue === '')
+                return undefined;
+            return { value_id: selectValue, description: descriptionValue };
+        }
+    }
+    class ResourceMetadataLanguageEditor extends ResourceMetadataEditorBase {
+        toHash() {
+            var content = this.container.querySelector('.content');
+            var description = this.container.querySelector('.description');
+            var contentValue = content ? content.value : '';
+            var descriptionValue = description ? description.value : '';
+            if (contentValue === '' && descriptionValue === '')
+                return undefined;
+            return { content: contentValue, description: descriptionValue };
+        }
+    }
+    class ResourceMetadataDateEditor extends ResourceMetadataEditorBase {
+        toHash() {
+            var date = this.getDate('');
+            var description = this.container.querySelector('.description');
+            var descriptionValue = description ? description.value : '';
+            if (date === '' && descriptionValue === '')
+                return undefined;
+            return { content: date, description: descriptionValue };
+        }
+    }
+    class ResourceMetadataRangeEditor extends ResourceMetadataEditorBase {
+        toHash() {
+            var fromDate = this.getDate('from-');
+            var toDate = this.getDate('to-');
+            var description = this.container.querySelector('.description');
+            var descriptionValue = description ? description.value : '';
+            if (fromDate === '' && toDate === '' && descriptionValue === '')
+                return undefined;
+            var defaultDate = '0000-00-00';
+            var date = (fromDate === '' ? defaultDate : fromDate) + ' ' +
+                (toDate === '' ? defaultDate : toDate);
+            return { content: date, description: descriptionValue };
+        }
+    }
+})(Shachi || (Shachi = {}));
 document.addEventListener("DOMContentLoaded", function (event) {
     var statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor', 'li.status');
     var editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');

@@ -50,12 +50,12 @@
 [%- END # MACRO metadata_input_date %]
 
 [%- MACRO metadata_input_range(metadata) BLOCK %]
-  <input name="[% metadata.id %]" type="text" class="year">
-  <input name="[% metadata.id %]" type="text" class="month">
-  <input name="[% metadata.id %]" type="text" class="day"> -
-  <input name="[% metadata.id %]" type="text" class="year">
-  <input name="[% metadata.id %]" type="text" class="month">
-  <input name="[% metadata.id %]" type="text" class="day">
+  <input name="[% metadata.id %]" type="text" class="year from-year">
+  <input name="[% metadata.id %]" type="text" class="month from-month">
+  <input name="[% metadata.id %]" type="text" class="day from-day"> -
+  <input name="[% metadata.id %]" type="text" class="year to-year">
+  <input name="[% metadata.id %]" type="text" class="month to-month">
+  <input name="[% metadata.id %]" type="text" class="day to-day">
   <input name="[% metadata.id %]" type="text" class="description">
 [%- END # MACRO metadata_input_range %]
 
@@ -80,11 +80,11 @@
     </div>
 
     [%- FOREACH metadata IN metadata_list %]
-      <div class="resource-metadata [% metadata.name %]">
+      <div class="resource-metadata [% metadata.name %]" data-name="[% metadata.name %]">
         <h3>[% metadata.label %]</h3>
-        <div class="resource-metadata-item">
+        <div class="resource-metadata-unit">
           <ul>
-            <li class="[% metadata.input_type %]">
+            <li  class="resource-metadata-item [% metadata.input_type %]" data-input-type="[% metadata.input_type %]">
               [%- IF metadata.input_type == 'textarea' %]
                 [% metadata_input_textarea(metadata) %]
               [%- ELSIF metadata.input_type ==  'select' %]
@@ -110,7 +110,7 @@
 
     <div class="resource-create-footer">
       <button class="cancel"><a href="/admin/">キャンセル</a></button>
-      <button type="submit" class="submit">作成</button>
+      <button id="resource-create-submit" type="submit" class="submit">作成</button>
     </div>
   </div>
 </form>
