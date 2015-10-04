@@ -19,6 +19,8 @@ sub create {
     $args->{status} ||= 'public';
     $args->{edit_status} ||= EDIT_STATUS_NEW;
     $args->{shachi_id} = ''; # dummy
+    $args->{created} ||= $db->shachi->now;
+    $args->{modified} ||= $db->shachi->now;
     my $resource_subject = delete $args->{resource_subject};
 
     my $resource = $db->shachi->table('resource')->insert($args);

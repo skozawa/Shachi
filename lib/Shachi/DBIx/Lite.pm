@@ -6,6 +6,8 @@ use DBIx::Handler;
 use Module::Load qw/load/;
 use SQL::Abstract::Plugin::InsertMulti;
 use Carp qw/croak/;
+use DateTime;
+use DateTime::Format::MySQL;
 
 use Shachi::Config ();
 
@@ -17,6 +19,15 @@ sub dbconfig {
     $_[0]->config->param('db')->{$_[0]->dbname};
 }
 
+sub time_zone { 'Asia/Tokyo' }
+
+sub now {
+    my $self = shift;
+    return DateTime->now(
+        time_zone => $self->time_zone,
+        formatter => 'DateTime::Format::MySQL',
+    );
+}
 
 # my $lit = $rs->list;
 sub DBIx::Lite::ResultSet::list {
