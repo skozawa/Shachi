@@ -14,7 +14,7 @@ module Shachi {
             }
             req.open(method, url, true);
             if (method === 'POST' && 'body' in options)
-                req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                req.setRequestHeader('Content-Type', options['content-type'] || 'application/x-www-form-urlencoded');
             req.send(('body' in options) ? options.body : null);
             return req;
         }
@@ -204,6 +204,11 @@ module Shachi {
             Array.prototype.forEach.call(metadataList, function(metadata) {
                 self.metadataEditors.push(self.metadataEditor(metadata));
             });
+            this.container.addEventListener('submit', function (evt) {
+                evt.preventDefault();
+                self.create(evt);
+                return false;
+            });
         }
         metadataEditor(metadata: HTMLElement): ResourceMetadataEditorBase {
             var inputType = metadata.getAttribute('data-input-type') || '';
@@ -216,6 +221,25 @@ module Shachi {
             if (inputType == 'relation')    return new ResourceMetadataRangeEditor(metadata);
             return new ResourceMetadataTextEditor(metadata);
         }
+        create() {
+            var values = this.getValues();
+            if (!values['annotator_id'] || values['annotator_id'] === '') {
+                alert('Require Annotator');
+                return;
+            }
+            if (!values['title'] || values['title'] === '') {
+                alert('Require Title');
+                return;
+            }
+            Shachi.XHR.request('POST', '/admin/resources/create', {
+                body: JSON.stringify(values),
+                'content-type': 'application/json',
+                completeHandler: function(req) { self.createComplete(req) },
+            });
+        }
+        createComplete(res) {
+            console.log("created");
+        }
         getValues() {
             var values = {};
             Array.prototype.forEach.call(this.metadataEditors, function(editor) {
@@ -223,6 +247,13 @@ module Shachi {
                 if ( metadataValues && metadataValues.length > 0 ) {
                     values[editor.name] = metadataValues;
                 }
+            });
+            var annotator = this.container.querySelector('.annotator');
+            values['annotator_id'] = annotator.value;
+            var statuses = this.container.querySelectorAll('.resource-status input');
+            Array.prototype.forEach.call(statuses, function(status) {
+                if ( ! status.checked ) return;
+                values['status'] = status.value;
             });
             return values;
         }
@@ -350,4 +381,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     Array.prototype.forEach.call(resources, function(resource) {
         new Shachi.ResourceListEditor(resource, statusEditor, editStatusEditor);
     });
+
+
+    var form = document.querySelector('#resource-create-form');
+    var editor = new Shachi.ResourceEditor(form);
 });
