@@ -206,7 +206,7 @@ module Shachi {
             });
             this.container.addEventListener('submit', function (evt) {
                 evt.preventDefault();
-                self.create(evt);
+                self.create();
                 return false;
             });
         }
@@ -231,6 +231,7 @@ module Shachi {
                 alert('Require Title');
                 return;
             }
+            var self = this;
             Shachi.XHR.request('POST', '/admin/resources/create', {
                 body: JSON.stringify(values),
                 'content-type': 'application/json',
@@ -238,7 +239,14 @@ module Shachi {
             });
         }
         createComplete(res) {
-            console.log("created");
+            try {
+                var json = JSON.parse(res.responseText);
+                if ( json.resource_id ) {
+                    location.href = '/admin/resources/' + json.resource_id;
+                }
+            } catch (err) {
+                location.href = '/admin/';
+            }
         }
         getValues() {
             var values = {};
@@ -279,38 +287,38 @@ module Shachi {
         toHash(item: HTMLElement) {
             return undefined;
         }
-        getDate(prefix: string) {
-            var year  = this.container.querySelector('.' + prefix +'year');
+        getDate(elem, prefix: string) {
+            var year  = elem.querySelector('.' + prefix +'year');
             if (!year || year.value === '') return '';
-            var month = this.container.querySelector('.' + prefix + 'month');
+            var month = elem.querySelector('.' + prefix + 'month');
             if (!month || month.value === '') return year.value + '-00-00';
             var ym = year.value + '-' + month.value;
-            var day   = this.container.querySelector('.' + prefix + 'day');
+            var day   = elem.querySelector('.' + prefix + 'day');
             if (!day || day.value === '') return ym + '-00';
             return ym + '-' + day.value;
         }
     }
 
     class ResourceMetadataTextEditor extends ResourceMetadataEditorBase {
-        toHash() {
-            var content = this.container.querySelector('.content');
+        toHash(elem) {
+            var content = elem.querySelector('.content');
             if (!content || content.value === '') return undefined;
             return { content: content.value };
         }
     }
 
     class ResourceMetadataTextareaEditor extends ResourceMetadataEditorBase {
-        toHash() {
-            var content = this.container.querySelector('.content');
+        toHash(elem) {
+            var content = elem.querySelector('.content');
             if (!content || content.value === '') return undefined;
             return { content: content.value };
         }
     }
 
     class ResourceMetadataSelectEditor extends ResourceMetadataEditorBase {
-        toHash() {
-            var select = this.container.querySelector('select');
-            var description = this.container.querySelector('.description');
+        toHash(elem) {
+            var select = elem.querySelector('select');
+            var description = elem.querySelector('.description');
             var selectValue = select ? select.value : '';
             var descriptionValue = description ? description.value : '';
             if (selectValue === '' && descriptionValue === '') return undefined;
@@ -319,17 +327,17 @@ module Shachi {
     }
 
     class ResourceMetadataSelectOnlyEditor extends ResourceMetadataEditorBase {
-        toHash() {
-            var select = this.container.querySelector('select');
+        toHash(elem) {
+            var select = elem.querySelector('select');
             if (!select || select.value === '') return undefined;
             return { value_id: select.value };
         }
     }
 
     class ResourceMetadataRelationEditor extends ResourceMetadataEditorBase {
-        toHash() {
-            var select = this.container.querySelector('select');
-            var description = this.container.querySelector('.description');
+        toHash(elem) {
+            var select = elem.querySelector('select');
+            var description = elem.querySelector('.description');
             var selectValue = select ? select.value : '';
             var descriptionValue = description ? description.value : '';
             if (selectValue === '' && descriptionValue === '') return undefined;
@@ -338,9 +346,9 @@ module Shachi {
     }
 
     class ResourceMetadataLanguageEditor extends ResourceMetadataEditorBase {
-        toHash() {
-            var content = this.container.querySelector('.content');
-            var description = this.container.querySelector('.description');
+        toHash(elem) {
+            var content = elem.querySelector('.content');
+            var description = elem.querySelector('.description');
             var contentValue = content ? content.value : '';
             var descriptionValue = description ? description.value : '';
             if (contentValue === '' && descriptionValue === '') return undefined;
@@ -349,9 +357,9 @@ module Shachi {
     }
 
     class ResourceMetadataDateEditor extends ResourceMetadataEditorBase {
-        toHash() {
-            var date = this.getDate('');
-            var description = this.container.querySelector('.description');
+        toHash(elem) {
+            var date = this.getDate(elem, '');
+            var description = elem.querySelector('.description');
             var descriptionValue = description ? description.value : '';
             if (date === '' && descriptionValue === '') return undefined;
             return { content: date, description: descriptionValue };
@@ -359,10 +367,10 @@ module Shachi {
     }
 
     class ResourceMetadataRangeEditor extends ResourceMetadataEditorBase {
-        toHash() {
-            var fromDate = this.getDate('from-');
-            var toDate = this.getDate('to-');
-            var description = this.container.querySelector('.description');
+        toHash(elem) {
+            var fromDate = this.getDate(elem, 'from-');
+            var toDate = this.getDate(elem, 'to-');
+            var description = elem.querySelector('.description');
             var descriptionValue = description ? description.value : '';
             if (fromDate === '' && toDate === '' && descriptionValue === '') return undefined;
             var defaultDate = '0000-00-00';
@@ -383,6 +391,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
     });
 
 
-    var form = document.querySelector('#resource-create-form');
-    var editor = new Shachi.ResourceEditor(form);
+    var form = <HTMLElement>document.querySelector('#resource-create-form');
+    if (form) {
+        var editor = new Shachi.ResourceEditor(form);
+    }
 });

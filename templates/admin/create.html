@@ -80,11 +80,11 @@
     </div>
 
     [%- FOREACH metadata IN metadata_list %]
-      <div class="resource-metadata [% metadata.name %]" data-name="[% metadata.name %]">
+      <div class="resource-metadata [% metadata.name %]" data-name="[% metadata.name %]" data-input-type="[% metadata.input_type %]">
         <h3>[% metadata.label %]</h3>
         <div class="resource-metadata-unit">
           <ul>
-            <li  class="resource-metadata-item [% metadata.input_type %]" data-input-type="[% metadata.input_type %]">
+            <li  class="resource-metadata-item [% metadata.input_type %]">
               [%- IF metadata.input_type == 'textarea' %]
                 [% metadata_input_textarea(metadata) %]
               [%- ELSIF metadata.input_type ==  'select' %]

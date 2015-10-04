@@ -82,7 +82,7 @@
   [%- FOREACH metadata IN metadata_list %]
     <div class="resource-metadata">
       <h3>[% metadata.label %]</h3>
-      <div class="resource-metadata-item">
+      <div class="resource-metadata-unit">
         [%- SET resource_metadata_list = resource.metadata(metadata) %]
         [%- IF resource_metadata_list %]
           <ul>
