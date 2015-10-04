@@ -433,7 +433,32 @@ var Shachi;
             return { value_id: select.value };
         }
     }
-    class ResourceMetadataRelationEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataRelationEditor extends ResourceMetadataEditorWithPopup {
+        constructor(container) {
+            super(container, '.description');
+            this.setup();
+        }
+        setup() {
+            if (!this.targetSelector)
+                return;
+            super.setup();
+            var items = this.container.querySelectorAll(this.listSelector + ' ' + this.targetSelector);
+            var self = this;
+            var popup = this.container.querySelector('.relation-popup-selector');
+            if (popup) {
+                this.popupSelector = new RelationPopupSelector(popup);
+            }
+            Array.prototype.forEach.call(items, function (item) {
+                self.registerEvent(item);
+            });
+        }
+        requestURI(query) {
+            return '/admin/resources/search?query=' + query;
+        }
+        popup(elem, json) {
+            this.popupSelector.replace(json.resources);
+            this.popupSelector.showAndMove(elem);
+        }
         toHash(elem) {
             var select = elem.querySelector('select');
             var description = elem.querySelector('.description');
@@ -459,7 +484,6 @@ var Shachi;
             if (popup) {
                 this.popupSelector = new LanguagePopupSelector(popup);
             }
-            console.log(items);
             Array.prototype.forEach.call(items, function (item) {
                 self.registerEvent(item);
             });
@@ -545,6 +569,33 @@ var Shachi;
         }
         hide() {
             this.container.style.display = 'none';
+        }
+    }
+    class RelationPopupSelector extends PopupSelector {
+        constructor(container) {
+            super(container);
+            this.positionTop = 20;
+            this.positionLeft = 0;
+        }
+        createItem(data) {
+            var item = document.createElement('li');
+            var value = data.shachi_id + ': ' + data.title;
+            item.textContent = value;
+            item.setAttribute('data-shachi_id', data.shachi_id);
+            item.setAttribute('data-title', data.title);
+            item.setAttribute('data-value', value);
+            item.style.display = 'none';
+            this.registerEvent(item);
+            return item;
+        }
+        registerEvent(elem) {
+            var self = this;
+            elem.addEventListener('click', function () { self.changeValue(elem); });
+        }
+        changeValue(elem) {
+            if (!this.currentElem)
+                return;
+            this.currentElem.value = elem.getAttribute('data-value');
         }
     }
     class LanguagePopupSelector extends PopupSelector {

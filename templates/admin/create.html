@@ -35,6 +35,9 @@
     [%- END # FOREACH value IN metadata.values %]
   </select>
   <input name="[% metadata.id %]" type="text" class="description">
+  <div class="relation-popup-selector" style="display:none">
+    <ul><li></li></ul>
+  </div>
 [%- END # MACRO metadata_input_relation %]
 
 [%- MACRO metadata_input_language(metadata) BLOCK %]
