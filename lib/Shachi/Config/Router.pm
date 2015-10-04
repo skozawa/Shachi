@@ -39,6 +39,10 @@ my $router = Router::Simple::Declare::router {
         dispatch => 'Shachi::Web::Admin::Resource',
         action   => 'create_post'
     }, { method => 'POST' };
+    connect '/admin/resources/search' => {
+        dispatch => 'Shachi::Web::Admin::Resource',
+        action   => 'search'
+    };
     connect "/admin/resources/{resource_id:[0-9]+}" => {
         dispatch => 'Shachi::Web::Admin::Resource',
         action   => 'find_by_id',

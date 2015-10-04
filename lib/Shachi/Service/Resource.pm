@@ -130,7 +130,7 @@ sub search_titles {
 
     my $title_by_resource_id = $resource_metadata_list->hash_by('resource_id');
     my $resources = $class->find_by_ids(
-        db => $db, ids => $resource_metadata_list->map('id')->to_a,
+        db => $db, ids => $resource_metadata_list->map('resource_id')->to_a,
     );
 
     foreach my $resource ( @$resources ) {

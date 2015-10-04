@@ -63,6 +63,21 @@ sub _resource_subject_from_contents {
     $value->value;
 }
 
+sub search {
+    my ($class, $c) = @_;
+    my $query = $c->req->param('query') or $c->throw_bad_request;
+
+    my $resources = Shachi::Service::Resource->search_titles(
+        db => $c->db, query => $query
+    );
+
+    $c->json({
+        resources => $resources->map(sub {
+            +{ id => $_->id, title => $_->title, shachi_id => $_->shachi_id }
+        })->to_a,
+    });
+}
+
 sub delete {
     my ($class, $c) = @_;
     my $resource_id = $c->route->{resource_id};
