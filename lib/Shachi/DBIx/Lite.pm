@@ -4,6 +4,8 @@ use warnings;
 use parent 'DBIx::Lite';
 use DBIx::Handler;
 use Module::Load qw/load/;
+use SQL::Abstract::Plugin::InsertMulti;
+use Carp qw/croak/;
 
 use Shachi::Config ();
 
@@ -40,6 +42,51 @@ sub DBIx::Lite::ResultSet::list_class {
         load $list_class = 'Shachi::Model::List';
     }
     return $list_class;
+}
+
+# DBIx::Lite::ResultSet::insertを参考にinsert_multi用メソッドを追加
+sub DBIx::Lite::ResultSet::insert_multi_sql {
+    my $self = shift;
+    my $insert_rows = shift;
+    my $opts = shift;
+    ref $insert_rows eq 'ARRAY' or croak "insert_multi_sql() requires a arrayref";
+
+    return $self->{dbix_lite}->{abstract}->insert_multi(
+        $self->{table}{name}, $insert_rows, $opts
+    );
+}
+
+sub DBIx::Lite::ResultSet::insert_multi_sth {
+    my $self = shift;
+    my $insert_rows = shift;
+    my $opts = shift;
+    ref $insert_rows eq 'ARRAY' or croak "insert_multi_sth() requires a arrayref";
+
+    my ($sql, @bind) = $self->insert_multi_sql($insert_rows, $opts);
+    return $self->{dbix_lite}->dbh->prepare($sql) || undef, @bind;
+}
+
+sub DBIx::Lite::ResultSet::insert_multi {
+    my $self = shift;
+    my $insert_rows = shift;
+    my $opts = shift;
+    ref $insert_rows eq 'ARRAY' or croak "insert_multi() requires a arrayref";
+
+    my $res;
+    $self->{dbix_lite}->dbh_do(sub {
+        my ($sth, @bind) = $self->insert_multi_sth($insert_rows, $opts);
+        $res = $sth->execute(@bind);
+    });
+    return undef if !$res;
+
+    if (my $pk = $self->{table}->autopk) {
+        for my $cols ( @$insert_rows ) {
+            $cols = clone $cols;
+            $cols->{$pk} = $self->{dbix_lite}->_autopk($self->{table}{name})
+                if !exists $cols->{$pk};
+        }
+    }
+    return [ map { $self->_inflate_row($_) } @$insert_rows ];
 }
 
 1;
