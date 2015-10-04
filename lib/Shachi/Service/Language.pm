@@ -34,6 +34,24 @@ sub create {
     );
 }
 
+sub find_by_code {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $code  => { isa => 'Str' };
+
+    $db->shachi->table('language')->search({ code => $code })->single;
+}
+
+sub search_by_names {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $names => { isa => 'ArrayRef' };
+
+    $db->shachi->table('language')->search({
+        name => { -in => $names }
+    })->list;
+}
+
 sub search_by_query {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },

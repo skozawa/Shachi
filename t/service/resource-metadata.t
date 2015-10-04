@@ -49,6 +49,69 @@ sub create : Tests {
     };
 }
 
+sub create_multi_from_json : Tests {
+    truncate_db;
+    my $english = create_language(code => 'eng');
+    my $metadata_list = +{ map {
+        $_->[0] => create_metadata(name => $_->[0], input_type => $_->[1])
+    } (['title', INPUT_TYPE_TEXT],
+     ['description', INPUT_TYPE_TEXTAREA],
+     ['subject_resourceSubject', INPUT_TYPE_SELECT],
+     ['subject_monoMultilingual', INPUT_TYPE_SELECTONLY],
+     ['relation', INPUT_TYPE_RELATION],
+     ['language', INPUT_TYPE_LANGUAGE],
+     ['date_issued', INPUT_TYPE_DATE],
+     ['date_created', INPUT_TYPE_RANGE],
+    ) };
+
+    subtest 'create multi normally' => sub {
+        my $db = Shachi::Database->new;
+
+        my $resource = create_resource;
+        my $resource_subject_value = create_metadata_value;
+        my $mono_multilingual_value = create_metadata_value;
+        my $relation_value = create_metadata_value;
+        my $language_value = create_language;
+        my $json = {
+            title => [ { content => 'test corpus' } ],
+            description => [ { content => 'test test' } ],
+            subject_resourceSubject => [
+                { value_id => $resource_subject_value->id, description => '' },
+                { value_id => '', description => 'test' },
+            ],
+            subject_monoMultilingual => [
+                { value_id => $mono_multilingual_value->id },
+            ],
+            relation => [
+                { value_id => $relation_value->id, description => 'test relation' },
+            ],
+            language => [
+                { content => $language_value->name, description => 'test language' },
+            ],
+            date_issued => [ { content => '2015-10-01' } ],
+            date_created => [
+                { content => '2014-01-01 2015-08-01', description => 'test created' }
+            ],
+        };
+        Shachi::Service::Resource::Metadata->create_multi_from_json(
+            db => $db, resource_id => $resource->id, json => $json,
+        );
+
+        foreach my $key ( keys %$json ) {
+            my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
+                db => $db, resource => $resource,
+                metadata_list => $metadata_list->{$key}->as_list,
+                args => { with_value => 1 },
+            );
+            is $items->size, scalar @{$json->{$key}}, "$key size";
+            my $first_item = $json->{$key}->[0];
+            is $items->[0]->content, $first_item->{content}, "$key content" if $first_item->{content};
+            is $items->[0]->description, $first_item->{description}, "$key description" if $first_item->{description};
+            is $items->[0]->value_id, $first_item->{value_id}, "$key value_id" if $first_item->{value_id};
+        }
+    };
+}
+
 sub find_resource_metadata_by_name : Tests {
     truncate_db;
     my $title_metadata = create_metadata(name => 'title');

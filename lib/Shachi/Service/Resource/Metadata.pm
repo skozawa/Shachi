@@ -4,7 +4,9 @@ use warnings;
 use Carp qw/croak/;
 use Smart::Args;
 use Shachi::Model::List;
+use Shachi::Model::Metadata;
 use Shachi::Model::Resource::Metadata;
+use Shachi::Service::Language;
 use Shachi::Service::Metadata;
 use Shachi::Service::Metadata::Value;
 
@@ -23,6 +25,49 @@ sub create {
         %$resource_metadata,
         id => $last_insert_id,
     );
+}
+
+sub create_multi_from_json {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $resource_id,
+         my $json  => { isa => 'HashRef' };
+
+    my $english = Shachi::Service::Language->find_by_code(db => $db, code => 'eng');
+    my $metadata_list = Shachi::Service::Metadata->find_shown_metadata(db => $db);
+
+    my $language_names = $metadata_list->map(sub {
+        return unless $_->input_type eq INPUT_TYPE_LANGUAGE;
+        my $items = $json->{$_->name} || [];
+        map { $_->{content} } @$items;
+    })->to_a;
+    my $language_by_name = Shachi::Service::Language->search_by_names(
+        db => $db, names => $language_names,
+    )->hash_by('name');
+
+    my $data = [];
+    foreach my $metadata ( @$metadata_list ) {
+        my $items = $json->{$metadata->name};
+        next unless $items && @$items;
+        foreach my $item ( @$items ) {
+            # INPUT_TYPE_LANGUAGEの場合はcontentからvalue_idを補完する
+            if ( $metadata->input_type eq INPUT_TYPE_LANGUAGE ) {
+                my $lang = $language_by_name->{$item->{content}};
+                $item->{value_id} = $lang ? $lang->value_id : 0;
+            }
+            push @$data, +{
+                resource_id => $resource_id,
+                metadata_id => $metadata->id,
+                language_id => $english->id,
+                value_id    => $item->{value_id} || 0,
+                content     => $item->{content} || '',
+                description => $item->{description} || '',
+            };
+        }
+    }
+    return unless @$data;
+
+    $db->shachi->table('resource_metadata')->insert_multi($data);
 }
 
 sub find_by_ids {
