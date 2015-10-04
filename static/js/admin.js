@@ -341,6 +341,63 @@ var Shachi;
             return ym + '-' + day.value;
         }
     }
+    class ResourceMetadataEditorWithPopup extends ResourceMetadataEditorBase {
+        constructor(container, targetSelector) {
+            super(container);
+            this.currentQuery = '';
+            this.enableRequest = true;
+            this.targetSelector = targetSelector;
+        }
+        setup() {
+            super.setup();
+        }
+        registerEvent(item) {
+            var self = this;
+            item.addEventListener('keyup', function () { self.changeInput(item); });
+            if (self.popupSelector) {
+                item.addEventListener('blur', function () {
+                    setTimeout(function () {
+                        self.popupSelector.hide();
+                    }, 200);
+                });
+            }
+        }
+        addItem() {
+            var newItem = super.addItem();
+            var item = newItem.querySelector(this.targetSelector);
+            this.registerEvent(item);
+        }
+        changeInput(elem) {
+            var query = elem.value;
+            if (query.length < 3) {
+                this.popupSelector.hide();
+                return;
+            }
+            if (!this.enableRequest)
+                return;
+            if (this.currentQuery === query) {
+                this.popupSelector.show();
+                return;
+            }
+            var self = this;
+            this.enableRequest = false;
+            Shachi.XHR.request('GET', this.requestURI(query), {
+                completeHandler: function (req) { self.complete(req, elem); }
+            });
+        }
+        requestURI(query) {
+            return '';
+        }
+        complete(res, elem) {
+            try {
+                var json = JSON.parse(res.responseText);
+                this.popup(elem, json);
+            }
+            catch (err) { }
+            this.enableRequest = true;
+        }
+        popup(elem, json) { }
+    }
     class ResourceMetadataTextEditor extends ResourceMetadataEditorBase {
         toHash(elem) {
             var content = elem.querySelector('.content');
@@ -387,70 +444,31 @@ var Shachi;
             return { value_id: selectValue, description: descriptionValue };
         }
     }
-    class ResourceMetadataLanguageEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataLanguageEditor extends ResourceMetadataEditorWithPopup {
         constructor(container) {
-            super(container);
-            this.currentQuery = '';
-            this.enableRequest = true;
+            super(container, '.content');
+            this.setup();
         }
         setup() {
+            if (!this.targetSelector)
+                return;
             super.setup();
-            var items = this.container.querySelectorAll(this.listSelector + ' .content');
+            var items = this.container.querySelectorAll(this.listSelector + ' ' + this.targetSelector);
             var self = this;
             var popup = this.container.querySelector('.language-popup-selector');
             if (popup) {
                 this.popupSelector = new LanguagePopupSelector(popup);
             }
+            console.log(items);
             Array.prototype.forEach.call(items, function (item) {
                 self.registerEvent(item);
             });
         }
-        registerEvent(item) {
-            var self = this;
-            item.addEventListener('keyup', function () { self.changeLanguage(item); });
-            if (self.popupSelector) {
-                item.addEventListener('blur', function () {
-                    setTimeout(function () {
-                        self.popupSelector.hide();
-                    }, 200);
-                });
-            }
+        requestURI(query) {
+            return '/admin/languages/search?query=' + query;
         }
-        addItem() {
-            var newItem = super.addItem();
-            var item = newItem.querySelector('.content');
-            this.registerEvent(item);
-        }
-        changeLanguage(elem) {
-            var query = elem.value;
-            if (query.length < 3) {
-                this.popupSelector.hide();
-                return;
-            }
-            if (!this.enableRequest)
-                return;
-            if (this.currentQuery === query) {
-                this.popupSelector.show();
-                return;
-            }
-            var self = this;
-            this.enableRequest = false;
-            Shachi.XHR.request('GET', '/admin/languages/search?query=' + query, {
-                completeHandler: function (req) { self.complete(req, elem); }
-            });
-        }
-        complete(res, elem) {
-            try {
-                var json = JSON.parse(res.responseText);
-                if (json.languages) {
-                    this.popup(elem, json.languages);
-                }
-            }
-            catch (err) { }
-            this.enableRequest = true;
-        }
-        popup(elem, languages) {
-            this.popupSelector.replace(languages);
+        popup(elem, json) {
+            this.popupSelector.replace(json.languages);
             this.popupSelector.showAndMove(elem);
         }
         toHash(elem) {
