@@ -34,6 +34,13 @@ sub find_by_value_and_value_type {
     })->single;
 }
 
+sub find_by_id {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $id;
+    $db->shachi->table('metadata_value')->search({ id => $id })->single;
+}
+
 sub find_by_ids {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },

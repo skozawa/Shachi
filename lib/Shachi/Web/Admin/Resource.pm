@@ -2,7 +2,11 @@ package Shachi::Web::Admin::Resource;
 use strict;
 use warnings;
 use JSON::Types;
+use List::MoreUtils qw/firstval/;
 use Shachi::Service::Resource;
+use Shachi::Service::Resource::Metadata;
+use Shachi::Service::Metadata;
+use Shachi::Service::Metadata::Value;
 
 sub find_by_id {
     my ($class, $c) = @_;
@@ -31,6 +35,32 @@ sub create_get {
         annotators    => $annotators,
         metadata_list => $metadata_list,
     });
+}
+
+sub create_post {
+    my ($class, $c) = @_;
+    my $contents = $c->req->json;
+
+    my $resource_subject = _resource_subject_from_contents($c->db, $contents);
+    my $resource = Shachi::Service::Resource->create(db => $c->db, args => {
+        annotator_id => $contents->{annotator_id},
+        status       => $contents->{status},
+        resource_subject => $resource_subject,
+    });
+
+    Shachi::Service::Resource::Metadata->create_multi_from_json(
+        db => $c->db, resource_id => $resource->id, json => $contents,
+    );
+
+    $c->json({ resource_id => $resource->id });
+}
+
+sub _resource_subject_from_contents {
+    my ($db, $contents) = @_;
+    my $resource_subject = firstval { $_->{value_id} } @{$contents->{subject_resourceSubject} || []};
+    return unless $resource_subject;
+    my $value = Shachi::Service::Metadata::Value->find_by_id(db => $db, id => $resource_subject->{value_id});
+    $value->value;
 }
 
 sub delete {
