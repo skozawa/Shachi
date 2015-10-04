@@ -27,6 +27,10 @@ my $router = Router::Simple::Declare::router {
     connect '/admin/' => {
         dispatch => 'Shachi::Web::Admin',
     };
+    connect '/admin/languages/search' => {
+        dispatch => 'Shachi::Web::Admin::Language',
+        action   => 'search',
+    };
     connect '/admin/resources/create' => {
         dispatch => 'Shachi::Web::Admin::Resource',
         action   => 'create_get'

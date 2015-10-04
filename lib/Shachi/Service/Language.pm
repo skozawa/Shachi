@@ -61,8 +61,8 @@ sub search_by_query {
         -or => [
             { code => { regexp => $query } },
             { 'name COLLATE utf8mb4_unicode_ci' => { regexp => $query } }
-        ]
-    })->list;
+        ],
+    })->order_by('code asc')->list;
 }
 
 1;
