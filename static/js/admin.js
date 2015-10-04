@@ -487,22 +487,19 @@ var Shachi;
             return { content: date, description: descriptionValue };
         }
     }
-    class LanguagePopupSelector {
+    class PopupSelector {
         constructor(container) {
             this.container = container;
+            this.positionTop = 0;
+            this.positionLeft = 0;
         }
-        replace(languages) {
+        replace(dataList) {
             var container = this.container.querySelector('ul');
             var oldItems = this.container.querySelectorAll('li');
             var newItems = [];
             var self = this;
-            languages.forEach(function (language) {
-                var newItem = document.createElement('li');
-                newItem.textContent = language.code + ': ' + language.name;
-                newItem.setAttribute('data-code', language.code);
-                newItem.setAttribute('data-name', language.name);
-                newItem.style.display = 'none';
-                self.registerEvent(newItem);
+            dataList.forEach(function (data) {
+                var newItem = self.createItem(data);
                 newItems.push(newItem);
                 container.appendChild(newItem);
             });
@@ -513,19 +510,11 @@ var Shachi;
                 item.style.display = 'block';
             });
         }
-        registerEvent(elem) {
-            var self = this;
-            elem.addEventListener('click', function () { self.changeValue(elem); });
-        }
-        changeValue(elem) {
-            if (!this.currentElem)
-                return;
-            this.currentElem.value = elem.getAttribute('data-name');
-        }
+        createItem(data) { }
         showAndMove(elem) {
             this.currentElem = elem;
-            this.container.style.top = elem.offsetTop + 'px';
-            this.container.style.left = (elem.offsetLeft + 265) + 'px';
+            this.container.style.top = (elem.offsetTop + this.positionTop) + 'px';
+            this.container.style.left = (elem.offsetLeft + this.positionLeft) + 'px';
             this.show();
         }
         show() {
@@ -538,6 +527,31 @@ var Shachi;
         }
         hide() {
             this.container.style.display = 'none';
+        }
+    }
+    class LanguagePopupSelector extends PopupSelector {
+        constructor(container) {
+            super(container);
+            this.positionTop = 0;
+            this.positionLeft = 265;
+        }
+        createItem(data) {
+            var item = document.createElement('li');
+            item.textContent = data.code + ': ' + data.name;
+            item.setAttribute('data-code', data.code);
+            item.setAttribute('data-name', data.name);
+            item.style.display = 'none';
+            this.registerEvent(item);
+            return item;
+        }
+        registerEvent(elem) {
+            var self = this;
+            elem.addEventListener('click', function () { self.changeValue(elem); });
+        }
+        changeValue(elem) {
+            if (!this.currentElem)
+                return;
+            this.currentElem.value = elem.getAttribute('data-name');
         }
     }
 })(Shachi || (Shachi = {}));
