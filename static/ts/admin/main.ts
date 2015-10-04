@@ -299,6 +299,7 @@ module Shachi {
                 elem.value = "";
             });
             item.parentNode.appendChild(newItem);
+            return newItem;
         }
         deleteItem() {
             var items = this.container.querySelectorAll(this.listSelector);
@@ -378,6 +379,74 @@ module Shachi {
     }
 
     class ResourceMetadataLanguageEditor extends ResourceMetadataEditorBase {
+        currentQuery;
+        enableRequest;
+        popupSelector;
+        constructor(container: HTMLElement) {
+            super(container);
+            this.currentQuery = '';
+            this.enableRequest = true;
+        }
+        setup() {
+            super.setup();
+            var items = this.container.querySelectorAll(this.listSelector + ' .content');
+            var self = this;
+            var popup = this.container.querySelector('.language-popup-selector');
+            if (popup) {
+                this.popupSelector = new LanguagePopupSelector(popup);
+            }
+            Array.prototype.forEach.call(items, function(item) {
+                self.registerEvent(item);
+            });
+        }
+        registerEvent(item) {
+            var self = this;
+            item.addEventListener('keyup', function() { self.changeLanguage(item) });
+            if ( self.popupSelector ) {
+                item.addEventListener('blur', function() {
+                    // popupSelectorのclickを取るため少し遅らせて非表示にする
+                    setTimeout(function () {
+                        self.popupSelector.hide();
+                    }, 200);
+                });
+            }
+        }
+        addItem() {
+            var newItem = super.addItem();
+            var item = newItem.querySelector('.content');
+            this.registerEvent(item);
+        }
+        changeLanguage(elem) {
+            var query = elem.value;
+            if (query.length < 3) {
+                this.popupSelector.hide();
+                return;
+            }
+            if (!this.enableRequest) return;
+            if (this.currentQuery === query) {
+                this.popupSelector.show();
+                return;
+            }
+
+            var self = this;
+            this.enableRequest = false;
+            Shachi.XHR.request('GET', '/admin/languages/search?query=' + query, {
+                completeHandler: function (req) { self.complete(req, elem) }
+            });
+        }
+        complete(res, elem) {
+            try {
+                var json = JSON.parse(res.responseText);
+                if ( json.languages ) {
+                    this.popup(elem, json.languages);
+                }
+            } catch (err) { /* ignore */ }
+            this.enableRequest = true;
+        }
+        popup(elem, languages) {
+            this.popupSelector.replace(languages);
+            this.popupSelector.showAndMove(elem);
+        }
         toHash(elem) {
             var content = elem.querySelector('.content');
             var description = elem.querySelector('.description');
@@ -411,6 +480,63 @@ module Shachi {
             return { content: date, description: descriptionValue };
         }
     }
+
+
+    class LanguagePopupSelector {
+        container;
+        currentElem;
+        constructor(container: HTMLElement) {
+            this.container = container;
+        }
+        replace(languages) {
+            var container = this.container.querySelector('ul');
+            var oldItems = this.container.querySelectorAll('li');
+            var newItems = [];
+            var self = this;
+            languages.forEach(function(language) {
+                var newItem = document.createElement('li');
+                newItem.textContent = language.code + ': ' + language.name;
+                newItem.setAttribute('data-code', language.code);
+                newItem.setAttribute('data-name', language.name);
+                newItem.style.display = 'none';
+                self.registerEvent(newItem);
+                newItems.push(newItem);
+                container.appendChild(newItem);
+            });
+            Array.prototype.forEach.call(oldItems, function(item) {
+                item.parentNode.removeChild(item);
+            });
+            newItems.forEach(function(item) {
+                item.style.display = 'block';
+            });
+        }
+        registerEvent(elem) {
+            var self = this;
+            elem.addEventListener('click', function () { self.changeValue(elem) });
+        }
+        changeValue(elem) {
+            if ( !this.currentElem ) return;
+            this.currentElem.value= elem.getAttribute('data-name');
+        }
+        showAndMove(elem: HTMLElement) {
+            this.currentElem = elem;
+            this.container.style.top = elem.offsetTop + 'px';
+            this.container.style.left = (elem.offsetLeft + 265) + 'px';
+            this.show();
+        }
+        show() {
+            var items = this.container.querySelectorAll('li');
+            if ( items.length === 0 ) {
+                this.hide();
+                return;
+            }
+            this.container.style.display = 'block';
+        }
+        hide() {
+            this.container.style.display = 'none';
+        }
+    }
+
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {

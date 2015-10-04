@@ -364,6 +364,27 @@ div.resource-detail-container {
         }
       }
     }
+    .language-popup-selector {
+       display: block;
+       position: absolute;
+       z-index: 10;
+       background-color: #ffffff;
+       border: solid 1px #999999;
+       padding: 10px;
+       border-radius: 5px;
+       font-size: 15px;
+       max-height: 200px;
+       overflow-y: scroll;
+
+       li {
+         border-bottom: solid 1px #cccccc;
+         cursor: pointer;
+
+         &:hover {
+           background-color: #cccccc;
+         }
+       }
+    }
   }
 
   div.resource-create-footer {
