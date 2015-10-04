@@ -279,10 +279,42 @@ var Shachi;
         constructor(container) {
             this.container = container;
             this.name = container.getAttribute('data-name');
+            this.listSelector = 'li.resource-metadata-item';
+            this.setup();
+        }
+        setup() {
+            var self = this;
+            var addButton = this.container.querySelector('.btn.add');
+            if (addButton) {
+                addButton.addEventListener('click', function () {
+                    self.addItem();
+                });
+            }
+            var deleteButton = this.container.querySelector('.btn.delete');
+            if (deleteButton) {
+                deleteButton.addEventListener('click', function () {
+                    self.deleteItem();
+                });
+            }
+        }
+        addItem() {
+            var item = this.container.querySelector(this.listSelector);
+            var newItem = item.cloneNode(true);
+            Array.prototype.forEach.call(newItem.querySelectorAll('input, textarea'), function (elem) {
+                elem.value = "";
+            });
+            item.parentNode.appendChild(newItem);
+        }
+        deleteItem() {
+            var items = this.container.querySelectorAll(this.listSelector);
+            if (items.length < 2)
+                return;
+            var removeItem = items[items.length - 1];
+            removeItem.parentNode.removeChild(removeItem);
         }
         toValues() {
             var self = this;
-            var items = this.container.querySelectorAll('li.resource-metadata-item');
+            var items = this.container.querySelectorAll(this.listSelector);
             var values = [];
             Array.prototype.forEach.call(items, function (item) {
                 var hash = self.toHash(item);

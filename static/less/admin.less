@@ -249,9 +249,41 @@ div.resource-detail-container {
     h3 {
       font-size: 16px;
       display: inline-block;
-      width: 400px;
+      width: 390px;
       margin: 0;
       vertical-align: top;
+    }
+    ul.resource-metadata-add-delete {
+      list-style: none;
+      display: inline-block;
+      padding: 0;
+      margin: 0;
+      width: 60px;
+      vertical-align: top;
+
+      li.btn {
+        width: 25px;
+        padding: 3px 0;
+        display: inline;
+        border: solid 1px #ccc;
+        background-color: #ccc;
+        margin: 0px;
+        border-radius: 30px;
+        padding: 0 5px;
+        font-size: 15px;
+        font-weight: bold;
+        box-shadow: 0 1px 1px rgba(0, 0, 0, 0.8);
+        cursor: pointer;
+
+        &.delete {
+          padding: 0 7px;
+        }
+
+        &:hover {
+          background-color: #999999;
+          color: #ffffff;
+        }
+      }
     }
     div.resource-metadata-unit {
       display: inline-block;

@@ -82,6 +82,12 @@
     [%- FOREACH metadata IN metadata_list %]
       <div class="resource-metadata [% metadata.name %]" data-name="[% metadata.name %]" data-input-type="[% metadata.input_type %]">
         <h3>[% metadata.label %]</h3>
+        <ul class="resource-metadata-add-delete">
+          [% IF metadata.multi_value %]
+            <li class="btn add"><span>+</span></li>
+            <li class="btn delete"><span>-</span></li>
+          [% END # IF metadata.multi_value %]
+        </ul>
         <div class="resource-metadata-unit">
           <ul>
             <li  class="resource-metadata-item [% metadata.input_type %]">
