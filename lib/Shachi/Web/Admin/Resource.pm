@@ -16,7 +16,7 @@ sub find_by_id {
     );
     return $c->throw_not_found unless $resource;
 
-    return $c->html('admin/detail.html', {
+    return $c->html('admin/resource.html', {
         resource => $resource,
         metadata_list => $metadata_list,
     });
@@ -31,7 +31,7 @@ sub create_get {
         db => $c->db, metadata_list => $metadata_list
     );
 
-    return $c->html('admin/create.html', {
+    return $c->html('admin/resource/create.html', {
         annotators    => $annotators,
         metadata_list => $metadata_list,
     });
