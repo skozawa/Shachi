@@ -192,7 +192,7 @@ var Shachi;
 })(Shachi || (Shachi = {}));
 var Shachi;
 (function (Shachi) {
-    class ResourceEditor {
+    class ResourceCreateEditor {
         constructor(container) {
             this.container = container;
             this.setup();
@@ -275,7 +275,31 @@ var Shachi;
             return values;
         }
     }
-    Shachi.ResourceEditor = ResourceEditor;
+    Shachi.ResourceCreateEditor = ResourceCreateEditor;
+    class ResourceUpdateEditor {
+        constructor(container) {
+            this.container = container;
+            this.setup();
+        }
+        setup() {
+            this.statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor', 'li.status');
+            this.editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');
+            var self = this;
+            var statusElem = this.container.querySelector('.status');
+            if (statusElem) {
+                statusElem.addEventListener('click', function () {
+                    self.statusEditor.showWithSet(self.container, statusElem);
+                });
+            }
+            var editStatusElem = this.container.querySelector('.edit-status');
+            if (editStatusElem) {
+                editStatusElem.addEventListener('click', function () {
+                    self.editStatusEditor.showWithSet(self.container, editStatusElem);
+                });
+            }
+        }
+    }
+    Shachi.ResourceUpdateEditor = ResourceUpdateEditor;
     class ResourceMetadataEditorBase {
         constructor(container) {
             this.container = container;
@@ -626,14 +650,20 @@ var Shachi;
     }
 })(Shachi || (Shachi = {}));
 document.addEventListener("DOMContentLoaded", function (event) {
-    var statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor', 'li.status');
-    var editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');
     var resources = document.querySelectorAll('li.annotator-resource[data-resource-id]');
-    Array.prototype.forEach.call(resources, function (resource) {
-        new Shachi.ResourceListEditor(resource, statusEditor, editStatusEditor);
-    });
+    if (resources && resources.length > 0) {
+        var statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor', 'li.status');
+        var editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');
+        Array.prototype.forEach.call(resources, function (resource) {
+            new Shachi.ResourceListEditor(resource, statusEditor, editStatusEditor);
+        });
+    }
     var form = document.querySelector('#resource-create-form');
     if (form) {
-        var editor = new Shachi.ResourceEditor(form);
+        var createEditor = new Shachi.ResourceCreateEditor(form);
+    }
+    var detail = document.querySelector('.resource-detail-container');
+    if (detail) {
+        var updateEditor = new Shachi.ResourceUpdateEditor(detail);
     }
 });

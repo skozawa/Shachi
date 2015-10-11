@@ -195,20 +195,46 @@ div.status-popup-editor {
   }
 }
 
-div.resource-detail-header {
-  padding-bottom: 10px;
+div.resource-detail-container {
+  div.resource-detail-header {
+    padding-bottom: 10px;
 
-  div.resource-detail-data {
-    font-size: 16px;
+    div.resource-detail-data {
+      font-size: 16px;
 
-    .modified, .created {
+      .modified, .created {
+        float: right;
+        padding: 0 5px;
+      }
+    }
+
+    span.edit-status {
+      cursor: pointer;
+      margin: 10px 10px;
+      width: 20px;
+      img {
+        width: 20px;
+      }
+    }
+    span.status {
+      cursor: pointer;
+      margin: 10px 10px;
+      width: 60px;
+      font-size: 15px;
+    }
+    .label {
+      background-color: #CCCCCC;
+      padding: 1px;
+      .border-radius(5px);
+      .box-shadow(0 1px 1px rgba(0,0,0,0.8));
+    }
+
+    .delete-form {
+      display: inline-block;
       float: right;
-      padding: 0 5px;
     }
   }
-}
 
-div.resource-detail-container {
   select.annotator {
     width: 260px;
     font-size: 16px;
@@ -419,6 +445,13 @@ div.resource-detail-container {
       background-color: #60B044;
       background-image: linear-gradient(#8ADD6D, #60B044);
       border: 1px solid #5CA941;
+    }
+
+    &.delete {
+      color: #ffffff;
+      background-color: #C71A52;
+      background-image: linear-gradient(#BF184E,#C71A52);
+      border: 1px solid #8A0D41;
     }
   }
 }

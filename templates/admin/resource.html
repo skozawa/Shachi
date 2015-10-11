@@ -69,16 +69,30 @@
   [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
 [%- END # MACRO metadata_list_range %]
 
-<div class="resource-detail-header">
-  <h3>[% resource.shachi_id %]</h3>
-  <div class="resource-detail-data">
-    <span class="annotator">Annotator: [% resource.annotator.name %]</span>
-    <span class="modified">更新日時: [% resource.modified.strftime('%Y/%m/%d %T') %]</span>
-    <span class="created">登録日時: [% resource.created.strftime('%Y/%m/%d %T') %]</span>
+<div class="resource-detail-container" data-resource-id="[% resource.id %]">
+  <div class="resource-detail-header">
+    <h3>[% resource.shachi_id %]</h3>
+    <div class="resource-detail-data">
+      <span class="annotator">Annotator: [% resource.annotator.name %]</span>
+      <span class="modified">更新日時: [% resource.modified.strftime('%Y/%m/%d %T') %]</span>
+      <span class="created">登録日時: [% resource.created.strftime('%Y/%m/%d %T') %]</span>
+    </div>
+    <div class="resource-detail-status">
+      <span class="edit-status" data-edit-status="[% resource.edit_status %]">
+        <img src="/images/admin/[% resource.edit_status %].png">
+      </span>
+      [%- SET status = resource.status == 'private' ? 'private' : 'public' %]
+      <span class="status" data-status="[% status %]"><span class="label">[% status %]</span></span>
+      <span class="delete">
+        <form action="/admin/resources/[% resource.id %]/delete" method="POST" class="delete-form">
+          <button type="submit" class="delete" onclick="return confirm('Do you delete the resource?')">削除</button>
+        </form>
+      </span>
+      [%- INCLUDE '/admin/resource/edit-status-popup-editor.tt' %]
+      [%- INCLUDE '/admin/resource/status-popup-editor.tt' %]
+    </div>
   </div>
-</div>
 
-<div class="resource-detail-container">
   [%- FOREACH metadata IN metadata_list %]
     <div class="resource-metadata">
       <h3>[% metadata.label %]</h3>

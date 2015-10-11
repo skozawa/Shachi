@@ -191,7 +191,7 @@ module Shachi {
 }
 
 module Shachi {
-    export class ResourceEditor {
+    export class ResourceCreateEditor {
         container;
         metadataEditors;
         constructor(container: HTMLElement) {
@@ -265,6 +265,33 @@ module Shachi {
                 values['status'] = status.value;
             });
             return values;
+        }
+    }
+
+    export class ResourceUpdateEditor {
+        container;
+        statusEditor;
+        editStatusEditor;
+        constructor(container: HTMLElement) {
+            this.container = container;
+            this.setup();
+        }
+        setup() {
+            this.statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor', 'li.status');
+            this.editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');
+            var self = this;
+            var statusElem = this.container.querySelector('.status');
+            if (statusElem) {
+                statusElem.addEventListener('click', function () {
+                    self.statusEditor.showWithSet(self.container, statusElem);
+                });
+            }
+            var editStatusElem = this.container.querySelector('.edit-status');
+            if (editStatusElem) {
+                editStatusElem.addEventListener('click', function () {
+                    self.editStatusEditor.showWithSet(self.container, editStatusElem);
+                });
+            }
         }
     }
 
@@ -619,17 +646,26 @@ module Shachi {
 }
 
 document.addEventListener("DOMContentLoaded", function(event) {
-    var statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor', 'li.status');
-    var editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');
-
+    // /admin/
     var resources = document.querySelectorAll('li.annotator-resource[data-resource-id]');
-    Array.prototype.forEach.call(resources, function(resource) {
-        new Shachi.ResourceListEditor(resource, statusEditor, editStatusEditor);
-    });
+    if ( resources && resources.length > 0 ) {
+        var statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor', 'li.status');
+        var editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');
 
+        Array.prototype.forEach.call(resources, function(resource) {
+            new Shachi.ResourceListEditor(resource, statusEditor, editStatusEditor);
+        });
+    }
 
+    // /admin/resources/create
     var form = <HTMLElement>document.querySelector('#resource-create-form');
     if (form) {
-        var editor = new Shachi.ResourceEditor(form);
+        var createEditor = new Shachi.ResourceCreateEditor(form);
+    }
+
+    // /admin/resources/{id}
+    var detail = <HTMLElement>document.querySelector('.resource-detail-container');
+    if (detail) {
+        var updateEditor = new Shachi.ResourceUpdateEditor(detail);
     }
 });
