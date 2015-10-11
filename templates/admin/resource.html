@@ -73,12 +73,9 @@
   <div class="resource-detail-header">
     <h3>[% resource.shachi_id %]</h3>
     <div class="resource-detail-data">
-      <div class="annotator-container">
-        <span class="annotator" data-annotator-id="[% resource.annotator.id %]">Annotator: [% resource.annotator.name %]</span>
-        <img src="/images/admin/edit.png" class="annotator-edit-button">
-        [%- INCLUDE '/admin/resource/annotator-popup-editor.tt' WITH annotators = annotators %]
-      </div>
-
+      <span class="annotator" data-annotator-id="[% resource.annotator.id %]">Annotator: [% resource.annotator.name %]</span>
+      <img src="/images/admin/edit.png" class="annotator-edit-button">
+      [%- INCLUDE '/admin/resource/annotator-popup-editor.tt' WITH annotators = annotators %]
       <span class="modified">更新日時: [% resource.modified.strftime('%Y/%m/%d %T') %]</span>
       <span class="created">登録日時: [% resource.created.strftime('%Y/%m/%d %T') %]</span>
     </div>
@@ -88,11 +85,9 @@
       </span>
       [%- SET status = resource.status == 'private' ? 'private' : 'public' %]
       <span class="status" data-status="[% status %]"><span class="label">[% status %]</span></span>
-      <span class="delete">
-        <form action="/admin/resources/[% resource.id %]/delete" method="POST" class="delete-form">
-          <button type="submit" class="delete" onclick="return confirm('Do you delete the resource?')">削除</button>
-        </form>
-      </span>
+      <form action="/admin/resources/[% resource.id %]/delete" method="POST" class="delete-form">
+        <button type="submit" class="delete" onclick="return confirm('Do you delete the resource?')">削除</button>
+      </form>
       [%- INCLUDE '/admin/resource/edit-status-popup-editor.tt' %]
       [%- INCLUDE '/admin/resource/status-popup-editor.tt' %]
     </div>
