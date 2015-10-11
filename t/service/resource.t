@@ -112,6 +112,25 @@ sub search_titles : Tests {
     };
 }
 
+sub update_annotator : Tests {
+    subtest 'update normally' => sub {
+        my $db = Shachi::Database->new;
+        my $annotator1 = create_annotator;
+        my $annotator2 = create_annotator;
+        my $resource   = create_resource(annotator_id => $annotator1->id);
+
+        is $resource->annotator_id, $annotator1->id;
+
+        Shachi::Service::Resource->update_annotator(
+            db => $db, id => $resource->id, annotator_id => $annotator2->id,
+        );
+        my $updated_resource = Shachi::Service::Resource->find_by_id(
+            db => $db, id => $resource->id,
+        );
+        is $updated_resource->annotator_id, $annotator2->id;
+    };
+}
+
 sub update_status : Tests {
     truncate_db;
     my $identifier_metadata = create_metadata(name => 'identifier');

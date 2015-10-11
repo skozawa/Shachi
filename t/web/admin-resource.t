@@ -102,6 +102,21 @@ sub delete : Tests {
     };
 }
 
+sub update_annotator : Tests {
+    subtest 'update normally' => sub {
+        my $annotator = create_annotator;
+        my $resource = create_resource;
+        my $mech = create_mech;
+
+        $mech->post("/admin/resources/@{[ $resource->id ]}/annotator", {
+            annotator_id => $annotator->id,
+        });
+        my $res_json = decode_json($mech->res->content);
+        is $res_json->{annotator}->{id}, $annotator->id;
+        is $res_json->{annotator}->{name}, $annotator->name;
+    };
+}
+
 sub update_status : Tests {
     subtest 'update normally' => sub {
         my $resource = create_resource;

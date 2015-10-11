@@ -96,6 +96,24 @@ sub delete {
     }
 }
 
+sub update_annotator {
+    my ($class, $c) = @_;
+    my $resource_id = $c->route->{resource_id};
+    my $annotator_id = $c->req->param('annotator_id') or return $c->throw_bad_request;
+
+    my $resource = Shachi::Service::Resource->find_by_id(db => $c->db, id => $resource_id);
+    return $c->throw_not_found unless $resource;
+
+    my $annotator = Shachi::Service::Annotator->find_by_id(db => $c->db, id => $annotator_id);
+    return $c->throw_bad_request unless $annotator;
+
+    Shachi::Service::Resource->update_annotator(
+        db => $c->db, id => $resource_id, annotator_id => $annotator_id,
+    );
+
+    $c->json({ annotator => { id => $annotator->id, name => $annotator->name } });
+}
+
 sub update_status {
     my ($class, $c) = @_;
     my $resource_id = $c->route->{resource_id};
