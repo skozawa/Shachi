@@ -96,21 +96,20 @@ ul.annotator-resource-list {
   }
 }
 
-div.edit-status-popup-editor {
+div.popup-editor {
   position: absolute;
-  width: 230px;
-  height: 70px;
   border: solid 1px #CCCCCC;
   .box-shadow(0 2px 4px rgba(0,0,0,0.2));
   .border-radius(3px);
   padding-left: 10px;
   background-color: #ffffff;
+  width: 230px;
+  height: 70px;
   z-index: 10;
 
   ul {
     list-style: none;
     padding-left: 0;
-    margin-top: 40px;
     margin-bottom: 0;
 
     li {
@@ -123,12 +122,9 @@ div.edit-status-popup-editor {
         background-color: #CCCCCC;
       }
 
-      img {
-        width: 20px;
-      }
-
       &.close {
         position: absolute;
+        width: 20px;
         height: 20px;
         top: 2px;
         right: 2px;
@@ -144,28 +140,31 @@ div.edit-status-popup-editor {
   }
 }
 
+div.edit-status-popup-editor {
+  width: 230px;
+  height: 70px;
+  z-index: 10;
+
+  ul {
+    margin-top: 40px;
+
+    li {
+      img {
+        width: 20px;
+      }
+    }
+  }
+}
+
 div.status-popup-editor {
-  position: absolute;
   width: 170px;
   height: 70px;
-  border: solid 1px #CCCCCC;
-  .box-shadow(0 2px 4px rgba(0,0,0,0.2));
-  .border-radius(3px);
-  padding-left: 10px;
-  background-color: #ffffff;
   z-index: 15;
 
   ul {
-    list-style: none;
-    padding-left: 0;
     margin-top: 30px;
-    margin-bottom: 0;
 
     li {
-      display: inline-block;
-      width: 20px;
-      cursor: pointer;
-      padding: 0 3px;
       text-align: center;
       font-size: 20px;
 
@@ -175,25 +174,25 @@ div.status-popup-editor {
         .border-radius(5px);
         .box-shadow(0 1px 1px rgba(0,0,0,0.1));
       }
-      &:hover {
-        background-color: #CCCCCC;
-      }
-
-      &.close {
-        position: absolute;
-        height: 20px;
-        top: 2px;
-        right: 2px;
-        padding: 1px;
-        vertical-align: middle;
-        font-size: 15px;
-        color: #999999;
-        border: solid 1px #CCCCCC;
-        .border-radius(3px);
-      }
     }
   }
 }
+
+div.annotator-popup-editor {
+  width: 400px;
+  height: 200px;
+  overflow: scroll;
+
+  ul {
+    font-size: 15px;
+    margin-top: 26px;
+
+    li {
+      border-bottom: solid 1px #CCCCCC;
+    }
+  }
+}
+
 
 div.resource-detail-container {
   div.resource-detail-header {
@@ -208,6 +207,9 @@ div.resource-detail-container {
       }
     }
 
+    img.annotator-edit-button {
+      cursor: pointer;
+    }
     span.edit-status {
       cursor: pointer;
       margin: 10px 10px;

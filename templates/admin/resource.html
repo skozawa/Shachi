@@ -73,7 +73,12 @@
   <div class="resource-detail-header">
     <h3>[% resource.shachi_id %]</h3>
     <div class="resource-detail-data">
-      <span class="annotator">Annotator: [% resource.annotator.name %]</span>
+      <div class="annotator-container">
+        <span class="annotator">Annotator: [% resource.annotator.name %]</span>
+        <img src="/images/admin/edit.png" class="annotator-edit-button">
+        [%- INCLUDE '/admin/resource/annotator-popup-editor.tt' WITH annotators = annotators %]
+      </div>
+
       <span class="modified">更新日時: [% resource.modified.strftime('%Y/%m/%d %T') %]</span>
       <span class="created">登録日時: [% resource.created.strftime('%Y/%m/%d %T') %]</span>
     </div>

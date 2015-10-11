@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use JSON::Types;
 use List::MoreUtils qw/firstval/;
+use Shachi::Service::Annotator;
 use Shachi::Service::Resource;
 use Shachi::Service::Resource::Metadata;
 use Shachi::Service::Metadata;
@@ -16,9 +17,11 @@ sub find_by_id {
     );
     return $c->throw_not_found unless $resource;
 
+    my $annotators = Shachi::Service::Annotator->find_all(db => $c->db);
     return $c->html('admin/resource.html', {
         resource => $resource,
         metadata_list => $metadata_list,
+        annotators => $annotators,
     });
 }
 

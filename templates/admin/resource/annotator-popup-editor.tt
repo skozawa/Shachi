@@ -1,0 +1,9 @@
+[%-# require annotators %]
+<div class="annotator-popup-editor popup-editor" style="display:none">
+  <ul>
+    [%- FOREACH annotator IN annotators %]
+      <li data-annotator-id="[% annotator.id %]">[% annotator.name %]</li>
+    [%- END # FOREACH annotator IN annotators %]
+    <li class="close">x</li>
+  </ul>
+</div>

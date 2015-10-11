@@ -1,4 +1,4 @@
-<div class="edit-status-popup-editor" style="display:none">
+<div class="edit-status-popup-editor popup-editor" style="display:none">
   <ul>
     [%- FOREACH edit_status IN ['new', 'editing', 'complete', 'pending', 'revised', 'proofed', 'proofed2'] %]
       <li class="edit-status" data-edit-status="[% edit_status %]">

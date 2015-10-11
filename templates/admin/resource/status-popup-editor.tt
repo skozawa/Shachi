@@ -1,4 +1,4 @@
-<div class="status-popup-editor" style="display:none">
+<div class="status-popup-editor popup-editor" style="display:none">
   <ul>
     <li class="status" data-status="public">public</li>
     <li class="status" data-status="private">private</li>
