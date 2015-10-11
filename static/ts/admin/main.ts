@@ -175,7 +175,8 @@ module Shachi {
             }
             var self = this;
             Shachi.XHR.request('DELETE', '/admin/resources/' + resourceId, {
-                completeHandler: function (req) { self.complete(req) },
+                'content-type': 'application/json',
+                completeHandler: function (req) { self.complete(req) }
             });
         }
         complete(res) {

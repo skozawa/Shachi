@@ -87,6 +87,12 @@ sub render_file {
     });
 }
 
+sub redirect {
+    my ($self, $url) = @_;
+    $self->res->code(302);
+    $self->res->header( Location => $url );
+}
+
 sub throw_bad_request {
     my $self = shift;
     $self->res->code(400);
