@@ -130,6 +130,34 @@ module Shachi {
             this.hide();
         }
     }
+
+    export class AnnotatorPopupEditor extends PopupEditor {
+        constructor(cssSelector: string, buttonSelector: string) {
+            super(cssSelector, buttonSelector);
+        }
+        change(elem: HTMLElement) {
+            var newAnnotatorId = elem.getAttribute('data-annotator-id');
+            if ( ! this.resourceId || ! this.currentElem ||
+                 this.currentElem.getAttribute('data-annotator-id') === newAnnotatorId ) {
+                this.hide();
+                return;
+            }
+            var self = this;
+            Shachi.XHR.request('POST', '/admin/resources/' + this.resourceId + '/annotator', {
+                body: "annotator_id=" + newAnnotatorId,
+                completeHandler: function (req) { self.complete(req) }
+            });
+        }
+        complete(res) {
+            try {
+                var json = JSON.parse(res.responseText);
+                var annotator = json.annotator;
+                this.currentElem.setAttribute('data-annotator-id', annotator.id);
+                this.currentElem.textContent = 'Annotator: ' + annotator.name;
+            } catch (err) { /* ignore */ }
+            this.hide();
+        }
+    }
 }
 
 module Shachi {
@@ -270,6 +298,7 @@ module Shachi {
 
     export class ResourceUpdateEditor {
         container;
+        annotatorEditor;
         statusEditor;
         editStatusEditor;
         constructor(container: HTMLElement) {
@@ -277,9 +306,17 @@ module Shachi {
             this.setup();
         }
         setup() {
+            this.annotatorEditor = new Shachi.AnnotatorPopupEditor('.annotator-popup-editor', 'li.annotator');
             this.statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor', 'li.status');
             this.editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');
             var self = this;
+            var annotatorElem = this.container.querySelector('span.annotator');
+            var annotatorEditButton = this.container.querySelector('.annotator-edit-button');
+            if (annotatorElem && annotatorEditButton) {
+                annotatorEditButton.addEventListener('click', function () {
+                    self.annotatorEditor.showWithSet(self.container, annotatorElem);
+                });
+            }
             var statusElem = this.container.querySelector('.status');
             if (statusElem) {
                 statusElem.addEventListener('click', function () {
