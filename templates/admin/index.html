@@ -48,24 +48,8 @@
     </ul>
   </div>
 
-  <div class="edit-status-popup-editor" style="display:none">
-    <ul>
-      [%- FOREACH edit_status IN ['new', 'editing', 'complete', 'pending', 'revised', 'proofed', 'proofed2'] %]
-        <li class="edit-status" data-edit-status="[% edit_status %]">
-          <img src="/images/admin/[% edit_status %].png" title="[% edit_status %]">
-        </li>
-      [%- END # FOREACH %]
-      <li class="close">x</li>
-    </ul>
-  </div>
-
-  <div class="status-popup-editor" style="display:none">
-    <ul>
-      <li class="status" data-status="public">public</li>
-      <li class="status" data-status="private">private</li>
-      <li class="close">x</li>
-    </ul>
-  </div>
+  [%- INCLUDE '/admin/resource/edit-status-popup-editor.tt' %]
+  [%- INCLUDE '/admin/resource/status-popup-editor.tt' %]
 [%- END # IF annotator %]
 
 [%- END # WRAPPER '/admin/_wrapper.tt' %]

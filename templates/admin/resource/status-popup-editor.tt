@@ -1,0 +1,7 @@
+<div class="status-popup-editor" style="display:none">
+  <ul>
+    <li class="status" data-status="public">public</li>
+    <li class="status" data-status="private">private</li>
+    <li class="close">x</li>
+  </ul>
+</div>
