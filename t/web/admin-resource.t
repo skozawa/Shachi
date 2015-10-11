@@ -74,17 +74,32 @@ sub create_post : Tests {
 }
 
 sub delete : Tests {
+    subtest 'delete normally by json' => sub {
+        my $db = Shachi::Database->new;
+        my $resource = create_resource;
+        my $mech = create_mech;
+        $mech->add_header( 'Content-Type' => 'application/json' );
+
+        $mech->delete("/admin/resources/@{[ $resource->id ]}");
+        is $mech->res->code, 200;
+        my $res_json = decode_json($mech->res->content);
+        ok $res_json->{success};
+
+        my $deleted_resource = Shachi::Service::Resource->find_by_id(db => $db, id => $resource->id);
+        ok ! $deleted_resource;
+    };
+
     subtest 'delete normally' => sub {
         my $db = Shachi::Database->new;
         my $resource = create_resource;
         my $mech = create_mech;
 
         $mech->delete("/admin/resources/@{[ $resource->id ]}");
-        is $mech->res->code, 200;
+        is $mech->res->code, 302;
 
         my $deleted_resource = Shachi::Service::Resource->find_by_id(db => $db, id => $resource->id);
         ok ! $deleted_resource;
-    }
+    };
 }
 
 sub update_status : Tests {
