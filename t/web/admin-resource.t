@@ -94,8 +94,8 @@ sub delete : Tests {
         my $resource = create_resource;
         my $mech = create_mech;
 
-        $mech->delete("/admin/resources/@{[ $resource->id ]}");
-        is $mech->res->code, 302;
+        $mech->post("/admin/resources/@{[ $resource->id ]}/delete");
+        is $mech->res->code, 200;
 
         my $deleted_resource = Shachi::Service::Resource->find_by_id(db => $db, id => $resource->id);
         ok ! $deleted_resource;
