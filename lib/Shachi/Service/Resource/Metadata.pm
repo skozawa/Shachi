@@ -49,10 +49,11 @@ sub update_multi_from_json {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
          my $resource_id,
+         my $metadata_list => { optional => 1 },
          my $json  => { isa => 'HashRef' };
 
     my $english = Shachi::Service::Language->find_by_code(db => $db, code => 'eng');
-    my $metadata_list = Shachi::Service::Metadata->find_by_names(
+    $metadata_list ||= Shachi::Service::Metadata->find_by_names(
         db => $db, names => [ keys %$json ],
     );
     return unless $metadata_list && @$metadata_list;

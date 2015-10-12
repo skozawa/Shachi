@@ -46,7 +46,6 @@ sub create_get {
 sub create_post {
     my ($class, $c) = @_;
     my $contents = $c->req->json;
-
     my $resource_subject = _resource_subject_from_contents($c->db, $contents);
     my $resource = Shachi::Service::Resource->create(db => $c->db, args => {
         annotator_id => $contents->{annotator_id},
@@ -145,6 +144,43 @@ sub update_edit_status {
     );
 
     $c->json({ edit_status => $edit_status });
+}
+
+sub update_metadata {
+    my ($class, $c) = @_;
+    my $resource_id = $c->route->{resource_id};
+    my $resource = Shachi::Service::Resource->find_by_id(db => $c->db, id => $resource_id);
+    return $c->throw_not_found unless $resource;
+
+    my $contents = $c->req->json;
+    my $metadata_list = Shachi::Service::Metadata->find_by_names(
+        db => $c->db, names => [ keys %$contents ],
+    );
+    Shachi::Service::Resource::Metadata->update_multi_from_json(
+        db => $c->db, resource_id => $resource->id, json => $contents,
+        metadata_list => $metadata_list,
+    );
+
+    my $resource_metadata_by_metadata_id = Shachi::Service::Resource::Metadata->find_resource_metadata(
+        db => $c->db, resource => $resource, metadata_list => $metadata_list,
+        args => { with_value => 1 },
+    )->hash_by('metadata_id');
+    my $res = {};
+    foreach my $metadata ( @$metadata_list ) {
+        my @resource_metadata_list = $resource_metadata_by_metadata_id->get_all($metadata->id);
+        $res->{$metadata->name} = [ map {
+            +{
+                $_->value ? (
+                    value_id => $_->value->id,
+                    value    => $_->value->value,
+                ) : (),
+                content => $_->content,
+                description => $_->description
+            }
+        } @resource_metadata_list ];
+    }
+
+    $c->json({ resource_id => $resource->id, %$res })
 }
 
 1;

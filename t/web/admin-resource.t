@@ -150,3 +150,64 @@ sub update_edit_status : Tests {
         is $updated_resource->edit_status, EDIT_STATUS_COMPLETE;
     };
 }
+
+sub update_metadata : Tests {
+    truncate_db;
+    my $english = create_language(code => 'eng');
+    my $metadata_list = +{ map {
+        $_->[0] => create_metadata(name => $_->[0], input_type => $_->[1])
+    } (['title', INPUT_TYPE_TEXT],
+     ['subject_resourceSubject', INPUT_TYPE_SELECT],
+     ['language', INPUT_TYPE_LANGUAGE],
+    ) };
+
+    subtest 'update title and language' => sub {
+        my $mech = create_mech;
+        my $resource = create_resource;
+        create_resource_metadata(
+            resource_id => $resource->id,
+            metadata_id => $metadata_list->{title}->id,
+            language_id => $english->id,
+        );
+        create_resource_metadata(
+            resource_id => $resource->id,
+            metadata_id => $metadata_list->{language}->id,
+            language_id => $english->id,
+        );
+        my $language_value = create_language;
+        my $json = {
+            title => [ { content => 'test corpus' } ],
+            language => [
+                { content => $language_value->name, description => 'test language' },
+            ],
+        };
+
+        $mech->post("/admin/resources/@{[ $resource->id ]}/metadata", Content => encode_json $json);
+        is $mech->res->code, 200;
+
+        my $res_json = decode_json($mech->res->content);
+        is $res_json->{resource_id}, $resource->id;
+        is $res_json->{title}->[0]->{content}, 'test corpus';
+        is $res_json->{language}->[0]->{value}, $language_value->name;
+    };
+
+    subtest 'update resource subject' => sub {
+        my $mech = create_mech;
+        my $resource = create_resource;
+        my $resource_subject_value = create_metadata_value(value => 'corpus');
+        my $json = {
+            subject_resourceSubject => [
+                { value_id => $resource_subject_value->id, description => '' },
+                { value_id => '', description => 'test' },
+            ],
+        };
+
+        $mech->post("/admin/resources/@{[ $resource->id ]}/metadata", Content => encode_json $json);
+        is $mech->res->code, 200;
+
+        my $res_json = decode_json($mech->res->content);
+        is $res_json->{resource_id}, $resource->id;
+        is $res_json->{subject_resourceSubject}->[0]->{value_id}, $resource_subject_value->id;
+        is $res_json->{subject_resourceSubject}->[1]->{description}, 'test';
+    };
+}
