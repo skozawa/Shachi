@@ -157,7 +157,7 @@
   </div>
 
   [%- FOREACH metadata IN metadata_list %]
-    <div class="resource-metadata [% metadata.name %]" data-name="[% metadata.name %]" data-input-type="[% metadata.input_type %]">
+    <div class="resource-metadata [% metadata.name %]" data-name="[% metadata.name %]" data-input-type="[% metadata.input_type %]" data-resource-id="[% resource.id %]">
       <h3>[% metadata.label %]</h3>
       <img src="/images/admin/edit.png" class="edit-button metadata-edit-button">
       <ul class="resource-metadata-add-delete" style="display:none">
