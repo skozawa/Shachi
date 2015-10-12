@@ -219,25 +219,12 @@ module Shachi {
 }
 
 module Shachi {
-    export class ResourceCreateEditor {
+    class ResourceEditor {
         container;
         metadataEditors;
         constructor(container: HTMLElement) {
             this.container = container;
-            this.setup();
-        }
-        setup() {
-            var self = this;
-            self.metadataEditors = [];
-            var metadataList = this.container.querySelectorAll('.resource-metadata');
-            Array.prototype.forEach.call(metadataList, function(metadata) {
-                self.metadataEditors.push(self.metadataEditor(metadata));
-            });
-            this.container.addEventListener('submit', function (evt) {
-                evt.preventDefault();
-                self.create();
-                return false;
-            });
+            this.metadataEditors = [];
         }
         metadataEditor(metadata: HTMLElement): ResourceMetadataEditorBase {
             var inputType = metadata.getAttribute('data-input-type') || '';
@@ -249,6 +236,25 @@ module Shachi {
             if (inputType == 'date')        return new ResourceMetadataDateEditor(metadata);
             if (inputType == 'relation')    return new ResourceMetadataRangeEditor(metadata);
             return new ResourceMetadataTextEditor(metadata);
+        }
+    }
+
+    export class ResourceCreateEditor extends ResourceEditor {
+        constructor(container: HTMLElement) {
+            super(container);
+            this.setup();
+        }
+        setup() {
+            var self = this;
+            var metadataList = this.container.querySelectorAll('.resource-metadata');
+            Array.prototype.forEach.call(metadataList, function(metadata) {
+                self.metadataEditors.push(self.metadataEditor(metadata));
+            });
+            this.container.addEventListener('submit', function (evt) {
+                evt.preventDefault();
+                self.create();
+                return false;
+            });
         }
         create() {
             var values = this.getValues();
@@ -296,13 +302,12 @@ module Shachi {
         }
     }
 
-    export class ResourceUpdateEditor {
-        container;
+    export class ResourceUpdateEditor extends ResourceEditor {
         annotatorEditor;
         statusEditor;
         editStatusEditor;
         constructor(container: HTMLElement) {
-            this.container = container;
+            super(container);
             this.setup();
         }
         setup() {
@@ -329,6 +334,10 @@ module Shachi {
                     self.editStatusEditor.showWithSet(self.container, editStatusElem);
                 });
             }
+            var metadataList = this.container.querySelectorAll('.resource-metadata');
+            Array.prototype.forEach.call(metadataList, function(metadata) {
+                self.metadataEditors.push(self.metadataEditor(metadata));
+            });
         }
     }
 
@@ -397,7 +406,54 @@ module Shachi {
         }
     }
 
-    class ResourceMetadataEditorWithPopup extends ResourceMetadataEditorBase {
+    class ResourceMetadataEditorEditBase extends ResourceMetadataEditorBase {
+        editButton;
+        addDeleteButton;
+        dataContainer;
+        editor;
+        constructor(container: HTMLElement) {
+            super(container);
+        }
+        setup() {
+            super.setup();
+            var self = this;
+            this.editButton = this.container.querySelector('.metadata-edit-button');
+            if (this.editButton) {
+                this.editButton.addEventListener('click', function () {
+                    self.showEditor();
+                });
+            }
+            this.addDeleteButton = this.container.querySelector('.resource-metadata-add-delete');
+            this.dataContainer = this.container.querySelector('.resource-metadata-data');
+            this.editor = this.container.querySelector('.resource-metadata-editor');
+            var cancelButton = this.container.querySelector('.cancel');
+            if (cancelButton) {
+                cancelButton.addEventListener('click', function () {
+                    self.hideEditor();
+                });
+            }
+            var submitButton = this.container.querySelector('.submit');
+            if (submitButton) {
+                submitButton.addEventListener('click', function () {
+                    // TODO
+                });
+            }
+        }
+        showEditor() {
+            this.editButton.style.display = 'none';
+            this.dataContainer.style.display = 'none';
+            this.addDeleteButton.style.display = 'inline-block';
+            this.editor.style.display = 'inline-block';
+        }
+        hideEditor() {
+            this.addDeleteButton.style.display = 'none';
+            this.editor.style.display = 'none';
+            this.dataContainer.style.display = 'inline-block';
+            this.editButton.style.display = 'inline-block';
+        }
+    }
+
+    class ResourceMetadataEditorWithPopup extends ResourceMetadataEditorEditBase {
         currentQuery;
         enableRequest;
         targetSelector;
@@ -460,21 +516,21 @@ module Shachi {
     }
 
 
-    class ResourceMetadataTextEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataTextEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var content = elem.querySelector('.content');
             if (!content || content.value === '') return undefined;
             return { content: content.value };
         }
     }
-    class ResourceMetadataTextareaEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataTextareaEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var content = elem.querySelector('.content');
             if (!content || content.value === '') return undefined;
             return { content: content.value };
         }
     }
-    class ResourceMetadataSelectEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataSelectEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var select = elem.querySelector('select');
             var description = elem.querySelector('.description');
@@ -484,7 +540,7 @@ module Shachi {
             return { value_id: selectValue, description: descriptionValue };
         }
     }
-    class ResourceMetadataSelectOnlyEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataSelectOnlyEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var select = elem.querySelector('select');
             if (!select || select.value === '') return undefined;
@@ -559,7 +615,7 @@ module Shachi {
             return { content: contentValue, description: descriptionValue };
         }
     }
-    class ResourceMetadataDateEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataDateEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var date = this.getDate(elem, '');
             var description = elem.querySelector('.description');
@@ -568,7 +624,7 @@ module Shachi {
             return { content: date, description: descriptionValue };
         }
     }
-    class ResourceMetadataRangeEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataRangeEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var fromDate = this.getDate(elem, 'from-');
             var toDate = this.getDate(elem, 'to-');

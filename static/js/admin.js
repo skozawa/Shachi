@@ -221,23 +221,10 @@ var Shachi;
 })(Shachi || (Shachi = {}));
 var Shachi;
 (function (Shachi) {
-    class ResourceCreateEditor {
+    class ResourceEditor {
         constructor(container) {
             this.container = container;
-            this.setup();
-        }
-        setup() {
-            var self = this;
-            self.metadataEditors = [];
-            var metadataList = this.container.querySelectorAll('.resource-metadata');
-            Array.prototype.forEach.call(metadataList, function (metadata) {
-                self.metadataEditors.push(self.metadataEditor(metadata));
-            });
-            this.container.addEventListener('submit', function (evt) {
-                evt.preventDefault();
-                self.create();
-                return false;
-            });
+            this.metadataEditors = [];
         }
         metadataEditor(metadata) {
             var inputType = metadata.getAttribute('data-input-type') || '';
@@ -256,6 +243,24 @@ var Shachi;
             if (inputType == 'relation')
                 return new ResourceMetadataRangeEditor(metadata);
             return new ResourceMetadataTextEditor(metadata);
+        }
+    }
+    class ResourceCreateEditor extends ResourceEditor {
+        constructor(container) {
+            super(container);
+            this.setup();
+        }
+        setup() {
+            var self = this;
+            var metadataList = this.container.querySelectorAll('.resource-metadata');
+            Array.prototype.forEach.call(metadataList, function (metadata) {
+                self.metadataEditors.push(self.metadataEditor(metadata));
+            });
+            this.container.addEventListener('submit', function (evt) {
+                evt.preventDefault();
+                self.create();
+                return false;
+            });
         }
         create() {
             var values = this.getValues();
@@ -305,9 +310,9 @@ var Shachi;
         }
     }
     Shachi.ResourceCreateEditor = ResourceCreateEditor;
-    class ResourceUpdateEditor {
+    class ResourceUpdateEditor extends ResourceEditor {
         constructor(container) {
-            this.container = container;
+            super(container);
             this.setup();
         }
         setup() {
@@ -334,6 +339,10 @@ var Shachi;
                     self.editStatusEditor.showWithSet(self.container, editStatusElem);
                 });
             }
+            var metadataList = this.container.querySelectorAll('.resource-metadata');
+            Array.prototype.forEach.call(metadataList, function (metadata) {
+                self.metadataEditors.push(self.metadataEditor(metadata));
+            });
         }
     }
     Shachi.ResourceUpdateEditor = ResourceUpdateEditor;
@@ -403,7 +412,48 @@ var Shachi;
             return ym + '-' + day.value;
         }
     }
-    class ResourceMetadataEditorWithPopup extends ResourceMetadataEditorBase {
+    class ResourceMetadataEditorEditBase extends ResourceMetadataEditorBase {
+        constructor(container) {
+            super(container);
+        }
+        setup() {
+            super.setup();
+            var self = this;
+            this.editButton = this.container.querySelector('.metadata-edit-button');
+            if (this.editButton) {
+                this.editButton.addEventListener('click', function () {
+                    self.showEditor();
+                });
+            }
+            this.addDeleteButton = this.container.querySelector('.resource-metadata-add-delete');
+            this.dataContainer = this.container.querySelector('.resource-metadata-data');
+            this.editor = this.container.querySelector('.resource-metadata-editor');
+            var cancelButton = this.container.querySelector('.cancel');
+            if (cancelButton) {
+                cancelButton.addEventListener('click', function () {
+                    self.hideEditor();
+                });
+            }
+            var submitButton = this.container.querySelector('.submit');
+            if (submitButton) {
+                submitButton.addEventListener('click', function () {
+                });
+            }
+        }
+        showEditor() {
+            this.editButton.style.display = 'none';
+            this.dataContainer.style.display = 'none';
+            this.addDeleteButton.style.display = 'inline-block';
+            this.editor.style.display = 'inline-block';
+        }
+        hideEditor() {
+            this.addDeleteButton.style.display = 'none';
+            this.editor.style.display = 'none';
+            this.dataContainer.style.display = 'inline-block';
+            this.editButton.style.display = 'inline-block';
+        }
+    }
+    class ResourceMetadataEditorWithPopup extends ResourceMetadataEditorEditBase {
         constructor(container, targetSelector) {
             super(container);
             this.currentQuery = '';
@@ -460,7 +510,7 @@ var Shachi;
         }
         popup(elem, json) { }
     }
-    class ResourceMetadataTextEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataTextEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var content = elem.querySelector('.content');
             if (!content || content.value === '')
@@ -468,7 +518,7 @@ var Shachi;
             return { content: content.value };
         }
     }
-    class ResourceMetadataTextareaEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataTextareaEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var content = elem.querySelector('.content');
             if (!content || content.value === '')
@@ -476,7 +526,7 @@ var Shachi;
             return { content: content.value };
         }
     }
-    class ResourceMetadataSelectEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataSelectEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var select = elem.querySelector('select');
             var description = elem.querySelector('.description');
@@ -487,7 +537,7 @@ var Shachi;
             return { value_id: selectValue, description: descriptionValue };
         }
     }
-    class ResourceMetadataSelectOnlyEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataSelectOnlyEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var select = elem.querySelector('select');
             if (!select || select.value === '')
@@ -567,7 +617,7 @@ var Shachi;
             return { content: contentValue, description: descriptionValue };
         }
     }
-    class ResourceMetadataDateEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataDateEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var date = this.getDate(elem, '');
             var description = elem.querySelector('.description');
@@ -577,7 +627,7 @@ var Shachi;
             return { content: date, description: descriptionValue };
         }
     }
-    class ResourceMetadataRangeEditor extends ResourceMetadataEditorBase {
+    class ResourceMetadataRangeEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var fromDate = this.getDate(elem, 'from-');
             var toDate = this.getDate(elem, 'to-');

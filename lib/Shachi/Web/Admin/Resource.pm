@@ -18,6 +18,9 @@ sub find_by_id {
     return $c->throw_not_found unless $resource;
 
     my $annotators = Shachi::Service::Annotator->find_all(db => $c->db);
+    Shachi::Service::Metadata->embed_metadata_values(
+        db => $c->db, metadata_list => $metadata_list
+    );
     return $c->html('admin/resource.html', {
         resource => $resource,
         metadata_list => $metadata_list,
