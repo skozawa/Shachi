@@ -17,9 +17,9 @@ sub create {
     $args->{area} or croak 'required area';
 
     my $metadata_value = Shachi::Service::Metadata::Value->find_by_value_and_value_type(
-        db => $db, value_type => VALUE_TYPE_LANGUAGE, value => $args->{code},
+        db => $db, value_type => VALUE_TYPE_LANGUAGE, value => $args->{name},
     ) || Shachi::Service::Metadata::Value->create(db => $db, args => {
-        value_type => VALUE_TYPE_LANGUAGE, value => $args->{code},
+        value_type => VALUE_TYPE_LANGUAGE, value => $args->{name},
     });
 
     my $language = $db->shachi->table('language')->insert({
