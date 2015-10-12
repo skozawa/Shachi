@@ -209,5 +209,9 @@ sub update_metadata : Tests {
         is $res_json->{resource_id}, $resource->id;
         is $res_json->{subject_resourceSubject}->[0]->{value_id}, $resource_subject_value->id;
         is $res_json->{subject_resourceSubject}->[1]->{description}, 'test';
+        my $db = Shachi::Database->new;
+        my $resource = Shachi::Service::Resource->find_by_id(db => $db, id => $resource->id);
+        ok $resource;
+        is $resource->shachi_id, sprintf('C-%06d', $resource->id);
     };
 }

@@ -161,6 +161,14 @@ sub update_metadata {
         metadata_list => $metadata_list,
     );
 
+    # resource_subject を更新する場合はshachi_idも更新する
+    if ( $contents->{subject_resourceSubject} ) {
+        my $resource_subject = _resource_subject_from_contents($c->db, $contents);
+        Shachi::Service::Resource->update_shachi_id(
+            db => $c->db, id => $resource->id, resource_subject => $resource_subject,
+        );
+    }
+
     my $resource_metadata_by_metadata_id = Shachi::Service::Resource::Metadata->find_resource_metadata(
         db => $c->db, resource => $resource, metadata_list => $metadata_list,
         args => { with_value => 1 },

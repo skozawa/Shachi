@@ -168,6 +168,21 @@ sub embed_title {
     return $resources;
 }
 
+sub update_shachi_id {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $id,
+         my $resource_subject => { optional => 1 };
+
+    my $shachi_id = $class->shachi_id(
+        resource_id => $id,
+        resource_subject => $resource_subject
+    );
+    $db->shachi->table('resource')->search({
+        id => $id,
+    })->update({ shachi_id => $shachi_id });
+}
+
 sub update_annotator {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
