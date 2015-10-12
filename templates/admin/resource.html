@@ -2,14 +2,16 @@
 
 [%- MACRO metadata_list_text(resource_metadata_list) BLOCK %]
   [%- FOREACH resource_metadata IN resource_metadata_list %]
-    <li>[% resource_metadata.content %]</li>
+    <li>
+      <span class="content">[% resource_metadata.content %]</span>
+    </li>
   [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
 [%- END # MACRO metadata_list_text %]
 
 [%- MACRO metadata_list_textarea(resource_metadata_list) BLOCK %]
   [%- FOREACH resource_metadata IN resource_metadata_list %]
     <li>
-      <span>[% resource_metadata.content %]</span>
+      <span class="content">[% resource_metadata.content %]</span>
     </li>
   [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
 [%- END # MACRO metadata_list_textarea %]
@@ -18,9 +20,9 @@
   [%- FOREACH resource_metadata IN resource_metadata_list %]
     <li>
       [%- IF resource_metadata.value_id %]
-        <span class="label">[% resource_metadata.value.value %]</span>
+        <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
       [%- END # IF resource_metadata.value_id %]
-      <span>[% resource_metadata.description %]</span>
+      <span class="description">[% resource_metadata.description %]</span>
     </li>
   [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
 [%- END # MACRO metadata_list_select %]
@@ -28,7 +30,7 @@
 [%- MACRO metadata_list_select_only(resource_metadata_list) BLOCK %]
   [%- FOREACH resource_metadata IN resource_metadata_list %]
     <li>
-      <span class="label">[% resource_metadata.value.value %]</span>
+      <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
     </li>
   [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
 [%- END # MACRO metadata_list_select_only %]
@@ -36,8 +38,8 @@
 [%- MACRO metadata_list_relation(resource_metadata_list) BLOCK %]
   [%- FOREACH resource_metadata IN resource_metadata_list %]
     <li>
-      <span class="label">[% resource_metadata.value.value %]</span>
-      <span>[% resource_metadata.description %]</span>
+      <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
+      <span class="description">[% resource_metadata.description %]</span>
     </li>
   [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
 [%- END # MACRO metadata_list_relation %]
@@ -45,8 +47,8 @@
 [%- MACRO metadata_list_language(resource_metadata_list) BLOCK %]
   [%- FOREACH resource_metadata IN resource_metadata_list %]
     <li>
-      <span class="label">[% resource_metadata.value.value %]</span>
-      <span>[% resource_metadata.description %]</span>
+      <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
+      <span class="description">[% resource_metadata.description %]</span>
     </li>
   [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
 [%- END # MACRO metadata_list_language %]
@@ -54,8 +56,8 @@
 [%- MACRO metadata_list_date(resource_metadata_list) BLOCK %]
   [%- FOREACH resource_metadata IN resource_metadata_list %]
     <li>
-      <span>[% resource_metadata.content %]</span>
-      <span>[% resource_metadata.description %]</span>
+      <span class="content">[% resource_metadata.content %]</span>
+      <span class="description">[% resource_metadata.description %]</span>
     </li>
   [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
 [%- END # MACRO metadata_list_date %]
@@ -63,11 +65,12 @@
 [%- MACRO metadata_list_range(resource_metadata_list) BLOCK %]
   [%- FOREACH resource_metadata IN resource_metadata_list %]
     <li>
-      <span>[% resource_metadata.content %]</span>
-      <span>[% resource_metadata.description %]</span>
+      <span class="content">[% resource_metadata.content %]</span>
+      <span class="description">[% resource_metadata.description %]</span>
     </li>
   [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
 [%- END # MACRO metadata_list_range %]
+
 
 [%- MACRO metadata_input_text(metadata) BLOCK %]
   <input name="[% metadata.id %]" type="text" class="content">
@@ -104,17 +107,11 @@
     [%- END # FOREACH value IN metadata.values %]
   </select>
   <input name="[% metadata.id %]" type="text" class="description">
-  <div class="relation-popup-selector" style="display:none">
-    <ul><li></li></ul>
-  </div>
 [%- END # MACRO metadata_input_relation %]
 
 [%- MACRO metadata_input_language(metadata) BLOCK %]
   <input name="[% metadata.id %]" type="text" class="content">
   <input name="[% metadata.id %]" type="text" class="description">
-  <div class="language-popup-selector" style="display:none">
-    <ul><li></li></ul>
-  </div>
 [%- END # MACRO metadata_input_language %]
 
 [%- MACRO metadata_input_date(metadata) BLOCK %]
@@ -214,6 +211,15 @@
               [%- END %]
             </li>
           </ul>
+          [%- IF metadata.input_type ==  'relation' %]
+            <div class="relation-popup-selector" style="display:none">
+              <ul><li></li></ul>
+            </div>
+          [%- ELSIF metadata.input_type == 'language' %]
+            <div class="language-popup-selector" style="display:none">
+              <ul><li></li></ul>
+            </div>
+          [%- END %]
           <div class="resource-metadata-editor-footer">
             <button type="button" class="cancel">キャンセル</button>
             <button type="button" class="submit">更新</button>

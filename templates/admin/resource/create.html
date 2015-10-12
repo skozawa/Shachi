@@ -35,17 +35,11 @@
     [%- END # FOREACH value IN metadata.values %]
   </select>
   <input name="[% metadata.id %]" type="text" class="description">
-  <div class="relation-popup-selector" style="display:none">
-    <ul><li></li></ul>
-  </div>
 [%- END # MACRO metadata_input_relation %]
 
 [%- MACRO metadata_input_language(metadata) BLOCK %]
   <input name="[% metadata.id %]" type="text" class="content">
   <input name="[% metadata.id %]" type="text" class="description">
-  <div class="language-popup-selector" style="display:none">
-    <ul><li></li></ul>
-  </div>
 [%- END # MACRO metadata_input_language %]
 
 [%- MACRO metadata_input_date(metadata) BLOCK %]
@@ -116,6 +110,15 @@
               [%- END %]
             </li>
           </ul>
+          [%- IF metadata.input_type ==  'relation' %]
+            <div class="relation-popup-selector" style="display:none">
+              <ul><li></li></ul>
+            </div>
+          [%- ELSIF metadata.input_type == 'language' %]
+            <div class="language-popup-selector" style="display:none">
+              <ul><li></li></ul>
+            </div>
+          [%- END %]
         </div>
       </div>
     [%- END # FOREACH metadata IN metadata_list %]
