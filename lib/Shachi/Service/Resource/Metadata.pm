@@ -36,6 +36,47 @@ sub create_multi_from_json {
     my $english = Shachi::Service::Language->find_by_code(db => $db, code => 'eng');
     my $metadata_list = Shachi::Service::Metadata->find_shown_metadata(db => $db);
 
+    my $data = _create_insert_data_from_json(
+        db => $db, resource_id => $resource_id, metadata_list => $metadata_list,
+        language => $english, json => $json,
+    );
+    return unless @$data;
+
+    $db->shachi->table('resource_metadata')->insert_multi($data);
+}
+
+sub update_multi_from_json {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $resource_id,
+         my $json  => { isa => 'HashRef' };
+
+    my $english = Shachi::Service::Language->find_by_code(db => $db, code => 'eng');
+    my $metadata_list = Shachi::Service::Metadata->find_by_names(
+        db => $db, names => [ keys %$json ],
+    );
+    return unless $metadata_list && @$metadata_list;
+
+    my $data = _create_insert_data_from_json(
+        db => $db, resource_id => $resource_id, metadata_list => $metadata_list,
+        language => $english, json => $json,
+    );
+
+    $db->shachi->table('resource_metadata')->search({
+        resource_id => $resource_id,
+        language_id => $english->id,
+        metadata_id => $metadata_list->map('id')->to_a,
+    })->delete;
+    $db->shachi->table('resource_metadata')->insert_multi($data);
+}
+
+sub _create_insert_data_from_json {
+    args my $db   => { isa => 'Shachi::Database' },
+         my $resource_id,
+         my $metadata_list => { isa => 'Shachi::Model::List' },
+         my $language => { isa => 'Shachi::Model::Language' },
+         my $json => { isa => 'HashRef' };
+
     my $language_names = $metadata_list->map(sub {
         return unless $_->input_type eq INPUT_TYPE_LANGUAGE;
         my $items = $json->{$_->name} || [];
@@ -58,16 +99,14 @@ sub create_multi_from_json {
             push @$data, +{
                 resource_id => $resource_id,
                 metadata_id => $metadata->id,
-                language_id => $english->id,
+                language_id => $language->id,
                 value_id    => $item->{value_id} || 0,
                 content     => $item->{content} || '',
                 description => $item->{description} || '',
             };
         }
     }
-    return unless @$data;
-
-    $db->shachi->table('resource_metadata')->insert_multi($data);
+    return $data;
 }
 
 sub find_by_ids {

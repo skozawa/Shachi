@@ -112,6 +112,120 @@ sub create_multi_from_json : Tests {
     };
 }
 
+sub update_multi_from_json : Tests {
+    truncate_db;
+    my $english = create_language(code => 'eng');
+    my $metadata_list = +{ map {
+        $_->[0] => create_metadata(name => $_->[0], input_type => $_->[1])
+    } (['title', INPUT_TYPE_TEXT],
+     ['description', INPUT_TYPE_TEXTAREA],
+     ['subject_resourceSubject', INPUT_TYPE_SELECT],
+     ['subject_monoMultilingual', INPUT_TYPE_SELECTONLY],
+     ['language', INPUT_TYPE_LANGUAGE],
+    ) };
+
+    subtest 'update title normally' => sub {
+        my $db =Shachi::Database->new;
+
+        my $resource = create_resource;
+        my $old_metadata = create_resource_metadata(
+            resource_id => $resource->id,
+            metadata_id => $metadata_list->{title}->id,
+            language_id => $english->id
+        );
+
+        my $json = {
+            title => [ { content => 'test corpus' } ]
+        };
+
+        Shachi::Service::Resource::Metadata->update_multi_from_json(
+            db => $db, resource_id => $resource->id, json => $json,
+        );
+
+        my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
+            db => $db, resource => $resource,
+            metadata_list => $metadata_list->{title}->as_list,
+        );
+        is $items->size, 1;
+        is $items->first->content, 'test corpus';
+    };
+
+    subtest 'update resource_subject' => sub {
+        my $db =Shachi::Database->new;
+
+        my $resource = create_resource;
+        my $old_metadata = create_resource_metadata(
+            resource_id => $resource->id,
+            metadata_id => $metadata_list->{subject_resourceSubject}->id,
+            language_id => $english->id,
+        );
+        my $resource_subject_value = create_metadata_value;
+
+        my $json = {
+            subject_resourceSubject => [
+                { value_id => $resource_subject_value->id, description => '' },
+                { value_id => '', description => 'test' },
+            ]
+        };
+
+        Shachi::Service::Resource::Metadata->update_multi_from_json(
+            db => $db, resource_id => $resource->id, json => $json,
+        );
+
+        my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
+            db => $db, resource => $resource,
+            metadata_list => $metadata_list->{subject_resourceSubject}->as_list
+        );
+        is $items->size, 2;
+        is $items->first->value_id, $resource_subject_value->id;
+    };
+
+    subtest 'update multi normally' => sub {
+        my $db =Shachi::Database->new;
+
+        my $resource = create_resource;
+        create_resource_metadata(
+            resource_id => $resource->id,
+            metadata_id => $metadata_list->{subject_monoMultilingual}->id,
+            language_id => $english->id,
+        );
+        create_resource_metadata(
+            resource_id => $resource->id,
+            metadata_id => $metadata_list->{language}->id,
+            language_id => $english->id,
+        );
+        my $mono_multilingual_value = create_metadata_value;
+        my $language_value = create_language;
+
+        my $json = {
+            subject_monoMultilingual => [
+                { value_id => $mono_multilingual_value->id },
+            ],
+            language => [
+                { content => $language_value->name, description => 'test language' },
+            ],
+        };
+
+        Shachi::Service::Resource::Metadata->update_multi_from_json(
+            db => $db, resource_id => $resource->id, json => $json,
+        );
+
+        my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
+            db => $db, resource => $resource,
+            metadata_list => $metadata_list->{subject_monoMultilingual}->as_list,
+        );
+        is $items->size, 1;
+        is $items->first->value_id, $mono_multilingual_value->id;
+
+        my $lang_items = Shachi::Service::Resource::Metadata->find_resource_metadata(
+            db => $db, resource => $resource,
+            metadata_list => $metadata_list->{language}->as_list,
+        );
+        is $lang_items->size, 1;
+        is $lang_items->first->value_id, $language_value->value_id;
+    };
+}
+
 sub find_resource_metadata_by_name : Tests {
     truncate_db;
     my $title_metadata = create_metadata(name => 'title');
