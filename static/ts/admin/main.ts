@@ -288,11 +288,22 @@ module Shachi {
                 return;
             }
             var self = this;
+            this.startRequest();
             Shachi.XHR.request('POST', '/admin/resources/create', {
                 body: JSON.stringify(values),
                 'content-type': 'application/json',
                 completeHandler: function(req) { self.createComplete(req) },
             });
+        }
+        startRequest() {
+            var submitButton = this.container.querySelector('#resource-create-submit');
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+            var loadingElem = this.container.querySelector('.loading');
+            if (loadingElem) {
+                loadingElem.style.display = 'inline-block';
+            }
         }
         createComplete(res) {
             try {
@@ -433,6 +444,9 @@ module Shachi {
         dataContainer;
         editor;
         resourceId;
+        updating;
+        loadingElem;
+        submitButton;
         constructor(container: HTMLElement) {
             super(container);
         }
@@ -448,15 +462,17 @@ module Shachi {
             this.dataContainer = this.container.querySelector('.resource-metadata-data');
             this.editor = this.container.querySelector('.resource-metadata-editor');
             this.resourceId = this.container.getAttribute('data-resource-id');
+            this.updating = false;
+            this.loadingElem = this.container.querySelector('.loading');
             var cancelButton = this.container.querySelector('.cancel');
             if (cancelButton) {
                 cancelButton.addEventListener('click', function () {
                     self.hideEditor();
                 });
             }
-            var submitButton = this.container.querySelector('.submit');
-            if (submitButton) {
-                submitButton.addEventListener('click', function () {
+            this.submitButton = this.container.querySelector('.submit');
+            if (this.submitButton) {
+                this.submitButton.addEventListener('click', function () {
                     self.update();
                 });
             }
@@ -492,6 +508,8 @@ module Shachi {
         }
         update() {
             var self = this;
+            if ( this.updating ) return;
+            this.startUpdate();
             var values = this.toValues();
             var json = {};
             json[this.name] = values;
@@ -501,11 +519,27 @@ module Shachi {
                 completeHandler: function(req) { self.updateComplete(req) }
             });
         }
+        startUpdate() {
+            this.updating = true;
+            if ( this.loadingElem ) {
+                this.loadingElem.style.display = 'inline-block';
+            }
+            if ( this.submitButton ) {
+                this.submitButton.disabled = true;
+            }
+        }
         updateComplete(res) {
             try {
                 var json = JSON.parse(res.responseText);
                 this.updateData(json);
             } catch (err) { /* ignore */ }
+            this.updating = false;
+            if ( this.loadingElem ) {
+                this.loadingElem.style.display = 'none';
+            }
+            if ( this.submitButton ) {
+                this.submitButton.disabled = false;
+            }
             this.hideEditor();
         }
         updateData(json) {
