@@ -28,12 +28,16 @@ module Shachi {
         buttons;
         resourceId;
         currentElem;
+        requesting;
+        loadingElem;
         constructor(cssSelector: string, buttonSelector: string) {
             this.container = <HTMLElement>document.querySelector(cssSelector);
             if ( !this.container ) return;
             this.closeButton = <HTMLElement>this.container.querySelector('.close');
             this.buttons = this.container.querySelectorAll(buttonSelector);
             this.registerEvent();
+            this.requesting = false;
+            this.loadingElem = <HTMLElement>this.container.querySelector('.loading');
         }
         registerEvent() {
             var self = this;
@@ -45,6 +49,7 @@ module Shachi {
             if ( self.buttons ) {
                 Array.prototype.forEach.call(self.buttons, function (button) {
                     button.addEventListener('click', function () {
+                        if ( this.requesting ) return;
                         self.change(button);
                     });
                 });
@@ -71,6 +76,19 @@ module Shachi {
         hide() {
             this.container.style.display = 'none';
         }
+        startRequest() {
+            this.requesting = true;
+            if ( this.loadingElem ) {
+                this.loadingElem.style.display = 'block';
+            }
+        }
+        completeRequest() {
+            this.requesting = false;
+            if ( this.loadingElem ) {
+                this.loadingElem.style.display = 'none';
+            }
+            this.hide();
+        }
     }
 
     export class StatusPopupEditor extends PopupEditor {
@@ -85,6 +103,7 @@ module Shachi {
                 return;
             }
             var self = this;
+            this.startRequest();
             Shachi.XHR.request('POST', '/admin/resources/' + this.resourceId + '/status', {
                 body: 'status=' + newStatus,
                 completeHandler: function (req) { self.complete(req) },
@@ -98,7 +117,7 @@ module Shachi {
                 var label = this.currentElem.querySelector('.label');
                 label.textContent = status;
             } catch (err) { /* ignore */ }
-            this.hide();
+            this.completeRequest();
         }
     }
 
@@ -114,6 +133,7 @@ module Shachi {
                 return;
             }
             var self = this;
+            this.startRequest();
             Shachi.XHR.request('POST', '/admin/resources/' + this.resourceId + '/edit_status', {
                 body: "edit_status=" + newStatus,
                 completeHandler: function (req) { self.complete(req) },
@@ -127,7 +147,7 @@ module Shachi {
                 var img = this.currentElem.querySelector('img');
                 img.src = '/images/admin/' + editStatus + '.png';
             } catch (err) { /* ignore */ }
-            this.hide();
+            this.completeRequest();
         }
     }
 
@@ -143,6 +163,7 @@ module Shachi {
                 return;
             }
             var self = this;
+            this.startRequest();
             Shachi.XHR.request('POST', '/admin/resources/' + this.resourceId + '/annotator', {
                 body: "annotator_id=" + newAnnotatorId,
                 completeHandler: function (req) { self.complete(req) }
@@ -155,7 +176,7 @@ module Shachi {
                 this.currentElem.setAttribute('data-annotator-id', annotator.id);
                 this.currentElem.textContent = 'Annotator: ' + annotator.name;
             } catch (err) { /* ignore */ }
-            this.hide();
+            this.completeRequest();
         }
     }
 }

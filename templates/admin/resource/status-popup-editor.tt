@@ -2,6 +2,7 @@
   <ul>
     <li class="status" data-status="public">public</li>
     <li class="status" data-status="private">private</li>
+    <li class="loading" style="display:none"><img src="/images/admin/loading.gif"></li>
     <li class="close">x</li>
   </ul>
 </div>

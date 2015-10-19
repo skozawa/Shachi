@@ -1,6 +1,9 @@
 [%- WRAPPER '/admin/_wrapper.tt' %]
 
 <div>
+  <a href="/admin/resources/create[% '?annotator_id=' _ c.req.param('annotator_id') IF c.req.param('annotator_id') %]">
+    New registration
+  </a>
   <form name="annotator-form" method="GET">
     Annotator:
     <select name="annotator_id" onchange="document.annotator-form.submit()">

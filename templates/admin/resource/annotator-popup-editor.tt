@@ -4,6 +4,7 @@
     [%- FOREACH annotator IN annotators %]
       <li class="annotator" data-annotator-id="[% annotator.id %]">[% annotator.name %]</li>
     [%- END # FOREACH annotator IN annotators %]
+    <li class="loading" style="display:none"><img src="/images/admin/loading.gif"></li>
     <li class="close">x</li>
   </ul>
 </div>

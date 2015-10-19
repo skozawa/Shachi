@@ -5,6 +5,7 @@
         <img src="/images/admin/[% edit_status %].png" title="[% edit_status %]">
       </li>
     [%- END # FOREACH %]
+    <li class="loading" style="display:none"><img src="/images/admin/loading.gif"></li>
     <li class="close">x</li>
   </ul>
 </div>
