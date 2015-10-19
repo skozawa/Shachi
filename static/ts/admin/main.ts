@@ -255,7 +255,7 @@ module Shachi {
             if (inputType == 'relation')    return new ResourceMetadataRelationEditor(metadata);
             if (inputType == 'language')    return new ResourceMetadataLanguageEditor(metadata);
             if (inputType == 'date')        return new ResourceMetadataDateEditor(metadata);
-            if (inputType == 'relation')    return new ResourceMetadataRangeEditor(metadata);
+            if (inputType == 'range')       return new ResourceMetadataRangeEditor(metadata);
             return new ResourceMetadataTextEditor(metadata);
         }
     }

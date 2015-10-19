@@ -260,7 +260,7 @@ var Shachi;
                 return new ResourceMetadataLanguageEditor(metadata);
             if (inputType == 'date')
                 return new ResourceMetadataDateEditor(metadata);
-            if (inputType == 'relation')
+            if (inputType == 'range')
                 return new ResourceMetadataRangeEditor(metadata);
             return new ResourceMetadataTextEditor(metadata);
         }
