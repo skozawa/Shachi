@@ -16,7 +16,7 @@ sub as_psgi {
     return builder {
         # static files
         enable 'Static',
-            path => qr{^/(?:images/|js/|css/)},
+            path => qr{^/(?:images/|js/|css/|docs/)},
             root => Shachi::Config->root->subdir(Shachi::Config->param('static.root'));
 
         sub {

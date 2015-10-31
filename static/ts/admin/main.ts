@@ -546,7 +546,6 @@ module Shachi {
         }
         updateData(json) {
             var self = this;
-            console.log(json);
             while(this.dataContainer.firstChild) {
                 this.dataContainer.removeChild(this.dataContainer.firstChild);
             }

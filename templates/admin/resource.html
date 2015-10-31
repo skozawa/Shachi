@@ -131,6 +131,12 @@
   <input name="[% metadata.id %]" type="text" class="description">
 [%- END # MACRO metadata_input_range %]
 
+<div>
+  <a href="/admin/?annotator_id=[% resource.annotator.id %]">Index</a>
+  <a href="/admin/resources/create?annotator_id=[% resource.annotator.id %]">New registration</a>
+  <a href="/docs/registration_manual.pdf" target="_blank">Registration Manual</a>
+  <hr>
+</div>
 
 <div class="resource-detail-container" data-resource-id="[% resource.id %]">
   <div class="resource-detail-header">
