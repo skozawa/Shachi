@@ -1,250 +1,35 @@
-"use strict";
 /// <reference path="xhr.ts" />
-/// <reference path="popup-editor.ts" />
-/// <reference path="resource-list-editor.ts" />
-/// <reference path="resource-editor.ts" />
-document.addEventListener("DOMContentLoaded", function (event) {
-    var resources = document.querySelectorAll('li.annotator-resource[data-resource-id]');
-    if (resources && resources.length > 0) {
-        var statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor', 'li.status');
-        var editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');
-        Array.prototype.forEach.call(resources, function (resource) {
-            new Shachi.ResourceListEditor(resource, statusEditor, editStatusEditor);
-        });
-    }
-    var form = document.querySelector('#resource-create-form');
-    var detail = document.querySelector('.resource-detail-container');
-    if (form) {
-        var createEditor = new Shachi.ResourceCreateEditor(form);
-    }
-    else if (detail) {
-        var updateEditor = new Shachi.ResourceUpdateEditor(detail);
-    }
-});
-var Shachi;
-(function (Shachi) {
-    var XHR;
-    (function (XHR) {
-        function request(method, url, options) {
-            var req = new XMLHttpRequest();
-            req.onreadystatechange = function (evt) {
-                if (req.readyState == 4) {
-                    if (req.status == 200) {
-                        if (options.completeHandler)
-                            options.completeHandler(req);
-                    }
-                    else {
-                        if (options.errorHandler)
-                            options.errorHandler(req);
-                    }
-                }
-            };
-            req.open(method, url, true);
-            if ('content-type' in options)
-                req.setRequestHeader('Content-Type', options['content-type']);
-            if (method === 'POST' && 'body' in options)
-                req.setRequestHeader('Content-Type', options['content-type'] || 'application/x-www-form-urlencoded');
-            req.send(('body' in options) ? options.body : null);
-            return req;
-        }
-        XHR.request = request;
-    })(XHR = Shachi.XHR || (Shachi.XHR = {}));
-})(Shachi || (Shachi = {}));
-/// <reference path="xhr.ts" />
-var Shachi;
-(function (Shachi) {
-    class PopupEditor {
-        constructor(cssSelector, buttonSelector) {
-            this.container = document.querySelector(cssSelector);
-            if (!this.container)
-                return;
-            this.closeButton = this.container.querySelector('.close');
-            this.buttons = this.container.querySelectorAll(buttonSelector);
-            this.registerEvent();
-            this.requesting = false;
-            this.loadingElem = this.container.querySelector('.loading');
-        }
-        registerEvent() {
-            var self = this;
-            if (self.closeButton) {
-                self.closeButton.addEventListener('click', function () {
-                    self.hide();
-                });
-            }
-            if (self.buttons) {
-                Array.prototype.forEach.call(self.buttons, function (button) {
-                    button.addEventListener('click', function () {
-                        if (this.requesting)
-                            return;
-                        self.change(button);
-                    });
-                });
-            }
-        }
-        change(elem) { }
-        showWithSet(resource, elem) {
-            this.resourceId = resource.getAttribute('data-resource-id');
-            if (!this.resourceId) {
-                this.hide();
-                return;
-            }
-            this.currentElem = elem;
-            this.showAndMove(elem);
-        }
-        showAndMove(elem) {
-            this.container.style.top = (elem.offsetTop + 20) + 'px';
-            this.container.style.left = elem.offsetLeft + 'px';
-            this.show();
-        }
-        show() {
-            this.container.style.display = 'block';
-        }
-        hide() {
-            this.container.style.display = 'none';
-        }
-        startRequest() {
-            this.requesting = true;
-            if (this.loadingElem) {
-                this.loadingElem.style.display = 'block';
-            }
-        }
-        completeRequest() {
-            this.requesting = false;
-            if (this.loadingElem) {
-                this.loadingElem.style.display = 'none';
-            }
-            this.hide();
-        }
-    }
-    class StatusPopupEditor extends PopupEditor {
-        constructor(cssSelector, buttonSelector) {
-            super(cssSelector, buttonSelector);
-        }
-        change(elem) {
-            var newStatus = elem.getAttribute('data-status');
-            if (!this.resourceId || !this.currentElem || !newStatus ||
-                this.currentElem.getAttribute('data-status') === newStatus) {
-                this.hide();
-                return;
-            }
-            var self = this;
-            this.startRequest();
-            Shachi.XHR.request('POST', '/admin/resources/' + this.resourceId + '/status', {
-                body: 'status=' + newStatus,
-                completeHandler: function (req) { self.complete(req); },
-            });
-        }
-        complete(res) {
-            try {
-                var json = JSON.parse(res.responseText);
-                var status = json.status;
-                this.currentElem.setAttribute('data-status', status);
-                var label = this.currentElem.querySelector('.label');
-                label.textContent = status;
-            }
-            catch (err) { }
-            this.completeRequest();
-        }
-    }
-    Shachi.StatusPopupEditor = StatusPopupEditor;
-    class EditStatusPopupEditor extends PopupEditor {
-        constructor(cssSelector, buttonSelector) {
-            super(cssSelector, buttonSelector);
-        }
-        change(elem) {
-            var newStatus = elem.getAttribute('data-edit-status');
-            if (!this.resourceId || !this.currentElem ||
-                this.currentElem.getAttribute('data-edit-status') === newStatus) {
-                this.hide();
-                return;
-            }
-            var self = this;
-            this.startRequest();
-            Shachi.XHR.request('POST', '/admin/resources/' + this.resourceId + '/edit_status', {
-                body: "edit_status=" + newStatus,
-                completeHandler: function (req) { self.complete(req); },
-            });
-        }
-        complete(res) {
-            try {
-                var json = JSON.parse(res.responseText);
-                var editStatus = json.edit_status;
-                this.currentElem.setAttribute('data-edit-status', editStatus);
-                var img = this.currentElem.querySelector('img');
-                img.src = '/images/admin/' + editStatus + '.png';
-            }
-            catch (err) { }
-            this.completeRequest();
-        }
-    }
-    Shachi.EditStatusPopupEditor = EditStatusPopupEditor;
-    class AnnotatorPopupEditor extends PopupEditor {
-        constructor(cssSelector, buttonSelector) {
-            super(cssSelector, buttonSelector);
-        }
-        change(elem) {
-            var newAnnotatorId = elem.getAttribute('data-annotator-id');
-            if (!this.resourceId || !this.currentElem ||
-                this.currentElem.getAttribute('data-annotator-id') === newAnnotatorId) {
-                this.hide();
-                return;
-            }
-            var self = this;
-            this.startRequest();
-            Shachi.XHR.request('POST', '/admin/resources/' + this.resourceId + '/annotator', {
-                body: "annotator_id=" + newAnnotatorId,
-                completeHandler: function (req) { self.complete(req); }
-            });
-        }
-        complete(res) {
-            try {
-                var json = JSON.parse(res.responseText);
-                var annotator = json.annotator;
-                this.currentElem.setAttribute('data-annotator-id', annotator.id);
-                this.currentElem.textContent = 'Annotator: ' + annotator.name;
-            }
-            catch (err) { }
-            this.completeRequest();
-        }
-    }
-    Shachi.AnnotatorPopupEditor = AnnotatorPopupEditor;
-})(Shachi || (Shachi = {}));
-/// <reference path="xhr.ts" />
-var Shachi;
-(function (Shachi) {
+
+module Shachi {
     class ResourceEditor {
-        constructor(container) {
+        container;
+        metadataEditors;
+        constructor(container: HTMLElement) {
             this.container = container;
             this.metadataEditors = [];
         }
-        metadataEditor(metadata) {
+        metadataEditor(metadata: HTMLElement): ResourceMetadataEditorBase {
             var inputType = metadata.getAttribute('data-input-type') || '';
-            if (inputType == 'textarea')
-                return new ResourceMetadataTextareaEditor(metadata);
-            if (inputType == 'select')
-                return new ResourceMetadataSelectEditor(metadata);
-            if (inputType == 'select_only')
-                return new ResourceMetadataSelectOnlyEditor(metadata);
-            if (inputType == 'relation')
-                return new ResourceMetadataRelationEditor(metadata);
-            if (inputType == 'language')
-                return new ResourceMetadataLanguageEditor(metadata);
-            if (inputType == 'date')
-                return new ResourceMetadataDateEditor(metadata);
-            if (inputType == 'range')
-                return new ResourceMetadataRangeEditor(metadata);
+            if (inputType == 'textarea')    return new ResourceMetadataTextareaEditor(metadata);
+            if (inputType == 'select')      return new ResourceMetadataSelectEditor(metadata);
+            if (inputType == 'select_only') return new ResourceMetadataSelectOnlyEditor(metadata);
+            if (inputType == 'relation')    return new ResourceMetadataRelationEditor(metadata);
+            if (inputType == 'language')    return new ResourceMetadataLanguageEditor(metadata);
+            if (inputType == 'date')        return new ResourceMetadataDateEditor(metadata);
+            if (inputType == 'range')       return new ResourceMetadataRangeEditor(metadata);
             return new ResourceMetadataTextEditor(metadata);
         }
     }
-    class ResourceCreateEditor extends ResourceEditor {
-        constructor(container) {
+
+    export class ResourceCreateEditor extends ResourceEditor {
+        constructor(container: HTMLElement) {
             super(container);
             this.setup();
         }
         setup() {
             var self = this;
             var metadataList = this.container.querySelectorAll('.resource-metadata');
-            Array.prototype.forEach.call(metadataList, function (metadata) {
+            Array.prototype.forEach.call(metadataList, function(metadata) {
                 self.metadataEditors.push(self.metadataEditor(metadata));
             });
             this.container.addEventListener('submit', function (evt) {
@@ -268,7 +53,7 @@ var Shachi;
             Shachi.XHR.request('POST', '/admin/resources/create', {
                 body: JSON.stringify(values),
                 'content-type': 'application/json',
-                completeHandler: function (req) { self.createComplete(req); },
+                completeHandler: function(req) { self.createComplete(req) },
             });
         }
         startRequest() {
@@ -284,36 +69,37 @@ var Shachi;
         createComplete(res) {
             try {
                 var json = JSON.parse(res.responseText);
-                if (json.resource_id) {
+                if ( json.resource_id ) {
                     location.href = '/admin/resources/' + json.resource_id;
                 }
-            }
-            catch (err) {
+            } catch (err) {
                 location.href = '/admin/';
             }
         }
         getValues() {
             var values = {};
-            Array.prototype.forEach.call(this.metadataEditors, function (editor) {
+            Array.prototype.forEach.call(this.metadataEditors, function(editor) {
                 var metadataValues = editor.toValues();
-                if (metadataValues && metadataValues.length > 0) {
+                if ( metadataValues && metadataValues.length > 0 ) {
                     values[editor.name] = metadataValues;
                 }
             });
             var annotator = this.container.querySelector('.annotator');
             values['annotator_id'] = annotator.value;
             var statuses = this.container.querySelectorAll('.resource-status input');
-            Array.prototype.forEach.call(statuses, function (status) {
-                if (!status.checked)
-                    return;
+            Array.prototype.forEach.call(statuses, function(status) {
+                if ( ! status.checked ) return;
                 values['status'] = status.value;
             });
             return values;
         }
     }
-    Shachi.ResourceCreateEditor = ResourceCreateEditor;
-    class ResourceUpdateEditor extends ResourceEditor {
-        constructor(container) {
+
+    export class ResourceUpdateEditor extends ResourceEditor {
+        annotatorEditor;
+        statusEditor;
+        editStatusEditor;
+        constructor(container: HTMLElement) {
             super(container);
             this.setup();
         }
@@ -342,14 +128,17 @@ var Shachi;
                 });
             }
             var metadataList = this.container.querySelectorAll('.resource-metadata');
-            Array.prototype.forEach.call(metadataList, function (metadata) {
+            Array.prototype.forEach.call(metadataList, function(metadata) {
                 self.metadataEditors.push(self.metadataEditor(metadata));
             });
         }
     }
-    Shachi.ResourceUpdateEditor = ResourceUpdateEditor;
+
     class ResourceMetadataEditorBase {
-        constructor(container) {
+        container;
+        name;
+        listSelector;
+        constructor(container: HTMLElement) {
             this.container = container;
             this.name = container.getAttribute('data-name');
             this.listSelector = 'li.resource-metadata-item';
@@ -359,13 +148,13 @@ var Shachi;
             var self = this;
             var addButton = this.container.querySelector('.btn.add');
             if (addButton) {
-                addButton.addEventListener('click', function () {
+                addButton.addEventListener('click', function() {
                     self.addItem();
                 });
             }
             var deleteButton = this.container.querySelector('.btn.delete');
             if (deleteButton) {
-                deleteButton.addEventListener('click', function () {
+                deleteButton.addEventListener('click', function() {
                     self.deleteItem();
                 });
             }
@@ -373,7 +162,7 @@ var Shachi;
         addItem() {
             var item = this.container.querySelector(this.listSelector);
             var newItem = item.cloneNode(true);
-            Array.prototype.forEach.call(newItem.querySelectorAll('input, textarea'), function (elem) {
+            Array.prototype.forEach.call(newItem.querySelectorAll('input, textarea'), function(elem) {
                 elem.value = "";
             });
             item.parentNode.appendChild(newItem);
@@ -381,8 +170,7 @@ var Shachi;
         }
         deleteItem() {
             var items = this.container.querySelectorAll(this.listSelector);
-            if (items.length < 2)
-                return;
+            if ( items.length < 2 ) return;
             var removeItem = items[items.length - 1];
             removeItem.parentNode.removeChild(removeItem);
         }
@@ -390,40 +178,44 @@ var Shachi;
             var self = this;
             var items = this.container.querySelectorAll(this.listSelector);
             var values = [];
-            Array.prototype.forEach.call(items, function (item) {
+            Array.prototype.forEach.call(items, function(item) {
                 var hash = self.toHash(item);
-                if (hash)
-                    values.push(hash);
+                if ( hash ) values.push(hash);
             });
             return values;
         }
-        toHash(item) {
+        toHash(item: HTMLElement) {
             return undefined;
         }
-        getDate(elem, prefix) {
-            var year = elem.querySelector('.' + prefix + 'year');
-            if (!year || year.value === '')
-                return '';
+        getDate(elem, prefix: string) {
+            var year  = elem.querySelector('.' + prefix +'year');
+            if (!year || year.value === '') return '';
             var month = elem.querySelector('.' + prefix + 'month');
-            if (!month || month.value === '')
-                return year.value + '-00-00';
+            if (!month || month.value === '') return year.value + '-00-00';
             var ym = year.value + '-' + month.value;
-            var day = elem.querySelector('.' + prefix + 'day');
-            if (!day || day.value === '')
-                return ym + '-00';
+            var day   = elem.querySelector('.' + prefix + 'day');
+            if (!day || day.value === '') return ym + '-00';
             return ym + '-' + day.value;
         }
     }
+
     class ResourceMetadataEditorEditBase extends ResourceMetadataEditorBase {
-        constructor(container) {
+        editButton;
+        addDeleteButton;
+        dataContainer;
+        editor;
+        resourceId;
+        updating;
+        loadingElem;
+        submitButton;
+        constructor(container: HTMLElement) {
             super(container);
         }
         setup() {
             super.setup();
             var self = this;
             this.editButton = this.container.querySelector('.metadata-edit-button');
-            if (!this.editButton)
-                return;
+            if ( !this.editButton ) return;
             this.editButton.addEventListener('click', function () {
                 self.showEditor();
             });
@@ -459,7 +251,7 @@ var Shachi;
             var listContainer = item.parentNode;
             var oldItemLength = listContainer.children.length;
             var self = this;
-            Array.prototype.forEach.call(values, function (value) {
+            Array.prototype.forEach.call(values, function(value) {
                 self.addItemWithValue(value);
             });
             if (values.length === 0) {
@@ -477,8 +269,7 @@ var Shachi;
         }
         update() {
             var self = this;
-            if (this.updating)
-                return;
+            if ( this.updating ) return;
             this.startUpdate();
             var values = this.toValues();
             var json = {};
@@ -486,15 +277,15 @@ var Shachi;
             Shachi.XHR.request('POST', '/admin/resources/' + this.resourceId + '/metadata', {
                 body: JSON.stringify(json),
                 'content-type': 'application/json',
-                completeHandler: function (req) { self.updateComplete(req); }
+                completeHandler: function(req) { self.updateComplete(req) }
             });
         }
         startUpdate() {
             this.updating = true;
-            if (this.loadingElem) {
+            if ( this.loadingElem ) {
                 this.loadingElem.style.display = 'inline-block';
             }
-            if (this.submitButton) {
+            if ( this.submitButton ) {
                 this.submitButton.disabled = true;
             }
         }
@@ -502,27 +293,25 @@ var Shachi;
             try {
                 var json = JSON.parse(res.responseText);
                 this.updateData(json);
-            }
-            catch (err) { }
+            } catch (err) { /* ignore */ }
             this.updating = false;
-            if (this.loadingElem) {
+            if ( this.loadingElem ) {
                 this.loadingElem.style.display = 'none';
             }
-            if (this.submitButton) {
+            if ( this.submitButton ) {
                 this.submitButton.disabled = false;
             }
             this.hideEditor();
         }
         updateData(json) {
             var self = this;
-            while (this.dataContainer.firstChild) {
+            while(this.dataContainer.firstChild) {
                 this.dataContainer.removeChild(this.dataContainer.firstChild);
             }
             var values = json[this.name] || [];
-            values.forEach(function (value) {
+            values.forEach(function(value) {
                 var elem = self.toDataFromHash(value);
-                if (elem)
-                    self.dataContainer.appendChild(elem);
+                if (elem) self.dataContainer.appendChild(elem);
             });
         }
         toDataFromHash(value) {
@@ -532,22 +321,26 @@ var Shachi;
             var self = this;
             var items = this.dataContainer.querySelectorAll('li');
             var values = [];
-            Array.prototype.forEach.call(items, function (item) {
+            Array.prototype.forEach.call(items, function(item) {
                 var hash = self.toHashFromData(item);
-                if (hash)
-                    values.push(hash);
+                if ( hash ) values.push(hash);
             });
             return values;
         }
-        toHashFromData(item) {
+        toHashFromData(item: HTMLElement) {
             return undefined;
         }
         addItemWithValue(value) {
             return this.addItem();
         }
     }
+
     class ResourceMetadataEditorWithPopup extends ResourceMetadataEditorEditBase {
-        constructor(container, targetSelector) {
+        currentQuery;
+        enableRequest;
+        targetSelector;
+        popupSelector;
+        constructor(container: HTMLElement, targetSelector: string) {
             super(container);
             this.currentQuery = '';
             this.enableRequest = true;
@@ -558,9 +351,10 @@ var Shachi;
         }
         registerEvent(item) {
             var self = this;
-            item.addEventListener('keyup', function () { self.changeInput(item); });
-            if (self.popupSelector) {
-                item.addEventListener('blur', function () {
+            item.addEventListener('keyup', function() { self.changeInput(item) });
+            if ( self.popupSelector ) {
+                item.addEventListener('blur', function() {
+                    // popupSelectorのclickを取るため少し遅らせて非表示にする
                     setTimeout(function () {
                         self.popupSelector.hide();
                     }, 200);
@@ -579,16 +373,16 @@ var Shachi;
                 this.popupSelector.hide();
                 return;
             }
-            if (!this.enableRequest)
-                return;
+            if (!this.enableRequest) return;
             if (this.currentQuery === query) {
                 this.popupSelector.show();
                 return;
             }
+
             var self = this;
             this.enableRequest = false;
             Shachi.XHR.request('GET', this.requestURI(query), {
-                completeHandler: function (req) { self.complete(req, elem); }
+                completeHandler: function(req) { self.complete(req, elem) }
             });
         }
         requestURI(query) {
@@ -598,23 +392,22 @@ var Shachi;
             try {
                 var json = JSON.parse(res.responseText);
                 this.popup(elem, json);
-            }
-            catch (err) { }
+            } catch (err) { /* ignore */ }
             this.enableRequest = true;
         }
-        popup(elem, json) { }
+        popup(elem, json) {}
     }
+
+
     class ResourceMetadataTextEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var content = elem.querySelector('.content');
-            if (!content || content.value === '')
-                return undefined;
+            if (!content || content.value === '') return undefined;
             return { content: content.value };
         }
         toHashFromData(elem) {
             var content = elem.querySelector('.content');
-            if (!content)
-                return undefined;
+            if (!content) return undefined;
             return { content: content.textContent };
         }
         addItemWithValue(value) {
@@ -634,14 +427,12 @@ var Shachi;
     class ResourceMetadataTextareaEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var content = elem.querySelector('.content');
-            if (!content || content.value === '')
-                return undefined;
+            if (!content || content.value === '') return undefined;
             return { content: content.value };
         }
         toHashFromData(elem) {
             var content = elem.querySelector('.content');
-            if (!content)
-                return undefined;
+            if (!content) return undefined;
             return { content: content.textContent };
         }
         addItemWithValue(value) {
@@ -664,8 +455,7 @@ var Shachi;
             var description = elem.querySelector('.description');
             var selectValue = select ? select.value : '';
             var descriptionValue = description ? description.value : '';
-            if (selectValue === '' && descriptionValue === '')
-                return undefined;
+            if (selectValue === '' && descriptionValue === '') return undefined;
             return { value_id: selectValue, description: descriptionValue };
         }
         toHashFromData(elem) {
@@ -679,7 +469,7 @@ var Shachi;
             var newItem = this.addItem();
             if (value.value_id) {
                 var options = newItem.querySelectorAll('option');
-                Array.prototype.forEach.call(options, function (option) {
+                Array.prototype.forEach.call(options, function(option) {
                     if (option.value === value.value_id) {
                         option.selected = true;
                     }
@@ -705,8 +495,7 @@ var Shachi;
     class ResourceMetadataSelectOnlyEditor extends ResourceMetadataEditorEditBase {
         toHash(elem) {
             var select = elem.querySelector('select');
-            if (!select || select.value === '')
-                return undefined;
+            if (!select || select.value === '') return undefined;
             return { value_id: select.value };
         }
         toHashFromData(elem) {
@@ -718,7 +507,7 @@ var Shachi;
             var newItem = this.addItem();
             if (value.value_id) {
                 var options = newItem.querySelectorAll('option');
-                Array.prototype.forEach.call(options, function (option) {
+                Array.prototype.forEach.call(options, function(option) {
                     if (option.value === value.value_id) {
                         option.selected = true;
                     }
@@ -737,13 +526,12 @@ var Shachi;
         }
     }
     class ResourceMetadataRelationEditor extends ResourceMetadataEditorWithPopup {
-        constructor(container) {
+        constructor(container: HTMLElement) {
             super(container, '.description');
             this.setup();
         }
         setup() {
-            if (!this.targetSelector)
-                return;
+            if ( !this.targetSelector ) return;
             super.setup();
             var items = this.container.querySelectorAll(this.listSelector + ' ' + this.targetSelector);
             var self = this;
@@ -751,7 +539,7 @@ var Shachi;
             if (popup) {
                 this.popupSelector = new RelationPopupSelector(popup);
             }
-            Array.prototype.forEach.call(items, function (item) {
+            Array.prototype.forEach.call(items, function(item) {
                 self.registerEvent(item);
             });
         }
@@ -767,8 +555,7 @@ var Shachi;
             var description = elem.querySelector('.description');
             var selectValue = select ? select.value : '';
             var descriptionValue = description ? description.value : '';
-            if (selectValue === '' && descriptionValue === '')
-                return undefined;
+            if (selectValue === '' && descriptionValue === '') return undefined;
             return { value_id: selectValue, description: descriptionValue };
         }
         toHashFromData(elem) {
@@ -782,7 +569,7 @@ var Shachi;
             var newItem = this.addItem();
             if (value.value_id) {
                 var options = newItem.querySelectorAll('option');
-                Array.prototype.forEach.call(options, function (option) {
+                Array.prototype.forEach.call(options, function(option) {
                     if (option.value === value.value_id) {
                         option.selected = true;
                     }
@@ -806,13 +593,12 @@ var Shachi;
         }
     }
     class ResourceMetadataLanguageEditor extends ResourceMetadataEditorWithPopup {
-        constructor(container) {
+        constructor(container: HTMLElement) {
             super(container, '.content');
             this.setup();
         }
         setup() {
-            if (!this.targetSelector)
-                return;
+            if ( !this.targetSelector ) return;
             super.setup();
             var items = this.container.querySelectorAll(this.listSelector + ' ' + this.targetSelector);
             var self = this;
@@ -820,7 +606,7 @@ var Shachi;
             if (popup) {
                 this.popupSelector = new LanguagePopupSelector(popup);
             }
-            Array.prototype.forEach.call(items, function (item) {
+            Array.prototype.forEach.call(items, function(item) {
                 self.registerEvent(item);
             });
         }
@@ -836,8 +622,7 @@ var Shachi;
             var description = elem.querySelector('.description');
             var contentValue = content ? content.value : '';
             var descriptionValue = description ? description.value : '';
-            if (contentValue === '' && descriptionValue === '')
-                return undefined;
+            if (contentValue === '' && descriptionValue === '') return undefined;
             return { content: contentValue, description: descriptionValue };
         }
         toHashFromData(elem) {
@@ -872,8 +657,7 @@ var Shachi;
             var date = this.getDate(elem, '');
             var description = elem.querySelector('.description');
             var descriptionValue = description ? description.value : '';
-            if (date === '' && descriptionValue === '')
-                return undefined;
+            if (date === '' && descriptionValue === '') return undefined;
             return { content: date, description: descriptionValue };
         }
         toHashFromData(elem) {
@@ -910,8 +694,7 @@ var Shachi;
             var toDate = this.getDate(elem, 'to-');
             var description = elem.querySelector('.description');
             var descriptionValue = description ? description.value : '';
-            if (fromDate === '' && toDate === '' && descriptionValue === '')
-                return undefined;
+            if (fromDate === '' && toDate === '' && descriptionValue === '') return undefined;
             var defaultDate = '0000-00-00';
             var date = (fromDate === '' ? defaultDate : fromDate) + ' ' +
                 (toDate === '' ? defaultDate : toDate);
@@ -920,8 +703,7 @@ var Shachi;
         toHashFromData(elem) {
             var content = elem.querySelector('.content');
             var range = content.textContent.split(' ');
-            var from = (range[0] || '').split('-');
-            ;
+            var from = (range[0] || '').split('-');;
             var to = (range[1] || '').split('-');
             var description = elem.querySelector('.description');
             var descriptionValue = description ? description.textContent : '';
@@ -955,8 +737,14 @@ var Shachi;
             return elem;
         }
     }
+
+
     class PopupSelector {
-        constructor(container) {
+        container;
+        currentElem;
+        positionTop;
+        positionLeft;
+        constructor(container: HTMLElement) {
             this.container = container;
             this.positionTop = 0;
             this.positionLeft = 0;
@@ -966,20 +754,20 @@ var Shachi;
             var oldItems = this.container.querySelectorAll('li');
             var newItems = [];
             var self = this;
-            dataList.forEach(function (data) {
+            dataList.forEach(function(data) {
                 var newItem = self.createItem(data);
                 newItems.push(newItem);
                 container.appendChild(newItem);
             });
-            Array.prototype.forEach.call(oldItems, function (item) {
+            Array.prototype.forEach.call(oldItems, function(item) {
                 item.parentNode.removeChild(item);
             });
-            newItems.forEach(function (item) {
+            newItems.forEach(function(item) {
                 item.style.display = 'block';
             });
         }
-        createItem(data) { }
-        showAndMove(elem) {
+        createItem(data) {}
+        showAndMove(elem: HTMLElement) {
             this.currentElem = elem;
             this.container.style.top = (elem.offsetTop + this.positionTop) + 'px';
             this.container.style.left = (elem.offsetLeft + this.positionLeft) + 'px';
@@ -987,7 +775,7 @@ var Shachi;
         }
         show() {
             var items = this.container.querySelectorAll('li');
-            if (items.length === 0) {
+            if ( items.length === 0 ) {
                 this.hide();
                 return;
             }
@@ -998,9 +786,9 @@ var Shachi;
         }
     }
     class RelationPopupSelector extends PopupSelector {
-        constructor(container) {
+        constructor(container: HTMLElement) {
             super(container);
-            this.positionTop = 20;
+            this.positionTop  = 20;
             this.positionLeft = 0;
         }
         createItem(data) {
@@ -1016,18 +804,17 @@ var Shachi;
         }
         registerEvent(elem) {
             var self = this;
-            elem.addEventListener('click', function () { self.changeValue(elem); });
+            elem.addEventListener('click', function () { self.changeValue(elem) });
         }
         changeValue(elem) {
-            if (!this.currentElem)
-                return;
-            this.currentElem.value = elem.getAttribute('data-value');
+            if ( !this.currentElem ) return;
+            this.currentElem.value= elem.getAttribute('data-value');
         }
     }
     class LanguagePopupSelector extends PopupSelector {
-        constructor(container) {
+        constructor(container: HTMLElement) {
             super(container);
-            this.positionTop = 0;
+            this.positionTop  = 0;
             this.positionLeft = 265;
         }
         createItem(data) {
@@ -1041,68 +828,12 @@ var Shachi;
         }
         registerEvent(elem) {
             var self = this;
-            elem.addEventListener('click', function () { self.changeValue(elem); });
+            elem.addEventListener('click', function () { self.changeValue(elem) });
         }
         changeValue(elem) {
-            if (!this.currentElem)
-                return;
-            this.currentElem.value = elem.getAttribute('data-name');
+            if ( !this.currentElem ) return;
+            this.currentElem.value= elem.getAttribute('data-name');
         }
     }
-})(Shachi || (Shachi = {}));
-/// <reference path="xhr.ts" />
-var Shachi;
-(function (Shachi) {
-    class ResourceListEditor {
-        constructor(resource, statusEditor, editStatusEditor) {
-            this.resource = resource;
-            this.statusEditor = statusEditor;
-            this.editStatusEditor = editStatusEditor;
-            this.registerEvent();
-        }
-        registerEvent() {
-            var self = this;
-            var statusElem = this.resource.querySelector('li.status');
-            if (statusElem && this.statusEditor) {
-                statusElem.addEventListener('click', function () {
-                    self.statusEditor.showWithSet(self.resource, statusElem);
-                });
-            }
-            var editStatusElem = this.resource.querySelector('li.edit-status');
-            if (editStatusElem && this.editStatusEditor) {
-                editStatusElem.addEventListener('click', function () {
-                    self.editStatusEditor.showWithSet(self.resource, editStatusElem);
-                });
-            }
-            var deleteButton = this.resource.querySelector('li.delete');
-            if (deleteButton) {
-                deleteButton.addEventListener('click', function () {
-                    self.delete();
-                });
-            }
-        }
-        delete() {
-            var resourceId = this.resource.getAttribute('data-resource-id');
-            var titleElem = this.resource.querySelector('li.title');
-            var message = 'Delete "' + (titleElem ? titleElem.textContent : resourceId) + '" ?';
-            if (!window.confirm(message)) {
-                return;
-            }
-            var self = this;
-            Shachi.XHR.request('DELETE', '/admin/resources/' + resourceId, {
-                'content-type': 'application/json',
-                completeHandler: function (req) { self.complete(req); }
-            });
-        }
-        complete(res) {
-            try {
-                var json = JSON.parse(res.responseText);
-                if (json.success) {
-                    this.resource.parentNode.removeChild(this.resource);
-                }
-            }
-            catch (err) { }
-        }
-    }
-    Shachi.ResourceListEditor = ResourceListEditor;
-})(Shachi || (Shachi = {}));
+
+}
