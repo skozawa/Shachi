@@ -91,7 +91,7 @@ sub delete {
 
     Shachi::Service::Resource->delete_by_id(db => $c->db, id => $resource->id);
 
-    if ( ($c->req->header('Content-Type') || '') eq 'application/json' ) {
+    if ( $c->req->method eq 'DELETE' || ($c->req->header('Content-Type') || '') eq 'application/json' ) {
         $c->json({ success => JSON::Types::bool(1) });
     } else {
         $c->redirect('/admin/?annotator_id=' . $resource->annotator_id);

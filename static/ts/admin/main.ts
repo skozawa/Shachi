@@ -13,6 +13,8 @@ module Shachi {
                 }
             }
             req.open(method, url, true);
+            if ('content-type' in options)
+                req.setRequestHeader('Content-Type', options['content-type']);
             if (method === 'POST' && 'body' in options)
                 req.setRequestHeader('Content-Type', options['content-type'] || 'application/x-www-form-urlencoded');
             req.send(('body' in options) ? options.body : null);

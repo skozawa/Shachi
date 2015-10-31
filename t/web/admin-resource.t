@@ -74,11 +74,10 @@ sub create_post : Tests {
 }
 
 sub delete : Tests {
-    subtest 'delete normally by json' => sub {
+    subtest 'delete normally by delete' => sub {
         my $db = Shachi::Database->new;
         my $resource = create_resource;
         my $mech = create_mech;
-        $mech->add_header( 'Content-Type' => 'application/json' );
 
         $mech->delete("/admin/resources/@{[ $resource->id ]}");
         is $mech->res->code, 200;
