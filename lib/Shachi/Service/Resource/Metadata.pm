@@ -68,7 +68,7 @@ sub update_multi_from_json {
         language_id => $english->id,
         metadata_id => $metadata_list->map('id')->to_a,
     })->delete;
-    $db->shachi->table('resource_metadata')->insert_multi($data);
+    $db->shachi->table('resource_metadata')->insert_multi($data) if @$data;
 }
 
 sub _create_insert_data_from_json {
