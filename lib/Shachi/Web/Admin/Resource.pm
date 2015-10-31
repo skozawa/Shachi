@@ -160,6 +160,9 @@ sub update_metadata {
         db => $c->db, resource_id => $resource->id, json => $contents,
         metadata_list => $metadata_list,
     );
+    Shachi::Service::Resource->update_modified(
+        db => $c->db, id => $resource->id,
+    );
 
     # resource_subject を更新する場合はshachi_idも更新する
     if ( $contents->{subject_resourceSubject} ) {
