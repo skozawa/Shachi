@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>[% title || 'SHACHI' %]</title>
-    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/admin.css" type="text/css">
     <script type="text/javascript" src="/js/admin.js"></script>
   </head>
 
