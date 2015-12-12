@@ -33,12 +33,14 @@ sub create_multi_from_json {
          my $resource_id,
          my $json  => { isa => 'HashRef' };
 
-    my $english = Shachi::Service::Language->find_by_code(db => $db, code => 'eng');
+    my $language = Shachi::Service::Language->find_by_code(
+        db => $db, code => $json->{metadata_language} || 'eng',
+    );
     my $metadata_list = Shachi::Service::Metadata->find_shown_metadata(db => $db);
 
     my $data = _create_insert_data_from_json(
         db => $db, resource_id => $resource_id, metadata_list => $metadata_list,
-        language => $english, json => $json,
+        language => $language, json => $json,
     );
     return unless @$data;
 
@@ -52,7 +54,9 @@ sub update_multi_from_json {
          my $metadata_list => { optional => 1 },
          my $json  => { isa => 'HashRef' };
 
-    my $english = Shachi::Service::Language->find_by_code(db => $db, code => 'eng');
+    my $language = Shachi::Service::Language->find_by_code(
+        db => $db, code => $json->{metadata_language} || 'eng',
+    );
     $metadata_list ||= Shachi::Service::Metadata->find_by_names(
         db => $db, names => [ keys %$json ],
     );
@@ -60,12 +64,12 @@ sub update_multi_from_json {
 
     my $data = _create_insert_data_from_json(
         db => $db, resource_id => $resource_id, metadata_list => $metadata_list,
-        language => $english, json => $json,
+        language => $language, json => $json,
     );
 
     $db->shachi->table('resource_metadata')->search({
         resource_id => $resource_id,
-        language_id => $english->id,
+        language_id => $language->id,
         metadata_id => $metadata_list->map('id')->to_a,
     })->delete;
     $db->shachi->table('resource_metadata')->insert_multi($data) if @$data;

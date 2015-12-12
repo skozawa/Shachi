@@ -209,6 +209,17 @@ div.annotator-popup-editor {
 
 
 div.resource-detail-container {
+  h3.shachi-id {
+    display: inline-block;
+  }
+  div.resource-metadata-language {
+    display: inline-block;
+    margin-left: 20px;
+
+    span.current {
+      font-weight: bold;
+    }
+  }
   img.edit-button {
     cursor: pointer;
     vertical-align: top;
@@ -265,29 +276,27 @@ div.resource-detail-container {
   }
 
   div.resource-meta {
-    div.resource-status {
-      input[type=radio] {
-        display: none;
-      }
-      label.radio {
-        box-sizing: border-box;
-        .transition(background-color 0.2s linear);
-        display: inline-block;
-        padding: 3px 12px;
-        margin: 5px 5px;
-        .border-radius(8px);
-        background-color: #f6f7f8;
-        vertical-align: middle;
-        cursor: pointer;
+    input[type=radio] {
+      display: none;
+    }
+    label.radio {
+      box-sizing: border-box;
+      .transition(background-color 0.2s linear);
+      display: inline-block;
+      padding: 3px 12px;
+      margin: 5px 5px;
+      .border-radius(8px);
+      background-color: #f6f7f8;
+      vertical-align: middle;
+      cursor: pointer;
 
-        &:hover {
-          background-color: #82E85E;
-        }
+      &:hover {
+        background-color: #82E85E;
       }
+    }
 
-      input[type=radio]:checked + .radio {
-        background-color: #60B044;
-      }
+    input[type=radio]:checked + .radio {
+      background-color: #60B044;
     }
   }
 

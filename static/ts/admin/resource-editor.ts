@@ -8,16 +8,17 @@ module Shachi {
             this.container = container;
             this.metadataEditors = [];
         }
-        metadataEditor(metadata: HTMLElement): ResourceMetadataEditorBase {
+        metadataEditor(metadata: HTMLElement, metadataLanguage?:string): ResourceMetadataEditorBase {
+            if ( metadataLanguage === undefined ) metadataLanguage = 'eng';
             var inputType = metadata.getAttribute('data-input-type') || '';
-            if (inputType == 'textarea')    return new ResourceMetadataTextareaEditor(metadata);
-            if (inputType == 'select')      return new ResourceMetadataSelectEditor(metadata);
-            if (inputType == 'select_only') return new ResourceMetadataSelectOnlyEditor(metadata);
-            if (inputType == 'relation')    return new ResourceMetadataRelationEditor(metadata);
-            if (inputType == 'language')    return new ResourceMetadataLanguageEditor(metadata);
-            if (inputType == 'date')        return new ResourceMetadataDateEditor(metadata);
-            if (inputType == 'range')       return new ResourceMetadataRangeEditor(metadata);
-            return new ResourceMetadataTextEditor(metadata);
+            if (inputType == 'textarea')    return new ResourceMetadataTextareaEditor(metadata, metadataLanguage);
+            if (inputType == 'select')      return new ResourceMetadataSelectEditor(metadata, metadataLanguage);
+            if (inputType == 'select_only') return new ResourceMetadataSelectOnlyEditor(metadata, metadataLanguage);
+            if (inputType == 'relation')    return new ResourceMetadataRelationEditor(metadata, metadataLanguage);
+            if (inputType == 'language')    return new ResourceMetadataLanguageEditor(metadata, metadataLanguage);
+            if (inputType == 'date')        return new ResourceMetadataDateEditor(metadata, metadataLanguage);
+            if (inputType == 'range')       return new ResourceMetadataRangeEditor(metadata, metadataLanguage);
+            return new ResourceMetadataTextEditor(metadata, metadataLanguage);
         }
     }
 
@@ -91,6 +92,11 @@ module Shachi {
                 if ( ! status.checked ) return;
                 values['status'] = status.value;
             });
+            var languages = this.container.querySelectorAll('.resource-metadata-language input');
+            Array.prototype.forEach.call(languages, function(language) {
+                if ( ! language.checked ) return;
+                values['metadata_language'] = language.value;
+            });
             return values;
         }
     }
@@ -127,9 +133,12 @@ module Shachi {
                     self.editStatusEditor.showWithSet(self.container, editStatusElem);
                 });
             }
+            var resourceMetadataLanguage = this.container.querySelector('.resource-metadata-language');
+            var metadataLanguage = resourceMetadataLanguage ?
+                resourceMetadataLanguage.getAttribute('data-metadata-language') : 'eng';
             var metadataList = this.container.querySelectorAll('.resource-metadata');
             Array.prototype.forEach.call(metadataList, function(metadata) {
-                self.metadataEditors.push(self.metadataEditor(metadata));
+                self.metadataEditors.push(self.metadataEditor(metadata, metadataLanguage));
             });
         }
     }
@@ -138,10 +147,12 @@ module Shachi {
         container;
         name;
         listSelector;
-        constructor(container: HTMLElement) {
+        metadataLanguage;
+        constructor(container: HTMLElement, metadataLanguage: string) {
             this.container = container;
             this.name = container.getAttribute('data-name');
             this.listSelector = 'li.resource-metadata-item';
+            this.metadataLanguage = metadataLanguage;
             this.setup();
         }
         setup() {
@@ -208,8 +219,8 @@ module Shachi {
         updating;
         loadingElem;
         submitButton;
-        constructor(container: HTMLElement) {
-            super(container);
+        constructor(container: HTMLElement, metadataLanguage: string) {
+            super(container, metadataLanguage);
         }
         setup() {
             super.setup();
@@ -274,6 +285,7 @@ module Shachi {
             var values = this.toValues();
             var json = {};
             json[this.name] = values;
+            json['metadata_language'] = this.metadataLanguage;
             Shachi.XHR.request('POST', '/admin/resources/' + this.resourceId + '/metadata', {
                 body: JSON.stringify(json),
                 'content-type': 'application/json',
@@ -340,8 +352,8 @@ module Shachi {
         enableRequest;
         targetSelector;
         popupSelector;
-        constructor(container: HTMLElement, targetSelector: string) {
-            super(container);
+        constructor(container: HTMLElement, metadataLanguage: string, targetSelector: string) {
+            super(container, metadataLanguage);
             this.currentQuery = '';
             this.enableRequest = true;
             this.targetSelector = targetSelector;
@@ -526,8 +538,8 @@ module Shachi {
         }
     }
     class ResourceMetadataRelationEditor extends ResourceMetadataEditorWithPopup {
-        constructor(container: HTMLElement) {
-            super(container, '.description');
+        constructor(container: HTMLElement, metadataLanguage: string) {
+            super(container, metadataLanguage, '.description');
             this.setup();
         }
         setup() {
@@ -593,8 +605,8 @@ module Shachi {
         }
     }
     class ResourceMetadataLanguageEditor extends ResourceMetadataEditorWithPopup {
-        constructor(container: HTMLElement) {
-            super(container, '.content');
+        constructor(container: HTMLElement, metadataLanguage: string) {
+            super(container, metadataLanguage, '.content');
             this.setup();
         }
         setup() {

@@ -77,6 +77,12 @@
         <input type="radio" name="status" id="status-public" value="public"><label class="radio" for="status-public">public</label>
         <input type="radio" name="status" id="status-private" value="private" checked><label class="radio" for="status-private">private</label>
       </div>
+
+      <div class="resource-metadata-language">
+        Language:
+        <input type="radio" name="metadata_language" id="language-eng" value="eng" checked><label class="radio" for="language-eng">English</label>
+        <input type="radio" name="metadata_language" id="language-jpn" value="jpn"><label class="radio" for="language-jpn">Japanese</label>
+      </div>
     </div>
 
     [%- FOREACH metadata IN metadata_list %]

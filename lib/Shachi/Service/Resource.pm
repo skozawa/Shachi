@@ -217,11 +217,15 @@ sub update_status {
 sub _status {
     my ($db, $id, $status) = @_;
     return $status if $status eq STATUS_PRIVATE;
-    # TODO
-    my $english = Shachi::Service::Language->find_by_code(db => $db, code => 'eng');
-    my $identifiers = Shachi::Service::Resource::Metadata->find_resource_metadata_by_name(
-        db => $db, name => 'identifier', resource_ids => [ $id ], language => $english,
-    );
+
+    my $metadata_identifier = Shachi::Service::Metadata->find_by_name(db => $db, name => 'identifier');
+    return STATUS_PUBLIC unless $metadata_identifier;
+
+    my $identifiers = $db->shachi->table('resource_metadata')->search({
+        metadata_id => $metadata_identifier->id,
+        resource_id => $id,
+    })->list;
+
     return STATUS_PUBLIC unless $identifiers->size;
     return STATUS_LIMITED_BY_LDC  if $identifiers->first->content =~ /^LDC/;
     return STATUS_LIMITED_BY_ELRA if $identifiers->first->content =~ /^ELRA/;

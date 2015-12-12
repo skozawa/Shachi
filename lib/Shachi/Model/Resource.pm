@@ -61,8 +61,8 @@ sub modified {
 }
 
 sub admin_link {
-    my $self = shift;
-    '/admin/resources/' . $self->id;
+    my ($self, $lang) = @_;
+    '/admin/resources/' . $self->id . ($lang ? "?ln=$lang" : '');
 }
 
 1;

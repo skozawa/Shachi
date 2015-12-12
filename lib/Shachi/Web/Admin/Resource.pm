@@ -4,6 +4,7 @@ use warnings;
 use JSON::Types;
 use List::MoreUtils qw/firstval/;
 use Shachi::Service::Annotator;
+use Shachi::Service::Language;
 use Shachi::Service::Resource;
 use Shachi::Service::Resource::Metadata;
 use Shachi::Service::Metadata;
@@ -173,9 +174,12 @@ sub update_metadata {
         );
     }
 
+    my $language = Shachi::Service::Language->find_by_code(
+        db => $c->db, code => $contents->{metadata_language} || 'eng',
+    );
     my $resource_metadata_by_metadata_id = Shachi::Service::Resource::Metadata->find_resource_metadata(
         db => $c->db, resource => $resource, metadata_list => $metadata_list,
-        language => $c->lang, args => { with_value => 1 },
+        language => $language, args => { with_value => 1 },
     )->hash_by('metadata_id');
     my $res = {};
     foreach my $metadata ( @$metadata_list ) {

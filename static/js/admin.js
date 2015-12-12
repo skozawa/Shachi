@@ -217,23 +217,25 @@ var Shachi;
             this.container = container;
             this.metadataEditors = [];
         }
-        metadataEditor(metadata) {
+        metadataEditor(metadata, metadataLanguage) {
+            if (metadataLanguage === undefined)
+                metadataLanguage = 'eng';
             var inputType = metadata.getAttribute('data-input-type') || '';
             if (inputType == 'textarea')
-                return new ResourceMetadataTextareaEditor(metadata);
+                return new ResourceMetadataTextareaEditor(metadata, metadataLanguage);
             if (inputType == 'select')
-                return new ResourceMetadataSelectEditor(metadata);
+                return new ResourceMetadataSelectEditor(metadata, metadataLanguage);
             if (inputType == 'select_only')
-                return new ResourceMetadataSelectOnlyEditor(metadata);
+                return new ResourceMetadataSelectOnlyEditor(metadata, metadataLanguage);
             if (inputType == 'relation')
-                return new ResourceMetadataRelationEditor(metadata);
+                return new ResourceMetadataRelationEditor(metadata, metadataLanguage);
             if (inputType == 'language')
-                return new ResourceMetadataLanguageEditor(metadata);
+                return new ResourceMetadataLanguageEditor(metadata, metadataLanguage);
             if (inputType == 'date')
-                return new ResourceMetadataDateEditor(metadata);
+                return new ResourceMetadataDateEditor(metadata, metadataLanguage);
             if (inputType == 'range')
-                return new ResourceMetadataRangeEditor(metadata);
-            return new ResourceMetadataTextEditor(metadata);
+                return new ResourceMetadataRangeEditor(metadata, metadataLanguage);
+            return new ResourceMetadataTextEditor(metadata, metadataLanguage);
         }
     }
     class ResourceCreateEditor extends ResourceEditor {
@@ -308,6 +310,12 @@ var Shachi;
                     return;
                 values['status'] = status.value;
             });
+            var languages = this.container.querySelectorAll('.resource-metadata-language input');
+            Array.prototype.forEach.call(languages, function (language) {
+                if (!language.checked)
+                    return;
+                values['metadata_language'] = language.value;
+            });
             return values;
         }
     }
@@ -341,18 +349,22 @@ var Shachi;
                     self.editStatusEditor.showWithSet(self.container, editStatusElem);
                 });
             }
+            var resourceMetadataLanguage = this.container.querySelector('.resource-metadata-language');
+            var metadataLanguage = resourceMetadataLanguage ?
+                resourceMetadataLanguage.getAttribute('data-metadata-language') : 'eng';
             var metadataList = this.container.querySelectorAll('.resource-metadata');
             Array.prototype.forEach.call(metadataList, function (metadata) {
-                self.metadataEditors.push(self.metadataEditor(metadata));
+                self.metadataEditors.push(self.metadataEditor(metadata, metadataLanguage));
             });
         }
     }
     Shachi.ResourceUpdateEditor = ResourceUpdateEditor;
     class ResourceMetadataEditorBase {
-        constructor(container) {
+        constructor(container, metadataLanguage) {
             this.container = container;
             this.name = container.getAttribute('data-name');
             this.listSelector = 'li.resource-metadata-item';
+            this.metadataLanguage = metadataLanguage;
             this.setup();
         }
         setup() {
@@ -415,8 +427,8 @@ var Shachi;
         }
     }
     class ResourceMetadataEditorEditBase extends ResourceMetadataEditorBase {
-        constructor(container) {
-            super(container);
+        constructor(container, metadataLanguage) {
+            super(container, metadataLanguage);
         }
         setup() {
             super.setup();
@@ -483,6 +495,7 @@ var Shachi;
             var values = this.toValues();
             var json = {};
             json[this.name] = values;
+            json['metadata_language'] = this.metadataLanguage;
             Shachi.XHR.request('POST', '/admin/resources/' + this.resourceId + '/metadata', {
                 body: JSON.stringify(json),
                 'content-type': 'application/json',
@@ -547,8 +560,8 @@ var Shachi;
         }
     }
     class ResourceMetadataEditorWithPopup extends ResourceMetadataEditorEditBase {
-        constructor(container, targetSelector) {
-            super(container);
+        constructor(container, metadataLanguage, targetSelector) {
+            super(container, metadataLanguage);
             this.currentQuery = '';
             this.enableRequest = true;
             this.targetSelector = targetSelector;
@@ -737,8 +750,8 @@ var Shachi;
         }
     }
     class ResourceMetadataRelationEditor extends ResourceMetadataEditorWithPopup {
-        constructor(container) {
-            super(container, '.description');
+        constructor(container, metadataLanguage) {
+            super(container, metadataLanguage, '.description');
             this.setup();
         }
         setup() {
@@ -806,8 +819,8 @@ var Shachi;
         }
     }
     class ResourceMetadataLanguageEditor extends ResourceMetadataEditorWithPopup {
-        constructor(container) {
-            super(container, '.content');
+        constructor(container, metadataLanguage) {
+            super(container, metadataLanguage, '.content');
             this.setup();
         }
         setup() {
