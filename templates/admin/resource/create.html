@@ -59,6 +59,12 @@
   <input name="[% metadata.id %]" type="text" class="description">
 [%- END # MACRO metadata_input_range %]
 
+<div>
+  <a href="/admin/?annotator_id=[% c.req.param('annotator_id') %]">Index</a>
+  <a href="/docs/registration_manual.pdf" target="_blank">Registration Manual</a>
+  <hr>
+</div>
+
 <form id="resource-create-form" method="POST">
   <div class="resource-detail-container">
 

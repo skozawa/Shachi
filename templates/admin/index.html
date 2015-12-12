@@ -34,7 +34,7 @@
       [%- FOREACH resource IN annotator.resources %]
         <li class="annotator-resource" data-resource-id="[% resource.id %]">
           <ul>
-            <li class="shachi-id">[% resource.shachi_id %]</li>
+            <li class="shachi-id"><a href="[% resource.admin_link %]">[% resource.shachi_id %]</a></li>
             <li class="edit-status [% resource.edit_status%]" data-edit-status="[% resource.edit_status %]">
               <img src="/images/admin/[% resource.edit_status %].png">
             </li>
