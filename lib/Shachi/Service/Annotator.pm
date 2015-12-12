@@ -37,7 +37,7 @@ sub find_all {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' };
 
-    $db->shachi->table('annotator')->search({})->list;
+    $db->shachi->table('annotator')->search({})->order_by('name asc')->list;
 }
 
 sub embed_resources {

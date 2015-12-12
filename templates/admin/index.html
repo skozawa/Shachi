@@ -7,7 +7,7 @@
   <form name="annotator-form" method="GET">
     Annotator:
     <select name="annotator_id" onchange="document.annotator-form.submit()">
-      <option value=""></option>
+      <option value="">-- Select your name --</option>
       [%- FOREACH annotator IN annotators %]
         [%- IF annotator.resource_count %]
           <option value="[% annotator.id %]"[% ' selected' IF annotator.id == c.req.param('annotator_id') %]>[% annotator.name %] ([% annotator.resource_count %])</option>
