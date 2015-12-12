@@ -1,9 +1,12 @@
 [%- WRAPPER '_wrapper.tt' WITH current_navi = 'list' %]
+<div class="search-count-container">
+  <span>[% resources.size %] resources</span>
+</div>
 <div class="resource-list-container">
   <ul class="resource-list">
     [%- FOREACH resource IN resources %]
-      <li>
-        [% resource.shachi_id %]: [% resource.title %]
+      <li class="resource-item">
+        <a href="[% resource.link %]">[% resource.shachi_id %]: [% resource.title %]</a>
       </li>
     [%- END # FOREACH resource IN resources %]
   </ul>

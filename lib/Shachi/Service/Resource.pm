@@ -114,7 +114,7 @@ sub search_all {
          my $db    => { isa => 'Shachi::Database' };
 
     return $db->shachi->table('resource')->search({
-        status => 'public',
+        status => { '!=' => 'private' },
     })->order_by('id asc')->list;
 }
 

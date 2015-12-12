@@ -60,6 +60,11 @@ sub modified {
     $self->{_modified} ||= $self->_from_db_timestamp($self->{modified});
 }
 
+sub link {
+    my ($self) = @_;
+    '/resources/' . $self->id;
+}
+
 sub admin_link {
     my ($self, $lang) = @_;
     '/admin/resources/' . $self->id . ($lang ? "?ln=$lang" : '');
