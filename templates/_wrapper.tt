@@ -16,7 +16,13 @@
         <div id="header-menu-container">
           <ul id="header-menu">
             <li class="header-menu-item">Home</li>
-            <li class="header-menu-item">English</li>
+            <li class="header-menu-item">
+              [%- IF c.lang.code != 'eng' %]
+                <a href="[% c.req.uri %]?ln=eng">English</a>
+              [%- ELSE %]
+                <a href="[% c.req.uri %]?ln=jpn">Japanese</a>
+              [%- END # IF c.lang.code != 'eng' %]
+            </li>
           </ul>
         </div>
       </div>
@@ -25,16 +31,16 @@
       <div id="navi">
         <ul>
           <li class="navi-item home[% ' current' IF current_navi == 'home' %]">
-            <a href="#">Home</a>
+            <a href="/">Home</a>
           </li>
           <li class="navi-item list[% ' current' IF current_navi == 'list' %]">
-            <a href="#">List</a>
+            <a href="/resources">List</a>
           </li>
           <li class="navi-item search[% ' current' IF current_navi == 'search' %]">
-            <a href="#">Search</a>
+            <a href="/resources/facet">Search</a>
           </li>
           <li class="navi-item statistics[% ' current' IF current_navi == 'statistics' %]">
-            <a href="#">Statistics</a>
+            <a href="/resources/statistics">Statistics</a>
           </li>
           <li class="navi-item asia">
             <a href="#">Asia</a>

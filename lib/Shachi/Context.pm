@@ -50,7 +50,12 @@ sub _build_page_id {
 
 sub _build_lang {
     my $self = shift;
-    my $code = $self->req->param('ln') || 'eng';
+    my $code = $self->req->param('ln') || $self->req->cookies->{shachi_language} || 'eng';
+    $self->res->cookies->{shachi_language} = {
+        value  => $code,
+        path   => '/',
+        expires => time + 24 * 60 * 60,
+    };
     Shachi::Service::Language->find_by_code(db => $self->db, code => $code);
 }
 
