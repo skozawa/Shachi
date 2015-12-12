@@ -133,6 +133,7 @@ sub update_annotator : Tests {
 
 sub update_status : Tests {
     truncate_db;
+    my $english = create_language(code => 'eng');
     my $identifier_metadata = create_metadata(name => 'identifier');
 
     subtest 'update normally' => sub {
@@ -153,7 +154,8 @@ sub update_status : Tests {
         my $db = Shachi::Database->new;
         my $resource = create_resource;
         create_resource_metadata(
-            resource => $resource, metadata => $identifier_metadata, content => 'LDC',
+            resource => $resource, metadata => $identifier_metadata,
+            language => $english, content => 'LDC',
         );
 
         Shachi::Service::Resource->update_status(
@@ -169,7 +171,8 @@ sub update_status : Tests {
         my $db = Shachi::Database->new;
         my $resource = create_resource;
         create_resource_metadata(
-            resource => $resource, metadata => $identifier_metadata, content => 'ELRA',
+            resource => $resource, metadata => $identifier_metadata,
+            language => $english, content => 'ELRA',
         );
 
         Shachi::Service::Resource->update_status(

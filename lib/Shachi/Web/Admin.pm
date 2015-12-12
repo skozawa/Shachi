@@ -18,7 +18,7 @@ sub default {
             );
             if ( $annotator ) {
                 Shachi::Service::Annotator->embed_resources(
-                    db => $c->db, annotators => $annotator->as_list,
+                    db => $c->db, annotators => $annotator->as_list, language => $c->lang,
                     args => { with_resource_title => 1 },
                 );
                 $annotator;

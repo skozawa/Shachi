@@ -11,7 +11,7 @@ sub find_by_id {
     my ($class, $c) = @_;
     my $resource_id = $c->route->{resource_id};
     my ($resource, $metadata_list) = Shachi::Service::Resource->find_resource_detail(
-        db => $c->db, id => $resource_id,
+        db => $c->db, id => $resource_id, language => $c->lang,
     );
     return $c->throw_not_found unless $resource;
 
@@ -24,7 +24,7 @@ sub find_by_id {
 sub list {
     my ($class, $c) = @_;
     my $resources = Shachi::Service::Resource->search_all(db => $c->db);
-    Shachi::Service::Resource->embed_title(db => $c->db, resources => $resources);
+    Shachi::Service::Resource->embed_title(db => $c->db, resources => $resources, language => $c->lang);
     return $c->html('list.html', { resources => $resources });
 }
 

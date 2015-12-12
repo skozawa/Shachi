@@ -7,6 +7,7 @@ use List::MoreUtils qw/any/;
 use Shachi::Model::List;
 use Shachi::Model::Resource;
 use Shachi::Service::Annotator;
+use Shachi::Service::Language;
 use Shachi::Service::Metadata;
 use Shachi::Service::Resource::Metadata;
 
@@ -84,6 +85,7 @@ sub find_resource_detail {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
          my $id,
+         my $language => { isa => 'Shachi::Model::Language' },
          my $args  => { isa => 'HashRef', default => {} };
 
     my $resource = $class->find_by_id(db => $db, id => $id) or return;
@@ -92,7 +94,7 @@ sub find_resource_detail {
 
     my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
         db => $db, resource => $resource, metadata_list => $metadata_list,
-        args => { with_value => 1 },
+        language => $language, args => { with_value => 1 },
     );
 
     $resource->metadata_list($resource_metadata_list);
@@ -153,10 +155,12 @@ sub count_not_private {
 sub embed_title {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
-         my $resources => { isa => 'Shachi::Model::List' };
+         my $resources => { isa => 'Shachi::Model::List' },
+         my $language  => { isa => 'Shachi::Model::Language' };
 
     my $resource_titles = Shachi::Service::Resource::Metadata->find_resource_metadata_by_name(
         db => $db, name => 'title', resource_ids => $resources->map('id')->to_a,
+        language => $language,
     );
     my $title_by_resource_id = $resource_titles->hash_by('resource_id');
 
@@ -213,8 +217,10 @@ sub update_status {
 sub _status {
     my ($db, $id, $status) = @_;
     return $status if $status eq STATUS_PRIVATE;
+    # TODO
+    my $english = Shachi::Service::Language->find_by_code(db => $db, code => 'eng');
     my $identifiers = Shachi::Service::Resource::Metadata->find_resource_metadata_by_name(
-        db => $db, name => 'identifier', resource_ids => [ $id ],
+        db => $db, name => 'identifier', resource_ids => [ $id ], language => $english,
     );
     return STATUS_PUBLIC unless $identifiers->size;
     return STATUS_LIMITED_BY_LDC  if $identifiers->first->content =~ /^LDC/;

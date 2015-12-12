@@ -7,6 +7,9 @@ sub _require : Test(startup => 1) {
 }
 
 sub find_by_id : Tests {
+    truncate_db;
+    my $english = create_language(code => 'eng');
+
     subtest 'found resource' => sub {
         my $resource = create_resource;
         my $mech = create_mech;
@@ -21,6 +24,9 @@ sub find_by_id : Tests {
 }
 
 sub list : Tests {
+    truncate_db;
+    my $english = create_language(code => 'eng');
+
     subtest 'list' => sub {
         my $mech = create_mech;
         $mech->get_ok('/resources');

@@ -73,10 +73,11 @@ sub embed_resources : Tests {
     subtest 'embed normally' => sub {
         my $db = Shachi::Database->new;
         my $annotator = create_annotator;
+        my $language  = create_language;
         my $resources = [ map { create_resource(annotator => $annotator) } (1..3) ];
 
         Shachi::Service::Annotator->embed_resources(
-            db => $db, annotators => $annotator->as_list,
+            db => $db, annotators => $annotator->as_list, language => $language,
         );
 
         ok $annotator->resources;

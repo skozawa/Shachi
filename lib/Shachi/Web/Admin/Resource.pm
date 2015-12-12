@@ -13,7 +13,8 @@ sub find_by_id {
     my ($class, $c) = @_;
     my $resource_id = $c->route->{resource_id};
     my ($resource, $metadata_list) = Shachi::Service::Resource->find_resource_detail(
-        db => $c->db, id => $resource_id, args => { with_value => 1 },
+        db => $c->db, id => $resource_id, language => $c->lang,
+        args => { with_value => 1 },
     );
     return $c->throw_not_found unless $resource;
 
@@ -174,7 +175,7 @@ sub update_metadata {
 
     my $resource_metadata_by_metadata_id = Shachi::Service::Resource::Metadata->find_resource_metadata(
         db => $c->db, resource => $resource, metadata_list => $metadata_list,
-        args => { with_value => 1 },
+        language => $c->lang, args => { with_value => 1 },
     )->hash_by('metadata_id');
     my $res = {};
     foreach my $metadata ( @$metadata_list ) {

@@ -44,13 +44,14 @@ sub embed_resources {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
          my $annotators => { isa => 'Shachi::Model::List' },
+         my $language => { isa => 'Shachi::Model::Language' },
          my $args => { isa => 'HashRef', default => {} };
 
     my $resources = $db->shachi->table('resource')->search({
         annotator_id => { -in => $annotators->map('id')->to_a },
     })->list;
     if ( $args->{with_resource_title} ) {
-        Shachi::Service::Resource->embed_title(db => $db, resources => $resources);
+        Shachi::Service::Resource->embed_title(db => $db, resources => $resources, language => $language);
     }
 
     my $resources_by_annotator_id = $resources->hash_by('annotator_id');

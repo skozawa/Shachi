@@ -101,6 +101,7 @@ sub create_multi_from_json : Tests {
             my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
                 db => $db, resource => $resource,
                 metadata_list => $metadata_list->{$key}->as_list,
+                language => $english,
                 args => { with_value => 1 },
             );
             is $items->size, scalar @{$json->{$key}}, "$key size";
@@ -145,6 +146,7 @@ sub update_multi_from_json : Tests {
         my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
             db => $db, resource => $resource,
             metadata_list => $metadata_list->{title}->as_list,
+            language => $english,
         );
         is $items->size, 1;
         is $items->first->content, 'test corpus';
@@ -174,7 +176,8 @@ sub update_multi_from_json : Tests {
 
         my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
             db => $db, resource => $resource,
-            metadata_list => $metadata_list->{subject_resourceSubject}->as_list
+            metadata_list => $metadata_list->{subject_resourceSubject}->as_list,
+            language => $english,
         );
         is $items->size, 2;
         is $items->first->value_id, $resource_subject_value->id;
@@ -213,6 +216,7 @@ sub update_multi_from_json : Tests {
         my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
             db => $db, resource => $resource,
             metadata_list => $metadata_list->{subject_monoMultilingual}->as_list,
+            language => $english,
         );
         is $items->size, 1;
         is $items->first->value_id, $mono_multilingual_value->id;
@@ -220,6 +224,7 @@ sub update_multi_from_json : Tests {
         my $lang_items = Shachi::Service::Resource::Metadata->find_resource_metadata(
             db => $db, resource => $resource,
             metadata_list => $metadata_list->{language}->as_list,
+            language => $english,
         );
         is $lang_items->size, 1;
         is $lang_items->first->value_id, $language_value->value_id;
@@ -233,17 +238,19 @@ sub find_resource_metadata_by_name : Tests {
     subtest 'find normally' => sub {
         my $db = Shachi::Database->new;
 
+        my $language = create_language;
         my $resource1 = create_resource;
         create_resource_metadata(
-            resource => $resource1, metadata => $title_metadata, content => 'test1'
+            resource => $resource1, metadata => $title_metadata, content => 'test1', language => $language
         );
         my $resource2 = create_resource;
         create_resource_metadata(
-            resource => $resource2, metadata => $title_metadata, content => 'test2',
+            resource => $resource2, metadata => $title_metadata, content => 'test2', language => $language
         );
 
         my $titles = Shachi::Service::Resource::Metadata->find_resource_metadata_by_name(
             db => $db, name => 'title', resource_ids => [ $resource1->id, $resource2->id ],
+            language => $language,
         );
         $titles = $titles->sort_by(sub { $_->resource_id });
         is $titles->size, 2;
@@ -258,27 +265,30 @@ sub find_resource_metadata : Tests {
 
     my $setup_resource = sub {
         my $resource = create_resource;
+        my $language = create_language;
         my $metadata1 = create_metadata(value_type => VALUE_TYPE_STYLE);
         my $value1 = create_metadata_value(value_type => VALUE_TYPE_STYLE);
-        create_resource_metadata(resource => $resource, metadata => $metadata1, value_id => $value1->id);
+        create_resource_metadata(resource => $resource, metadata => $metadata1,
+                                 language => $language, value_id => $value1->id);
         my $metadata2 = create_metadata(value_type => VALUE_TYPE_ROLE);
         my $value2 = create_metadata_value(value_type => VALUE_TYPE_ROLE);
-        create_resource_metadata(resource => $resource, metadata => $metadata2, value_id => $value2->id);
+        create_resource_metadata(resource => $resource, metadata => $metadata2,
+                                 language => $language, value_id => $value2->id);
         my $metadata3 = create_metadata;
-        create_resource_metadata(resource => $resource, metadata => $metadata3);
+        create_resource_metadata(resource => $resource, metadata => $metadata3, language => $language);
 
         my $metadata_list = Shachi::Model::List->new(list => [ $metadata1, $metadata2, $metadata3 ]);
 
-        return ($resource, $metadata_list);
+        return ($resource, $language, $metadata_list);
     };
 
     subtest 'find normally' => sub {
         my $db = Shachi::Database->new;
 
-        my ($resource, $metadata_list) = $setup_resource->();
+        my ($resource, $language, $metadata_list) = $setup_resource->();
 
         my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
-            db => $db, resource => $resource, metadata_list => $metadata_list,
+            db => $db, resource => $resource, metadata_list => $metadata_list, language => $language,
         );
 
         is $resource_metadata_list->size, 3;
@@ -288,11 +298,11 @@ sub find_resource_metadata : Tests {
     subtest 'find normally with value' => sub {
         my $db = Shachi::Database->new;
 
-        my ($resource, $metadata_list) = $setup_resource->();
+        my ($resource, $language, $metadata_list) = $setup_resource->();
 
         my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
             db => $db, resource => $resource, metadata_list => $metadata_list,
-            args => { with_value => 1 },
+            language => $language, args => { with_value => 1 },
         );
 
         is $resource_metadata_list->size, 3;
