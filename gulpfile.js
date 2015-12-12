@@ -24,7 +24,7 @@ gulp.task('typescript', function () {
     var tsResult = gulp.src('static/ts/**/*.ts')
             .pipe(filter([ '*', '!static/ts/admin/**/*.ts' ]))
             .pipe(ts({
-                target: 'ES6',
+                target: 'ES5',
                 removeComments: true,
                 sortOutput: true,
                 out: 'main.js'
@@ -35,7 +35,7 @@ gulp.task('typescript', function () {
 gulp.task('typescript:admin', function () {
     var tsResult = gulp.src('static/ts/admin/**/*.ts')
             .pipe(ts({
-                target: 'ES6',
+                target: 'ES5',
                 removeComments: true,
                 sortOutput: true,
                 out: 'admin.js'

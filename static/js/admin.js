@@ -51,10 +51,15 @@ var Shachi;
     })(XHR = Shachi.XHR || (Shachi.XHR = {}));
 })(Shachi || (Shachi = {}));
 /// <reference path="xhr.ts" />
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var Shachi;
 (function (Shachi) {
-    class PopupEditor {
-        constructor(cssSelector, buttonSelector) {
+    var PopupEditor = (function () {
+        function PopupEditor(cssSelector, buttonSelector) {
             this.container = document.querySelector(cssSelector);
             if (!this.container)
                 return;
@@ -64,7 +69,7 @@ var Shachi;
             this.requesting = false;
             this.loadingElem = this.container.querySelector('.loading');
         }
-        registerEvent() {
+        PopupEditor.prototype.registerEvent = function () {
             var self = this;
             if (self.closeButton) {
                 self.closeButton.addEventListener('click', function () {
@@ -80,9 +85,9 @@ var Shachi;
                     });
                 });
             }
-        }
-        change(elem) { }
-        showWithSet(resource, elem) {
+        };
+        PopupEditor.prototype.change = function (elem) { };
+        PopupEditor.prototype.showWithSet = function (resource, elem) {
             this.resourceId = resource.getAttribute('data-resource-id');
             if (!this.resourceId) {
                 this.hide();
@@ -90,37 +95,39 @@ var Shachi;
             }
             this.currentElem = elem;
             this.showAndMove(elem);
-        }
-        showAndMove(elem) {
+        };
+        PopupEditor.prototype.showAndMove = function (elem) {
             this.container.style.top = (elem.offsetTop + 20) + 'px';
             this.container.style.left = elem.offsetLeft + 'px';
             this.show();
-        }
-        show() {
+        };
+        PopupEditor.prototype.show = function () {
             this.container.style.display = 'block';
-        }
-        hide() {
+        };
+        PopupEditor.prototype.hide = function () {
             this.container.style.display = 'none';
-        }
-        startRequest() {
+        };
+        PopupEditor.prototype.startRequest = function () {
             this.requesting = true;
             if (this.loadingElem) {
                 this.loadingElem.style.display = 'block';
             }
-        }
-        completeRequest() {
+        };
+        PopupEditor.prototype.completeRequest = function () {
             this.requesting = false;
             if (this.loadingElem) {
                 this.loadingElem.style.display = 'none';
             }
             this.hide();
+        };
+        return PopupEditor;
+    })();
+    var StatusPopupEditor = (function (_super) {
+        __extends(StatusPopupEditor, _super);
+        function StatusPopupEditor(cssSelector, buttonSelector) {
+            _super.call(this, cssSelector, buttonSelector);
         }
-    }
-    class StatusPopupEditor extends PopupEditor {
-        constructor(cssSelector, buttonSelector) {
-            super(cssSelector, buttonSelector);
-        }
-        change(elem) {
+        StatusPopupEditor.prototype.change = function (elem) {
             var newStatus = elem.getAttribute('data-status');
             if (!this.resourceId || !this.currentElem || !newStatus ||
                 this.currentElem.getAttribute('data-status') === newStatus) {
@@ -133,8 +140,8 @@ var Shachi;
                 body: 'status=' + newStatus,
                 completeHandler: function (req) { self.complete(req); },
             });
-        }
-        complete(res) {
+        };
+        StatusPopupEditor.prototype.complete = function (res) {
             try {
                 var json = JSON.parse(res.responseText);
                 var status = json.status;
@@ -144,14 +151,16 @@ var Shachi;
             }
             catch (err) { }
             this.completeRequest();
-        }
-    }
+        };
+        return StatusPopupEditor;
+    })(PopupEditor);
     Shachi.StatusPopupEditor = StatusPopupEditor;
-    class EditStatusPopupEditor extends PopupEditor {
-        constructor(cssSelector, buttonSelector) {
-            super(cssSelector, buttonSelector);
+    var EditStatusPopupEditor = (function (_super) {
+        __extends(EditStatusPopupEditor, _super);
+        function EditStatusPopupEditor(cssSelector, buttonSelector) {
+            _super.call(this, cssSelector, buttonSelector);
         }
-        change(elem) {
+        EditStatusPopupEditor.prototype.change = function (elem) {
             var newStatus = elem.getAttribute('data-edit-status');
             if (!this.resourceId || !this.currentElem ||
                 this.currentElem.getAttribute('data-edit-status') === newStatus) {
@@ -164,8 +173,8 @@ var Shachi;
                 body: "edit_status=" + newStatus,
                 completeHandler: function (req) { self.complete(req); },
             });
-        }
-        complete(res) {
+        };
+        EditStatusPopupEditor.prototype.complete = function (res) {
             try {
                 var json = JSON.parse(res.responseText);
                 var editStatus = json.edit_status;
@@ -175,14 +184,16 @@ var Shachi;
             }
             catch (err) { }
             this.completeRequest();
-        }
-    }
+        };
+        return EditStatusPopupEditor;
+    })(PopupEditor);
     Shachi.EditStatusPopupEditor = EditStatusPopupEditor;
-    class AnnotatorPopupEditor extends PopupEditor {
-        constructor(cssSelector, buttonSelector) {
-            super(cssSelector, buttonSelector);
+    var AnnotatorPopupEditor = (function (_super) {
+        __extends(AnnotatorPopupEditor, _super);
+        function AnnotatorPopupEditor(cssSelector, buttonSelector) {
+            _super.call(this, cssSelector, buttonSelector);
         }
-        change(elem) {
+        AnnotatorPopupEditor.prototype.change = function (elem) {
             var newAnnotatorId = elem.getAttribute('data-annotator-id');
             if (!this.resourceId || !this.currentElem ||
                 this.currentElem.getAttribute('data-annotator-id') === newAnnotatorId) {
@@ -195,8 +206,8 @@ var Shachi;
                 body: "annotator_id=" + newAnnotatorId,
                 completeHandler: function (req) { self.complete(req); }
             });
-        }
-        complete(res) {
+        };
+        AnnotatorPopupEditor.prototype.complete = function (res) {
             try {
                 var json = JSON.parse(res.responseText);
                 var annotator = json.annotator;
@@ -205,19 +216,20 @@ var Shachi;
             }
             catch (err) { }
             this.completeRequest();
-        }
-    }
+        };
+        return AnnotatorPopupEditor;
+    })(PopupEditor);
     Shachi.AnnotatorPopupEditor = AnnotatorPopupEditor;
 })(Shachi || (Shachi = {}));
 /// <reference path="xhr.ts" />
 var Shachi;
 (function (Shachi) {
-    class ResourceEditor {
-        constructor(container) {
+    var ResourceEditor = (function () {
+        function ResourceEditor(container) {
             this.container = container;
             this.metadataEditors = [];
         }
-        metadataEditor(metadata, metadataLanguage) {
+        ResourceEditor.prototype.metadataEditor = function (metadata, metadataLanguage) {
             if (metadataLanguage === undefined)
                 metadataLanguage = 'eng';
             var inputType = metadata.getAttribute('data-input-type') || '';
@@ -236,14 +248,16 @@ var Shachi;
             if (inputType == 'range')
                 return new ResourceMetadataRangeEditor(metadata, metadataLanguage);
             return new ResourceMetadataTextEditor(metadata, metadataLanguage);
-        }
-    }
-    class ResourceCreateEditor extends ResourceEditor {
-        constructor(container) {
-            super(container);
+        };
+        return ResourceEditor;
+    })();
+    var ResourceCreateEditor = (function (_super) {
+        __extends(ResourceCreateEditor, _super);
+        function ResourceCreateEditor(container) {
+            _super.call(this, container);
             this.setup();
         }
-        setup() {
+        ResourceCreateEditor.prototype.setup = function () {
             var self = this;
             var metadataList = this.container.querySelectorAll('.resource-metadata');
             Array.prototype.forEach.call(metadataList, function (metadata) {
@@ -254,8 +268,8 @@ var Shachi;
                 self.create();
                 return false;
             });
-        }
-        create() {
+        };
+        ResourceCreateEditor.prototype.create = function () {
             var values = this.getValues();
             if (!values['annotator_id'] || values['annotator_id'] === '') {
                 alert('Require Annotator');
@@ -272,8 +286,8 @@ var Shachi;
                 'content-type': 'application/json',
                 completeHandler: function (req) { self.createComplete(req); },
             });
-        }
-        startRequest() {
+        };
+        ResourceCreateEditor.prototype.startRequest = function () {
             var submitButton = this.container.querySelector('#resource-create-submit');
             if (submitButton) {
                 submitButton.disabled = true;
@@ -282,8 +296,8 @@ var Shachi;
             if (loadingElem) {
                 loadingElem.style.display = 'inline-block';
             }
-        }
-        createComplete(res) {
+        };
+        ResourceCreateEditor.prototype.createComplete = function (res) {
             try {
                 var json = JSON.parse(res.responseText);
                 if (json.resource_id) {
@@ -293,8 +307,8 @@ var Shachi;
             catch (err) {
                 location.href = '/admin/';
             }
-        }
-        getValues() {
+        };
+        ResourceCreateEditor.prototype.getValues = function () {
             var values = {};
             Array.prototype.forEach.call(this.metadataEditors, function (editor) {
                 var metadataValues = editor.toValues();
@@ -317,15 +331,17 @@ var Shachi;
                 values['metadata_language'] = language.value;
             });
             return values;
-        }
-    }
+        };
+        return ResourceCreateEditor;
+    })(ResourceEditor);
     Shachi.ResourceCreateEditor = ResourceCreateEditor;
-    class ResourceUpdateEditor extends ResourceEditor {
-        constructor(container) {
-            super(container);
+    var ResourceUpdateEditor = (function (_super) {
+        __extends(ResourceUpdateEditor, _super);
+        function ResourceUpdateEditor(container) {
+            _super.call(this, container);
             this.setup();
         }
-        setup() {
+        ResourceUpdateEditor.prototype.setup = function () {
             this.annotatorEditor = new Shachi.AnnotatorPopupEditor('.annotator-popup-editor', 'li.annotator');
             this.statusEditor = new Shachi.StatusPopupEditor('.status-popup-editor', 'li.status');
             this.editStatusEditor = new Shachi.EditStatusPopupEditor('.edit-status-popup-editor', 'li.edit-status');
@@ -356,18 +372,19 @@ var Shachi;
             Array.prototype.forEach.call(metadataList, function (metadata) {
                 self.metadataEditors.push(self.metadataEditor(metadata, metadataLanguage));
             });
-        }
-    }
+        };
+        return ResourceUpdateEditor;
+    })(ResourceEditor);
     Shachi.ResourceUpdateEditor = ResourceUpdateEditor;
-    class ResourceMetadataEditorBase {
-        constructor(container, metadataLanguage) {
+    var ResourceMetadataEditorBase = (function () {
+        function ResourceMetadataEditorBase(container, metadataLanguage) {
             this.container = container;
             this.name = container.getAttribute('data-name');
             this.listSelector = 'li.resource-metadata-item';
             this.metadataLanguage = metadataLanguage;
             this.setup();
         }
-        setup() {
+        ResourceMetadataEditorBase.prototype.setup = function () {
             var self = this;
             var addButton = this.container.querySelector('.btn.add');
             if (addButton) {
@@ -381,8 +398,8 @@ var Shachi;
                     self.deleteItem();
                 });
             }
-        }
-        addItem() {
+        };
+        ResourceMetadataEditorBase.prototype.addItem = function () {
             var item = this.container.querySelector(this.listSelector);
             var newItem = item.cloneNode(true);
             Array.prototype.forEach.call(newItem.querySelectorAll('input, textarea'), function (elem) {
@@ -390,15 +407,15 @@ var Shachi;
             });
             item.parentNode.appendChild(newItem);
             return newItem;
-        }
-        deleteItem() {
+        };
+        ResourceMetadataEditorBase.prototype.deleteItem = function () {
             var items = this.container.querySelectorAll(this.listSelector);
             if (items.length < 2)
                 return;
             var removeItem = items[items.length - 1];
             removeItem.parentNode.removeChild(removeItem);
-        }
-        toValues() {
+        };
+        ResourceMetadataEditorBase.prototype.toValues = function () {
             var self = this;
             var items = this.container.querySelectorAll(this.listSelector);
             var values = [];
@@ -408,11 +425,11 @@ var Shachi;
                     values.push(hash);
             });
             return values;
-        }
-        toHash(item) {
+        };
+        ResourceMetadataEditorBase.prototype.toHash = function (item) {
             return undefined;
-        }
-        getDate(elem, prefix) {
+        };
+        ResourceMetadataEditorBase.prototype.getDate = function (elem, prefix) {
             var year = elem.querySelector('.' + prefix + 'year');
             if (!year || year.value === '')
                 return '';
@@ -424,14 +441,16 @@ var Shachi;
             if (!day || day.value === '')
                 return ym + '-00';
             return ym + '-' + day.value;
+        };
+        return ResourceMetadataEditorBase;
+    })();
+    var ResourceMetadataEditorEditBase = (function (_super) {
+        __extends(ResourceMetadataEditorEditBase, _super);
+        function ResourceMetadataEditorEditBase(container, metadataLanguage) {
+            _super.call(this, container, metadataLanguage);
         }
-    }
-    class ResourceMetadataEditorEditBase extends ResourceMetadataEditorBase {
-        constructor(container, metadataLanguage) {
-            super(container, metadataLanguage);
-        }
-        setup() {
-            super.setup();
+        ResourceMetadataEditorEditBase.prototype.setup = function () {
+            _super.prototype.setup.call(this);
             var self = this;
             this.editButton = this.container.querySelector('.metadata-edit-button');
             if (!this.editButton)
@@ -457,15 +476,15 @@ var Shachi;
                     self.update();
                 });
             }
-        }
-        showEditor() {
+        };
+        ResourceMetadataEditorEditBase.prototype.showEditor = function () {
             this.editButton.style.display = 'none';
             this.dataContainer.style.display = 'none';
             this.createForm();
             this.addDeleteButton.style.display = 'inline-block';
             this.editor.style.display = 'inline-block';
-        }
-        createForm() {
+        };
+        ResourceMetadataEditorEditBase.prototype.createForm = function () {
             var values = this.toValuesFromData();
             var item = this.container.querySelector(this.listSelector);
             var listContainer = item.parentNode;
@@ -480,14 +499,14 @@ var Shachi;
             for (var i = 0; i < oldItemLength; i++) {
                 listContainer.removeChild(listContainer.firstElementChild);
             }
-        }
-        hideEditor() {
+        };
+        ResourceMetadataEditorEditBase.prototype.hideEditor = function () {
             this.addDeleteButton.style.display = 'none';
             this.editor.style.display = 'none';
             this.dataContainer.style.display = 'inline-block';
             this.editButton.style.display = 'inline-block';
-        }
-        update() {
+        };
+        ResourceMetadataEditorEditBase.prototype.update = function () {
             var self = this;
             if (this.updating)
                 return;
@@ -501,8 +520,8 @@ var Shachi;
                 'content-type': 'application/json',
                 completeHandler: function (req) { self.updateComplete(req); }
             });
-        }
-        startUpdate() {
+        };
+        ResourceMetadataEditorEditBase.prototype.startUpdate = function () {
             this.updating = true;
             if (this.loadingElem) {
                 this.loadingElem.style.display = 'inline-block';
@@ -510,8 +529,8 @@ var Shachi;
             if (this.submitButton) {
                 this.submitButton.disabled = true;
             }
-        }
-        updateComplete(res) {
+        };
+        ResourceMetadataEditorEditBase.prototype.updateComplete = function (res) {
             try {
                 var json = JSON.parse(res.responseText);
                 this.updateData(json);
@@ -525,8 +544,8 @@ var Shachi;
                 this.submitButton.disabled = false;
             }
             this.hideEditor();
-        }
-        updateData(json) {
+        };
+        ResourceMetadataEditorEditBase.prototype.updateData = function (json) {
             var self = this;
             while (this.dataContainer.firstChild) {
                 this.dataContainer.removeChild(this.dataContainer.firstChild);
@@ -537,11 +556,11 @@ var Shachi;
                 if (elem)
                     self.dataContainer.appendChild(elem);
             });
-        }
-        toDataFromHash(value) {
+        };
+        ResourceMetadataEditorEditBase.prototype.toDataFromHash = function (value) {
             return undefined;
-        }
-        toValuesFromData() {
+        };
+        ResourceMetadataEditorEditBase.prototype.toValuesFromData = function () {
             var self = this;
             var items = this.dataContainer.querySelectorAll('li');
             var values = [];
@@ -551,25 +570,27 @@ var Shachi;
                     values.push(hash);
             });
             return values;
-        }
-        toHashFromData(item) {
+        };
+        ResourceMetadataEditorEditBase.prototype.toHashFromData = function (item) {
             return undefined;
-        }
-        addItemWithValue(value) {
+        };
+        ResourceMetadataEditorEditBase.prototype.addItemWithValue = function (value) {
             return this.addItem();
-        }
-    }
-    class ResourceMetadataEditorWithPopup extends ResourceMetadataEditorEditBase {
-        constructor(container, metadataLanguage, targetSelector) {
-            super(container, metadataLanguage);
+        };
+        return ResourceMetadataEditorEditBase;
+    })(ResourceMetadataEditorBase);
+    var ResourceMetadataEditorWithPopup = (function (_super) {
+        __extends(ResourceMetadataEditorWithPopup, _super);
+        function ResourceMetadataEditorWithPopup(container, metadataLanguage, targetSelector) {
+            _super.call(this, container, metadataLanguage);
             this.currentQuery = '';
             this.enableRequest = true;
             this.targetSelector = targetSelector;
         }
-        setup() {
-            super.setup();
-        }
-        registerEvent(item) {
+        ResourceMetadataEditorWithPopup.prototype.setup = function () {
+            _super.prototype.setup.call(this);
+        };
+        ResourceMetadataEditorWithPopup.prototype.registerEvent = function (item) {
             var self = this;
             item.addEventListener('keyup', function () { self.changeInput(item); });
             if (self.popupSelector) {
@@ -579,14 +600,14 @@ var Shachi;
                     }, 200);
                 });
             }
-        }
-        addItem() {
-            var newItem = super.addItem();
+        };
+        ResourceMetadataEditorWithPopup.prototype.addItem = function () {
+            var newItem = _super.prototype.addItem.call(this);
             var item = newItem.querySelector(this.targetSelector);
             this.registerEvent(item);
             return newItem;
-        }
-        changeInput(elem) {
+        };
+        ResourceMetadataEditorWithPopup.prototype.changeInput = function (elem) {
             var query = elem.value;
             if (query.length < 3) {
                 this.popupSelector.hide();
@@ -603,76 +624,91 @@ var Shachi;
             Shachi.XHR.request('GET', this.requestURI(query), {
                 completeHandler: function (req) { self.complete(req, elem); }
             });
-        }
-        requestURI(query) {
+        };
+        ResourceMetadataEditorWithPopup.prototype.requestURI = function (query) {
             return '';
-        }
-        complete(res, elem) {
+        };
+        ResourceMetadataEditorWithPopup.prototype.complete = function (res, elem) {
             try {
                 var json = JSON.parse(res.responseText);
                 this.popup(elem, json);
             }
             catch (err) { }
             this.enableRequest = true;
+        };
+        ResourceMetadataEditorWithPopup.prototype.popup = function (elem, json) { };
+        return ResourceMetadataEditorWithPopup;
+    })(ResourceMetadataEditorEditBase);
+    var ResourceMetadataTextEditor = (function (_super) {
+        __extends(ResourceMetadataTextEditor, _super);
+        function ResourceMetadataTextEditor() {
+            _super.apply(this, arguments);
         }
-        popup(elem, json) { }
-    }
-    class ResourceMetadataTextEditor extends ResourceMetadataEditorEditBase {
-        toHash(elem) {
+        ResourceMetadataTextEditor.prototype.toHash = function (elem) {
             var content = elem.querySelector('.content');
             if (!content || content.value === '')
                 return undefined;
             return { content: content.value };
-        }
-        toHashFromData(elem) {
+        };
+        ResourceMetadataTextEditor.prototype.toHashFromData = function (elem) {
             var content = elem.querySelector('.content');
             if (!content)
                 return undefined;
             return { content: content.textContent };
-        }
-        addItemWithValue(value) {
+        };
+        ResourceMetadataTextEditor.prototype.addItemWithValue = function (value) {
             var newItem = this.addItem();
             newItem.querySelector('.content').value = value.content;
             return newItem;
-        }
-        toDataFromHash(value) {
+        };
+        ResourceMetadataTextEditor.prototype.toDataFromHash = function (value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
             content.setAttribute('class', 'content');
             content.textContent = value.content;
             elem.appendChild(content);
             return elem;
+        };
+        return ResourceMetadataTextEditor;
+    })(ResourceMetadataEditorEditBase);
+    var ResourceMetadataTextareaEditor = (function (_super) {
+        __extends(ResourceMetadataTextareaEditor, _super);
+        function ResourceMetadataTextareaEditor() {
+            _super.apply(this, arguments);
         }
-    }
-    class ResourceMetadataTextareaEditor extends ResourceMetadataEditorEditBase {
-        toHash(elem) {
+        ResourceMetadataTextareaEditor.prototype.toHash = function (elem) {
             var content = elem.querySelector('.content');
             if (!content || content.value === '')
                 return undefined;
             return { content: content.value };
-        }
-        toHashFromData(elem) {
+        };
+        ResourceMetadataTextareaEditor.prototype.toHashFromData = function (elem) {
             var content = elem.querySelector('.content');
             if (!content)
                 return undefined;
             return { content: content.textContent };
-        }
-        addItemWithValue(value) {
+        };
+        ResourceMetadataTextareaEditor.prototype.addItemWithValue = function (value) {
             var newItem = this.addItem();
             newItem.querySelector('.content').value = value.content;
             return newItem;
-        }
-        toDataFromHash(value) {
+        };
+        ResourceMetadataTextareaEditor.prototype.toDataFromHash = function (value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
             content.setAttribute('class', 'content');
             content.textContent = value.content;
             elem.appendChild(content);
             return elem;
+        };
+        return ResourceMetadataTextareaEditor;
+    })(ResourceMetadataEditorEditBase);
+    var ResourceMetadataSelectEditor = (function (_super) {
+        __extends(ResourceMetadataSelectEditor, _super);
+        function ResourceMetadataSelectEditor() {
+            _super.apply(this, arguments);
         }
-    }
-    class ResourceMetadataSelectEditor extends ResourceMetadataEditorEditBase {
-        toHash(elem) {
+        ResourceMetadataSelectEditor.prototype.toHash = function (elem) {
             var select = elem.querySelector('select');
             var description = elem.querySelector('.description');
             var selectValue = select ? select.value : '';
@@ -680,15 +716,15 @@ var Shachi;
             if (selectValue === '' && descriptionValue === '')
                 return undefined;
             return { value_id: selectValue, description: descriptionValue };
-        }
-        toHashFromData(elem) {
+        };
+        ResourceMetadataSelectEditor.prototype.toHashFromData = function (elem) {
             var value = elem.querySelector('.value');
             var description = elem.querySelector('.description');
             var valueId = value.getAttribute('data-value-id');
             var descriptionValue = description ? description.textContent : '';
             return { value_id: valueId, description: descriptionValue };
-        }
-        addItemWithValue(value) {
+        };
+        ResourceMetadataSelectEditor.prototype.addItemWithValue = function (value) {
             var newItem = this.addItem();
             if (value.value_id) {
                 var options = newItem.querySelectorAll('option');
@@ -700,8 +736,8 @@ var Shachi;
             }
             newItem.querySelector('.description').value = value.description;
             return newItem;
-        }
-        toDataFromHash(value) {
+        };
+        ResourceMetadataSelectEditor.prototype.toDataFromHash = function (value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
             content.setAttribute('class', 'label value');
@@ -713,21 +749,26 @@ var Shachi;
             description.textContent = value.description;
             elem.appendChild(description);
             return elem;
+        };
+        return ResourceMetadataSelectEditor;
+    })(ResourceMetadataEditorEditBase);
+    var ResourceMetadataSelectOnlyEditor = (function (_super) {
+        __extends(ResourceMetadataSelectOnlyEditor, _super);
+        function ResourceMetadataSelectOnlyEditor() {
+            _super.apply(this, arguments);
         }
-    }
-    class ResourceMetadataSelectOnlyEditor extends ResourceMetadataEditorEditBase {
-        toHash(elem) {
+        ResourceMetadataSelectOnlyEditor.prototype.toHash = function (elem) {
             var select = elem.querySelector('select');
             if (!select || select.value === '')
                 return undefined;
             return { value_id: select.value };
-        }
-        toHashFromData(elem) {
+        };
+        ResourceMetadataSelectOnlyEditor.prototype.toHashFromData = function (elem) {
             var value = elem.querySelector('.value');
             var valueId = value.getAttribute('data-value-id');
             return { value_id: valueId };
-        }
-        addItemWithValue(value) {
+        };
+        ResourceMetadataSelectOnlyEditor.prototype.addItemWithValue = function (value) {
             var newItem = this.addItem();
             if (value.value_id) {
                 var options = newItem.querySelectorAll('option');
@@ -738,8 +779,8 @@ var Shachi;
                 });
             }
             return newItem;
-        }
-        toDataFromHash(value) {
+        };
+        ResourceMetadataSelectOnlyEditor.prototype.toDataFromHash = function (value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
             content.setAttribute('class', 'label value');
@@ -747,17 +788,19 @@ var Shachi;
             content.textContent = value.value;
             elem.appendChild(content);
             return elem;
-        }
-    }
-    class ResourceMetadataRelationEditor extends ResourceMetadataEditorWithPopup {
-        constructor(container, metadataLanguage) {
-            super(container, metadataLanguage, '.description');
+        };
+        return ResourceMetadataSelectOnlyEditor;
+    })(ResourceMetadataEditorEditBase);
+    var ResourceMetadataRelationEditor = (function (_super) {
+        __extends(ResourceMetadataRelationEditor, _super);
+        function ResourceMetadataRelationEditor(container, metadataLanguage) {
+            _super.call(this, container, metadataLanguage, '.description');
             this.setup();
         }
-        setup() {
+        ResourceMetadataRelationEditor.prototype.setup = function () {
             if (!this.targetSelector)
                 return;
-            super.setup();
+            _super.prototype.setup.call(this);
             var items = this.container.querySelectorAll(this.listSelector + ' ' + this.targetSelector);
             var self = this;
             var popup = this.container.querySelector('.relation-popup-selector');
@@ -767,15 +810,15 @@ var Shachi;
             Array.prototype.forEach.call(items, function (item) {
                 self.registerEvent(item);
             });
-        }
-        requestURI(query) {
+        };
+        ResourceMetadataRelationEditor.prototype.requestURI = function (query) {
             return '/admin/resources/search?query=' + query;
-        }
-        popup(elem, json) {
+        };
+        ResourceMetadataRelationEditor.prototype.popup = function (elem, json) {
             this.popupSelector.replace(json.resources);
             this.popupSelector.showAndMove(elem);
-        }
-        toHash(elem) {
+        };
+        ResourceMetadataRelationEditor.prototype.toHash = function (elem) {
             var select = elem.querySelector('select');
             var description = elem.querySelector('.description');
             var selectValue = select ? select.value : '';
@@ -783,15 +826,15 @@ var Shachi;
             if (selectValue === '' && descriptionValue === '')
                 return undefined;
             return { value_id: selectValue, description: descriptionValue };
-        }
-        toHashFromData(elem) {
+        };
+        ResourceMetadataRelationEditor.prototype.toHashFromData = function (elem) {
             var value = elem.querySelector('.value');
             var description = elem.querySelector('.description');
             var valueId = value.getAttribute('data-value-id');
             var descriptionValue = description ? description.textContent : '';
             return { value_id: valueId, description: descriptionValue };
-        }
-        addItemWithValue(value) {
+        };
+        ResourceMetadataRelationEditor.prototype.addItemWithValue = function (value) {
             var newItem = this.addItem();
             if (value.value_id) {
                 var options = newItem.querySelectorAll('option');
@@ -803,8 +846,8 @@ var Shachi;
             }
             newItem.querySelector('.description').value = value.description;
             return newItem;
-        }
-        toDataFromHash(value) {
+        };
+        ResourceMetadataRelationEditor.prototype.toDataFromHash = function (value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
             content.setAttribute('class', 'label value');
@@ -816,17 +859,19 @@ var Shachi;
             description.textContent = value.description;
             elem.appendChild(description);
             return elem;
-        }
-    }
-    class ResourceMetadataLanguageEditor extends ResourceMetadataEditorWithPopup {
-        constructor(container, metadataLanguage) {
-            super(container, metadataLanguage, '.content');
+        };
+        return ResourceMetadataRelationEditor;
+    })(ResourceMetadataEditorWithPopup);
+    var ResourceMetadataLanguageEditor = (function (_super) {
+        __extends(ResourceMetadataLanguageEditor, _super);
+        function ResourceMetadataLanguageEditor(container, metadataLanguage) {
+            _super.call(this, container, metadataLanguage, '.content');
             this.setup();
         }
-        setup() {
+        ResourceMetadataLanguageEditor.prototype.setup = function () {
             if (!this.targetSelector)
                 return;
-            super.setup();
+            _super.prototype.setup.call(this);
             var items = this.container.querySelectorAll(this.listSelector + ' ' + this.targetSelector);
             var self = this;
             var popup = this.container.querySelector('.language-popup-selector');
@@ -836,15 +881,15 @@ var Shachi;
             Array.prototype.forEach.call(items, function (item) {
                 self.registerEvent(item);
             });
-        }
-        requestURI(query) {
+        };
+        ResourceMetadataLanguageEditor.prototype.requestURI = function (query) {
             return '/admin/languages/search?query=' + query;
-        }
-        popup(elem, json) {
+        };
+        ResourceMetadataLanguageEditor.prototype.popup = function (elem, json) {
             this.popupSelector.replace(json.languages);
             this.popupSelector.showAndMove(elem);
-        }
-        toHash(elem) {
+        };
+        ResourceMetadataLanguageEditor.prototype.toHash = function (elem) {
             var content = elem.querySelector('.content');
             var description = elem.querySelector('.description');
             var contentValue = content ? content.value : '';
@@ -852,21 +897,21 @@ var Shachi;
             if (contentValue === '' && descriptionValue === '')
                 return undefined;
             return { content: contentValue, description: descriptionValue };
-        }
-        toHashFromData(elem) {
+        };
+        ResourceMetadataLanguageEditor.prototype.toHashFromData = function (elem) {
             var content = elem.querySelector('.content');
             var description = elem.querySelector('.description');
             var contentValue = content ? content.textContent : '';
             var descriptionValue = description ? description.textContent : '';
             return { content: contentValue, description: descriptionValue };
-        }
-        addItemWithValue(value) {
+        };
+        ResourceMetadataLanguageEditor.prototype.addItemWithValue = function (value) {
             var newItem = this.addItem();
             newItem.querySelector('.content').value = value.content;
             newItem.querySelector('.description').value = value.description;
             return newItem;
-        }
-        toDataFromHash(value) {
+        };
+        ResourceMetadataLanguageEditor.prototype.toDataFromHash = function (value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
             content.setAttribute('class', 'label value');
@@ -878,33 +923,38 @@ var Shachi;
             description.textContent = value.description;
             elem.appendChild(description);
             return elem;
+        };
+        return ResourceMetadataLanguageEditor;
+    })(ResourceMetadataEditorWithPopup);
+    var ResourceMetadataDateEditor = (function (_super) {
+        __extends(ResourceMetadataDateEditor, _super);
+        function ResourceMetadataDateEditor() {
+            _super.apply(this, arguments);
         }
-    }
-    class ResourceMetadataDateEditor extends ResourceMetadataEditorEditBase {
-        toHash(elem) {
+        ResourceMetadataDateEditor.prototype.toHash = function (elem) {
             var date = this.getDate(elem, '');
             var description = elem.querySelector('.description');
             var descriptionValue = description ? description.value : '';
             if (date === '' && descriptionValue === '')
                 return undefined;
             return { content: date, description: descriptionValue };
-        }
-        toHashFromData(elem) {
+        };
+        ResourceMetadataDateEditor.prototype.toHashFromData = function (elem) {
             var content = elem.querySelector('.content');
             var date = content.textContent.split('-');
             var description = elem.querySelector('.description');
             var descriptionValue = description ? description.textContent : '';
             return { year: date[0], month: date[1], day: date[2], description: descriptionValue };
-        }
-        addItemWithValue(value) {
+        };
+        ResourceMetadataDateEditor.prototype.addItemWithValue = function (value) {
             var newItem = this.addItem();
             newItem.querySelector('.year').value = value.year;
             newItem.querySelector('.month').value = value.month;
             newItem.querySelector('.day').value = value.day;
             newItem.querySelector('.description').value = value.description;
             return newItem;
-        }
-        toDataFromHash(value) {
+        };
+        ResourceMetadataDateEditor.prototype.toDataFromHash = function (value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
             content.setAttribute('class', 'content');
@@ -915,10 +965,15 @@ var Shachi;
             description.textContent = value.description;
             elem.appendChild(description);
             return elem;
+        };
+        return ResourceMetadataDateEditor;
+    })(ResourceMetadataEditorEditBase);
+    var ResourceMetadataRangeEditor = (function (_super) {
+        __extends(ResourceMetadataRangeEditor, _super);
+        function ResourceMetadataRangeEditor() {
+            _super.apply(this, arguments);
         }
-    }
-    class ResourceMetadataRangeEditor extends ResourceMetadataEditorEditBase {
-        toHash(elem) {
+        ResourceMetadataRangeEditor.prototype.toHash = function (elem) {
             var fromDate = this.getDate(elem, 'from-');
             var toDate = this.getDate(elem, 'to-');
             var description = elem.querySelector('.description');
@@ -929,8 +984,8 @@ var Shachi;
             var date = (fromDate === '' ? defaultDate : fromDate) + ' ' +
                 (toDate === '' ? defaultDate : toDate);
             return { content: date, description: descriptionValue };
-        }
-        toHashFromData(elem) {
+        };
+        ResourceMetadataRangeEditor.prototype.toHashFromData = function (elem) {
             var content = elem.querySelector('.content');
             var range = content.textContent.split(' ');
             var from = (range[0] || '').split('-');
@@ -943,8 +998,8 @@ var Shachi;
                 toYear: to[0], toMonth: to[1], toDay: to[2],
                 description: descriptionValue
             };
-        }
-        addItemWithValue(value) {
+        };
+        ResourceMetadataRangeEditor.prototype.addItemWithValue = function (value) {
             var newItem = this.addItem();
             newItem.querySelector('.from-year').value = value.fromYear;
             newItem.querySelector('.from-month').value = value.fromMonth;
@@ -954,8 +1009,8 @@ var Shachi;
             newItem.querySelector('.to-day').value = value.toDay;
             newItem.querySelector('.description').value = value.description;
             return newItem;
-        }
-        toDataFromHash(value) {
+        };
+        ResourceMetadataRangeEditor.prototype.toDataFromHash = function (value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
             content.setAttribute('class', 'content');
@@ -966,15 +1021,16 @@ var Shachi;
             description.textContent = value.description;
             elem.appendChild(description);
             return elem;
-        }
-    }
-    class PopupSelector {
-        constructor(container) {
+        };
+        return ResourceMetadataRangeEditor;
+    })(ResourceMetadataEditorEditBase);
+    var PopupSelector = (function () {
+        function PopupSelector(container) {
             this.container = container;
             this.positionTop = 0;
             this.positionLeft = 0;
         }
-        replace(dataList) {
+        PopupSelector.prototype.replace = function (dataList) {
             var container = this.container.querySelector('ul');
             var oldItems = this.container.querySelectorAll('li');
             var newItems = [];
@@ -990,33 +1046,35 @@ var Shachi;
             newItems.forEach(function (item) {
                 item.style.display = 'block';
             });
-        }
-        createItem(data) { }
-        showAndMove(elem) {
+        };
+        PopupSelector.prototype.createItem = function (data) { };
+        PopupSelector.prototype.showAndMove = function (elem) {
             this.currentElem = elem;
             this.container.style.top = (elem.offsetTop + this.positionTop) + 'px';
             this.container.style.left = (elem.offsetLeft + this.positionLeft) + 'px';
             this.show();
-        }
-        show() {
+        };
+        PopupSelector.prototype.show = function () {
             var items = this.container.querySelectorAll('li');
             if (items.length === 0) {
                 this.hide();
                 return;
             }
             this.container.style.display = 'block';
-        }
-        hide() {
+        };
+        PopupSelector.prototype.hide = function () {
             this.container.style.display = 'none';
-        }
-    }
-    class RelationPopupSelector extends PopupSelector {
-        constructor(container) {
-            super(container);
+        };
+        return PopupSelector;
+    })();
+    var RelationPopupSelector = (function (_super) {
+        __extends(RelationPopupSelector, _super);
+        function RelationPopupSelector(container) {
+            _super.call(this, container);
             this.positionTop = 20;
             this.positionLeft = 0;
         }
-        createItem(data) {
+        RelationPopupSelector.prototype.createItem = function (data) {
             var item = document.createElement('li');
             var value = data.shachi_id + ': ' + data.title;
             item.textContent = value;
@@ -1026,24 +1084,26 @@ var Shachi;
             item.style.display = 'none';
             this.registerEvent(item);
             return item;
-        }
-        registerEvent(elem) {
+        };
+        RelationPopupSelector.prototype.registerEvent = function (elem) {
             var self = this;
             elem.addEventListener('click', function () { self.changeValue(elem); });
-        }
-        changeValue(elem) {
+        };
+        RelationPopupSelector.prototype.changeValue = function (elem) {
             if (!this.currentElem)
                 return;
             this.currentElem.value = elem.getAttribute('data-value');
-        }
-    }
-    class LanguagePopupSelector extends PopupSelector {
-        constructor(container) {
-            super(container);
+        };
+        return RelationPopupSelector;
+    })(PopupSelector);
+    var LanguagePopupSelector = (function (_super) {
+        __extends(LanguagePopupSelector, _super);
+        function LanguagePopupSelector(container) {
+            _super.call(this, container);
             this.positionTop = 0;
             this.positionLeft = 265;
         }
-        createItem(data) {
+        LanguagePopupSelector.prototype.createItem = function (data) {
             var item = document.createElement('li');
             item.textContent = data.code + ': ' + data.name;
             item.setAttribute('data-code', data.code);
@@ -1051,29 +1111,30 @@ var Shachi;
             item.style.display = 'none';
             this.registerEvent(item);
             return item;
-        }
-        registerEvent(elem) {
+        };
+        LanguagePopupSelector.prototype.registerEvent = function (elem) {
             var self = this;
             elem.addEventListener('click', function () { self.changeValue(elem); });
-        }
-        changeValue(elem) {
+        };
+        LanguagePopupSelector.prototype.changeValue = function (elem) {
             if (!this.currentElem)
                 return;
             this.currentElem.value = elem.getAttribute('data-name');
-        }
-    }
+        };
+        return LanguagePopupSelector;
+    })(PopupSelector);
 })(Shachi || (Shachi = {}));
 /// <reference path="xhr.ts" />
 var Shachi;
 (function (Shachi) {
-    class ResourceListEditor {
-        constructor(resource, statusEditor, editStatusEditor) {
+    var ResourceListEditor = (function () {
+        function ResourceListEditor(resource, statusEditor, editStatusEditor) {
             this.resource = resource;
             this.statusEditor = statusEditor;
             this.editStatusEditor = editStatusEditor;
             this.registerEvent();
         }
-        registerEvent() {
+        ResourceListEditor.prototype.registerEvent = function () {
             var self = this;
             var statusElem = this.resource.querySelector('li.status');
             if (statusElem && this.statusEditor) {
@@ -1093,8 +1154,8 @@ var Shachi;
                     self.delete();
                 });
             }
-        }
-        delete() {
+        };
+        ResourceListEditor.prototype.delete = function () {
             var resourceId = this.resource.getAttribute('data-resource-id');
             var titleElem = this.resource.querySelector('li.title');
             var message = 'Delete "' + (titleElem ? titleElem.textContent : resourceId) + '" ?';
@@ -1106,8 +1167,8 @@ var Shachi;
                 'content-type': 'application/json',
                 completeHandler: function (req) { self.complete(req); }
             });
-        }
-        complete(res) {
+        };
+        ResourceListEditor.prototype.complete = function (res) {
             try {
                 var json = JSON.parse(res.responseText);
                 if (json.success) {
@@ -1115,7 +1176,8 @@ var Shachi;
                 }
             }
             catch (err) { }
-        }
-    }
+        };
+        return ResourceListEditor;
+    })();
     Shachi.ResourceListEditor = ResourceListEditor;
 })(Shachi || (Shachi = {}));
