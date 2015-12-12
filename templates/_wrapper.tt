@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="lang-[% c.lang.code %]">
   <head>
     <meta charset="utf-8">
     <title>[% title || 'SHACHI' %]</title>
