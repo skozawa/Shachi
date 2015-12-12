@@ -3,6 +3,8 @@ use strict;
 use warnings;
 
 use JSON::XS;
+use URI;
+use URI::QueryParam;
 use Shachi::Config ();
 use Shachi::Request;
 use Shachi::Response;
@@ -63,6 +65,13 @@ sub config {
     my $self = shift;
     return 'Shachi::Config' unless @_;
     return Shachi::Config->param($_[0]);
+}
+
+sub change_lang_link {
+    my ($self, $lang) = @_;
+    my $uri = $self->req->uri->clone;
+    $uri->query_param(ln => $lang);
+    $uri;
 }
 
 ## response

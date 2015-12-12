@@ -19,9 +19,9 @@
             <li class="header-menu-item">Home</li>
             <li class="header-menu-item">
               [%- IF c.lang.code != 'eng' %]
-                <a href="[% c.req.uri %]?ln=eng">English</a>
+                <a href="[% c.change_lang_link('eng') %]">English</a>
               [%- ELSE %]
-                <a href="[% c.req.uri %]?ln=jpn">Japanese</a>
+                <a href="[% c.change_lang_link('jpn') %]">Japanese</a>
               [%- END # IF c.lang.code != 'eng' %]
             </li>
           </ul>
