@@ -45,6 +45,10 @@
       <div id="main">
         [% content %]
       </div>
+
+      <div id="footer">
+        Copyright © 2007 NICT, Matsubara Lab., Anchor co., inc. All Rights Reserved.
+      </div>
     </div>
   </body>
 </html>
