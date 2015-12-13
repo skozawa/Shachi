@@ -1,6 +1,7 @@
 package t::Shachi::Web::Resource;
 use t::test;
 use Shachi::Model::Metadata;
+use Shachi::Model::Language;
 
 sub _require : Test(startup => 1) {
     use_ok 'Shachi::Web::Resource';

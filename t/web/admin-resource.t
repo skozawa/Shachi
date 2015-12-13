@@ -2,7 +2,7 @@ package t::Shachi::Web::Admin::Resource;
 use t::test;
 use JSON::XS;
 use Shachi::Database;
-use SHACHI::Model::Language;
+use Shachi::Model::Language;
 use Shachi::Model::Resource;
 use Shachi::Model::Metadata;
 use Shachi::Service::Resource;
@@ -153,7 +153,7 @@ sub update_edit_status : Tests {
 
 sub update_metadata : Tests {
     truncate_db;
-    my $english = create_language(code => ENGLISH_CODE);
+    my $language = create_language;
     my $metadata_list = +{ map {
         $_->[0] => create_metadata(name => $_->[0], input_type => $_->[1])
     } (['title', INPUT_TYPE_TEXT],
@@ -167,12 +167,12 @@ sub update_metadata : Tests {
         create_resource_metadata(
             resource_id => $resource->id,
             metadata_id => $metadata_list->{title}->id,
-            language_id => $english->id,
+            language_id => $language->id,
         );
         create_resource_metadata(
             resource_id => $resource->id,
             metadata_id => $metadata_list->{language}->id,
-            language_id => $english->id,
+            language_id => $language->id,
         );
         my $language_value = create_language;
         my $json = {
@@ -180,6 +180,7 @@ sub update_metadata : Tests {
             language => [
                 { content => $language_value->name, description => 'test language' },
             ],
+            metadata_language => $language->code,
         };
 
         $mech->post("/admin/resources/@{[ $resource->id ]}/metadata", Content => encode_json $json);
@@ -200,6 +201,7 @@ sub update_metadata : Tests {
                 { value_id => $resource_subject_value->id, description => '' },
                 { value_id => '', description => 'test' },
             ],
+            metadata_language => $language->code,
         };
 
         $mech->post("/admin/resources/@{[ $resource->id ]}/metadata", Content => encode_json $json);

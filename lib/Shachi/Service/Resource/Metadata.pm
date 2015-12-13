@@ -4,6 +4,7 @@ use warnings;
 use Carp qw/croak/;
 use Smart::Args;
 use Shachi::Model::List;
+use Shachi::Model::Language;
 use Shachi::Model::Metadata;
 use Shachi::Model::Resource::Metadata;
 use Shachi::Service::Language;

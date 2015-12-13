@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use JSON::Types;
 use List::MoreUtils qw/firstval/;
+use Shachi::Model::Language;
 use Shachi::Service::Annotator;
 use Shachi::Service::Language;
 use Shachi::Service::Resource;
