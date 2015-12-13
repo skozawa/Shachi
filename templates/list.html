@@ -6,7 +6,7 @@
   <ul class="resource-list">
     [%- FOREACH resource IN resources %]
       <li class="resource-item">
-        <a href="[% resource.link %]">[% resource.shachi_id %]: [% resource.title %]</a>
+        <a class="title" href="[% resource.link %]">[% resource.shachi_id %]: [% resource.title %]</a>
       </li>
     [%- END # FOREACH resource IN resources %]
   </ul>

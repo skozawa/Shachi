@@ -7,40 +7,45 @@
 
 <div id="facet-search-container">
   <div id="facet-search-form-container">
-    <div id="facet-search-current-query">
-      <ul>
-        [%- FOREACH metadata IN facet_metadata_list %]
-          [%- SET value_ids = query.value_ids(metadata.name) %]
-          [%- IF value_ids.size() %]
-            <li>
-              <span>[% metadata.name %]</span>
-              [%- FOREACH value_id IN value_ids %]
-                [%- IF value_id %]
-                  [%- SET metadata_value = query.value_by_id(value_id) %]
-                  <span>[% metadata_value.value %]</span>
-                  <input type="hidden" name="[% metadata.name %]" value="[% metadata_value.id %]">
-                [%- ELSE %]
-                  <span>no information</span>
-                  <input type="hidden" name="[% metadata.name %]" value="0">
-                [%- END # IF value_id %]
-              [%- END # FOREACH value_id IN value_ids %]
-            </li>
-          [%- END # IF value_ids.size() %]
-        [%- END # FOREACH metadata IN facet_metadata_list %]
-      </ul>
-    </div>
 
     <form name="facet-form" method="GET">
-      <div>
-        <input type="text" name="keyword" value="[% query.keyword %]">
-        <input type="submit" value="search">
-      </div>
-      <div>
-        <ul>
+      <div id="facet-search-current-query" class="facet-query-container">
+        <span class="title-label">現在の検索条件</span>
+        <ul class="current-query-list">
           [%- FOREACH metadata IN facet_metadata_list %]
-          <li>
-            <span>[% metadata.name %]</span>
-            <select name="[% metadata.name %]" onchange="document.facet-form.submit()">
+            [%- SET value_ids = query.value_ids(metadata.name) %]
+            [%- IF value_ids.size() %]
+              <li>
+                <span class="metadata-name">[% metadata.name %]</span>
+                [%- FOREACH value_id IN value_ids %]
+                  [%- IF value_id %]
+                    [%- SET metadata_value = query.value_by_id(value_id) %]
+                    <span class="metadata-value">[% metadata_value.value %]</span>
+                    <input type="hidden" name="[% metadata.name %]" value="[% metadata_value.id %]">
+                  [%- ELSE %]
+                    <span class="metadata-value">no information</span>
+                    <input type="hidden" name="[% metadata.name %]" value="0">
+                  [%- END # IF value_id %]
+                [%- END # FOREACH value_id IN value_ids %]
+              </li>
+            [%- END # IF value_ids.size() %]
+          [%- END # FOREACH metadata IN facet_metadata_list %]
+        </ul>
+      </div>
+
+      <div id="facet-search-keyword" class="facet-query-container">
+        <span class="title-label">キーワードを入力</span>
+        <input class="keyword" type="text" name="keyword" value="[% query.keyword %]">
+        <input class="search" type="submit" value="search">
+      </div>
+
+      <div id="facet-search-query" class="facet-query-container">
+        <span class="title-label">検索条件を選択</span>
+        <ul class="facet-query-list">
+          [%- FOREACH metadata IN facet_metadata_list %]
+          <li class="facet-query-item">
+            <span class="metadata-name">[% metadata.name %]</span>
+            <select class="metadata-values" name="[% metadata.name %]" onchange="document.facet-form.submit()">
               <option></option>
               [%- FOREACH metadata_value IN metadata.values %]
               <option value="[% metadata_value.id %]">[% metadata_value.value %] ([% metadata_value.resource_count %])</option>
@@ -57,9 +62,11 @@
   </div>
 
   <div id="facet-search-result-container">
-    <ul>
+    <ul class="resource-list">
       [%- FOREACH resource IN resources %]
-      <li>[% resource.shachi_id %]</li>
+      <li class="resource-item">
+        <a class="title" href="[% resource.link %]">[% resource.shachi_id %]</a>
+      </li>
       [%- END # FOREACH resource IN resources %]
     </ul>
   </div>
