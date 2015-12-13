@@ -5,6 +5,7 @@ use Carp qw/croak/;
 use Smart::Args;
 use List::MoreUtils qw/any/;
 use Shachi::Model::List;
+use Shachi::Model::Language;
 use Shachi::Model::Resource;
 use Shachi::Service::Annotator;
 use Shachi::Service::Language;
@@ -156,12 +157,27 @@ sub embed_title {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
          my $resources => { isa => 'Shachi::Model::List' },
-         my $language  => { isa => 'Shachi::Model::Language' };
+         my $language  => { isa => 'Shachi::Model::Language' },
+         my $args      => { isa => 'HashRef', default => {} };
 
+    my $language_ids = do {
+        # 指定した言語のメタデータがない場合に英語にフォールバックする
+        if ( $args->{fillin_english} ) {
+            my $english = Shachi::Service::Language->find_by_code(db => $db, code => ENGLISH_CODE);
+            [ $language->id, $english->id ];
+        } else {
+            [ $language->id ];
+        }
+    };
     my $resource_titles = Shachi::Service::Resource::Metadata->find_resource_metadata_by_name(
         db => $db, name => 'title', resource_ids => $resources->map('id')->to_a,
-        language_ids => [ $language->id ],
+        language_ids => $language_ids,
     );
+    if ( $args->{fillin_english} ) {
+        # Hash::MultiValueは複数ある場合、最後を返すので、指定した言語が最後になるようにソートする
+        # ref. https://metacpan.org/pod/Hash::MultiValue#get
+        $resource_titles = $resource_titles->sort_by(sub { $_->language_id == $language->id });
+    }
     my $title_by_resource_id = $resource_titles->hash_by('resource_id');
 
     foreach my $resource ( @$resources ) {

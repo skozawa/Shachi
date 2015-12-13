@@ -3,6 +3,7 @@ use t::test;
 use Shachi::Database;
 use Shachi::Service::Resource;
 use Shachi::Service::Resource::Metadata;
+use Shachi::Model::Language;
 use Shachi::Model::Resource;
 
 sub _require : Test(startup => 1) {
@@ -127,6 +128,7 @@ sub count_not_private : Tests {
 sub embed_title : Tests {
     truncate_db;
     my $title_metadata = create_metadata(name => 'title');
+    my $english = create_language(code => ENGLISH_CODE);
 
     subtest 'embed title normally' => sub {
         my $db = Shachi::Database->new;
@@ -173,6 +175,37 @@ sub embed_title : Tests {
             db => $db, language => $language_other, resources => $resource->as_list,
         );
         ok ! $resources->[0]->title;
+    };
+
+    subtest 'fillin english' => sub {
+        my $db = Shachi::Database->new;
+        my $language = create_language;
+        my $resource1 = create_resource;
+        my $title1 = random_word;
+        my $title1_eng = random_word;
+        create_resource_metadata(
+            resource => $resource1, metadata => $title_metadata,
+            language => $language, content => $title1
+        );
+        create_resource_metadata(
+            resource => $resource1, metadata => $title_metadata,
+            language => $english, content => $title1_eng,
+        );
+
+        my $resource2 = create_resource;
+        my $title2_eng = random_word;
+        create_resource_metadata(
+            resource => $resource2, metadata => $title_metadata,
+            language => $english, content => $title2_eng,
+        );
+
+        my $resources = Shachi::Service::Resource->embed_title(
+            db => $db, language => $language,
+            resources => Shachi::Model::List->new(list => [ $resource1, $resource2 ]),
+            args => { fillin_english => 1 },
+        );
+        is $resources->[0]->title, $title1;
+        is $resources->[1]->title, $title2_eng;
     };
 }
 
