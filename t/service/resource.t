@@ -112,6 +112,70 @@ sub search_titles : Tests {
     };
 }
 
+sub count_not_private : Tests {
+    truncate_db;
+    create_resource(status => 'public');
+    create_resource(status => 'private');
+    create_resource(status => 'limited_by_LDC');
+    create_resource(status => 'limited_by_ELRA');
+
+    my $db = Shachi::Database->new;
+    my $count = Shachi::Service::Resource->count_not_private(db => $db);
+    is $count, 3;
+}
+
+sub embed_title : Tests {
+    truncate_db;
+    my $title_metadata = create_metadata(name => 'title');
+
+    subtest 'embed title normally' => sub {
+        my $db = Shachi::Database->new;
+        my $language = create_language;
+        my $resource1 = create_resource;
+        my $title1 = random_word;
+        create_resource_metadata(
+            resource => $resource1, metadata => $title_metadata,
+            language => $language,  content => $title1
+        );
+
+        my $resource2 = create_resource;
+        my $title2 = random_word;
+        create_resource_metadata(
+            resource => $resource2, metadata => $title_metadata,
+            language => $language,  content => $title2,
+        );
+
+        ok ! $resource1->title;
+        ok ! $resource2->title;
+
+        my $resources = Shachi::Service::Resource->embed_title(
+            db => $db, language => $language,
+            resources => Shachi::Model::List->new(list => [ $resource1, $resource2 ])
+        );
+        is $resources->[0]->title, $title1;
+        is $resources->[1]->title, $title2;
+    };
+
+    subtest 'different language' => sub {
+        my $db = Shachi::Database->new;
+        my $resource = create_resource;
+        my $title = random_word;
+        my $language = create_language;
+        my $language_other = create_language;
+        create_resource_metadata(
+            resource => $resource, metadata => $title_metadata,
+            language => $language, content  => $title,
+        );
+
+        ok ! $resource->title;
+
+        my $resources = Shachi::Service::Resource->embed_title(
+            db => $db, language => $language_other, resources => $resource->as_list,
+        );
+        ok ! $resources->[0]->title;
+    };
+}
+
 sub update_annotator : Tests {
     subtest 'update normally' => sub {
         my $db = Shachi::Database->new;
