@@ -160,7 +160,7 @@ sub embed_title {
 
     my $resource_titles = Shachi::Service::Resource::Metadata->find_resource_metadata_by_name(
         db => $db, name => 'title', resource_ids => $resources->map('id')->to_a,
-        language => $language,
+        language_ids => [ $language->id ],
     );
     my $title_by_resource_id = $resource_titles->hash_by('resource_id');
 

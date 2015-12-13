@@ -254,7 +254,7 @@ sub find_resource_metadata_by_name : Tests {
 
         my $titles = Shachi::Service::Resource::Metadata->find_resource_metadata_by_name(
             db => $db, name => 'title', resource_ids => [ $resource1->id, $resource2->id ],
-            language => $language,
+            language_ids => [ $language->id ],
         );
         $titles = $titles->sort_by(sub { $_->resource_id });
         is $titles->size, 2;

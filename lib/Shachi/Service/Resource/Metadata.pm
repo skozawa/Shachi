@@ -130,14 +130,14 @@ sub find_resource_metadata_by_name {
          my $db    => { isa => 'Shachi::Database' },
          my $name  => { isa => 'Str' },
          my $resource_ids => { isa => 'ArrayRef' },
-         my $language => { isa => 'Shachi::Model::Language' };
+         my $language_ids => { isa => 'ArrayRef' };
 
     my $metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => $name);
     return Shachi::Model::List->new( list => [] ) unless $metadata;
     $db->shachi->table('resource_metadata')->search({
         metadata_id => $metadata->id,
         resource_id => { -in => $resource_ids },
-        language_id => $language->id,
+        language_id => { -in => $language_ids },
     })->list;
 }
 
