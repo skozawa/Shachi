@@ -34,7 +34,7 @@ sub create_multi_from_json {
          my $json  => { isa => 'HashRef' };
 
     my $language = Shachi::Service::Language->find_by_code(
-        db => $db, code => $json->{metadata_language} || 'eng',
+        db => $db, code => $json->{metadata_language} || ENGLISH_CODE,
     );
     my $metadata_list = Shachi::Service::Metadata->find_shown_metadata(db => $db);
 
@@ -55,7 +55,7 @@ sub update_multi_from_json {
          my $json  => { isa => 'HashRef' };
 
     my $language = Shachi::Service::Language->find_by_code(
-        db => $db, code => $json->{metadata_language} || 'eng',
+        db => $db, code => $json->{metadata_language} || ENGLISH_CODE,
     );
     $metadata_list ||= Shachi::Service::Metadata->find_by_names(
         db => $db, names => [ keys %$json ],

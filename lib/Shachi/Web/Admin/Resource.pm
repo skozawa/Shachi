@@ -175,7 +175,7 @@ sub update_metadata {
     }
 
     my $language = Shachi::Service::Language->find_by_code(
-        db => $c->db, code => $contents->{metadata_language} || 'eng',
+        db => $c->db, code => $contents->{metadata_language} || ENGLISH_CODE,
     );
     my $resource_metadata_by_metadata_id = Shachi::Service::Resource::Metadata->find_resource_metadata(
         db => $c->db, resource => $resource, metadata_list => $metadata_list,

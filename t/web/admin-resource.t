@@ -2,6 +2,7 @@ package t::Shachi::Web::Admin::Resource;
 use t::test;
 use JSON::XS;
 use Shachi::Database;
+use SHACHI::Model::Language;
 use Shachi::Model::Resource;
 use Shachi::Model::Metadata;
 use Shachi::Service::Resource;
@@ -17,7 +18,7 @@ sub create_get : Tests {
 
 sub create_post : Tests {
     truncate_db;
-    my $english = create_language(code => 'eng');
+    my $english = create_language(code => ENGLISH_CODE);
     my $metadata_list = +{ map {
         $_->[0] => create_metadata(name => $_->[0], input_type => $_->[1])
     } (['title', INPUT_TYPE_TEXT],
@@ -152,7 +153,7 @@ sub update_edit_status : Tests {
 
 sub update_metadata : Tests {
     truncate_db;
-    my $english = create_language(code => 'eng');
+    my $english = create_language(code => ENGLISH_CODE);
     my $metadata_list = +{ map {
         $_->[0] => create_metadata(name => $_->[0], input_type => $_->[1])
     } (['title', INPUT_TYPE_TEXT],

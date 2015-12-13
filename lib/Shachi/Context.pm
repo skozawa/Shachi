@@ -10,6 +10,7 @@ use Shachi::Request;
 use Shachi::Response;
 use Shachi::View::Xslate;
 use Shachi::Database;
+use Shachi::Model::Language;
 use Shachi::Service::Language;
 
 use Class::Accessor::Lite::Lazy (
@@ -52,7 +53,7 @@ sub _build_page_id {
 
 sub _build_lang {
     my $self = shift;
-    my $code = $self->req->param('ln') || $self->req->cookies->{shachi_language} || 'eng';
+    my $code = $self->req->param('ln') || $self->req->cookies->{shachi_language} || ENGLISH_CODE;
     $self->res->cookies->{shachi_language} = {
         value  => $code,
         path   => '/',

@@ -8,7 +8,7 @@ sub _require : Test(startup => 1) {
 
 sub find_by_id : Tests {
     truncate_db;
-    my $english = create_language(code => 'eng');
+    my $english = create_language(code => ENGLISH_CODE);
 
     subtest 'found resource' => sub {
         my $resource = create_resource;
@@ -25,7 +25,7 @@ sub find_by_id : Tests {
 
 sub list : Tests {
     truncate_db;
-    my $english = create_language(code => 'eng');
+    my $english = create_language(code => ENGLISH_CODE);
 
     subtest 'list' => sub {
         my $mech = create_mech;
