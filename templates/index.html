@@ -1,3 +1,39 @@
 [%- WRAPPER '/_wrapper.tt' WITH current_navi = 'home' %]
 
+<div id="shachi-home">
+  [%- INCLUDE '_home_sidemenu.tt' WITH sidemenu = 'home' %]
+
+  <div id="home-main">
+    <h2 class="title">What's New!</h2>
+    <ul class="news-list">
+      <li>
+        <span class="date">Apr. 24. 2008</span>
+        <span class="news-content">
+          If you wish to see detailed information by clicking names of language resources on the screen of SHACHI’s search results, the function to read some of it does not work at the moment. In this case, please refer to related URLs shown as information on “identifier” of language resources. Detailed information will be thoroughly provided by July 2008 but is now in preparation.
+        </span>
+      </li>
+      <li>
+        <span class="date">Jan. 27. 2008</span>
+        <span class="news-content">
+          SHACHI Specification was updated.
+        </span>
+      </li>
+      <li>
+        <span class="date">Dec. 25. 2007</span>
+        <span class="news-content">
+          SHACHI Web site opened
+        </span>
+      </li>
+    </ul>
+
+    <h2 class="title">Abount SHACHI</h2>
+    <div class="top-about-shachi">
+      <div>The National Institute of Information and Communications Technology (NICT) and Nagoya University, for the purpose of developing LRs efficiently, have been constructing a large scale metadata database named SHACHI as their joint project by collecting detailed meta information on LRs in Western and Asian countries. This research project aims to extensively collect metadata such as tag sets, formats, and recorded contents of LRs existing at home and abroad and store them systematically.</div>
+      <div>SHACHI contains more than 2,000 compiled language resources such as corpora, dictionaries, thesauruses and lexicons, forming a large scale metadata of language resources archive. Its metadata, an extended version of OLACmetadataSet conforming to Dublin Core, which contain detailed meta information, have been collected semiautomatically. To that end, it is indispensable for us to work in cooperation with language resource consortia at home and abroad and to take the initiative in contributing to Asian language resources.</div>
+    </div>
+  </div>
+
+  <div id="shachi-home-footer"></div>
+</div>
+
 [%- END # WRAPPER '/_wrapper.tt' %]

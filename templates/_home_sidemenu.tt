@@ -1,0 +1,22 @@
+<div id="home-sidemenu">
+  <div class="sidemenu-container">
+    <span class="title-label">Menu</span>
+    <ul class="sidemenu-list">
+      <li class="sidemenu-item[% ' current' IF sidemenu == 'home' %]">
+        <a href="/">Home</a>
+      </li>
+      <li class="sidemenu-item[% ' current' IF sidemenu == 'about' %]">About SHACHI</li>
+      <li class="sidemenu-item[% ' current' IF sidemenu == 'publications' %]">Publications</li>
+      <li class="sidemenu-item[% ' current' IF sidemenu == 'news' %]">News</li>
+      <li class="sidemenu-item[% ' current' IF sidemenu == 'contact' %]">Contact</li>
+    </ul>
+  </div>
+
+  <div class="sidemenu-container">
+    <span class="title-label">Partners</span>
+    <ul class="sidemenu-list">
+      <li class="sidemenu-item banner"><img src="/images/ms_nict_en.jpg"></li>
+      <li class="sidemenu-item banner"><img src="/images/ms_matlab_en.jpg"></li>
+    </ul>
+  </div>
+</div>
