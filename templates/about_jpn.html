@@ -1,0 +1,59 @@
+[%- WRAPPER '/_wrapper.tt' WITH current_navi = 'home' %]
+
+<div id="shachi-home">
+  [%- INCLUDE '_home_sidemenu_jpn.tt' WITH sidemenu = 'about' %]
+
+  <div id="home-main">
+    <h2 class="title">SHACHIとは</h2>
+
+    <h3 class="title">SHACHIの概要</h3>
+    <div class="about-content">
+      <div>情報通信機構NICTと名古屋大学では、共同で、言語資源の有機的結合を目的に、欧米・アジア諸国の言語資源の詳細なメタ情報を大規模に収集し、大規模言語資源データベースSHACHIを構築している。本プロジェクトの目的は、付与した詳細なメタ情報を利用して、言語資源間の関係性を記述し、言語資源間を有機的に結合することである。</div>
+      <div>SHACHI に収録されている言語資源（コーパス・辞書・シソーラス・語彙リスト）は2000件を超え、大規模な言語資源アーカイブとなっている。 Metadataは、OLACmetadataSetを拡張したもので、全45種類に及ぶ詳細なメタ情報を人手によって収集している。本言語資源データベースSHACHIは既にいくつかの研究機関に公開しており、アジアの言語資源イニシアティブとして、今後貢献していく予定である。</div>
+    </div>
+
+    <h3 class="title">SHACHI 構築の目的</h3>
+    <div class="about-content">
+      <div>SHACHI構築の目的は主に、以下の4点である。</div>
+      <ol>
+        <li>国内外の言語資源のタグ付与状況や、フォーマットのタイプなどの実態調査</li>
+        <li>1.で得られた知見により、世界の言語資源のメタデータを体系的に蓄積（言語資源オントロジーの構築）</li>
+        <li>言語資源間の有機的結合のための研究（言語資源の戦略的開発）</li>
+        <li>言語資源流通の促進（Facet Search などのツールを開発）</li>
+      </ol>
+      <div>
+        現在、約2400件のメタ情報を収集しており、2010年までに、3000件規模に拡張する予定である。国内外の言語資源イニシアティブと連携し、アジアの言語資源イニシアティブ拠点として貢献することを目指している。
+      </div>
+      <div>
+        また、他の言語資源コンソーシアムとの最も大きな違いは、人手により、かなり詳細なメタ情報を入力している点である。さらに、それらの詳細情報を基に、自然言語処理技術を応用し、言語資源間のタイプの近さや、タグセットの近さなどを分析し、世界の言語資源のオントロジー構築を試みている点である。これらが実現すれば，研究開発コストの削減だけでなく、オンデマンドで時代のニーズに対応する言語資源基盤を確立することができる。
+      </div>
+    </div>
+
+    <h3 class="title">メタデータ収集のための設計</h3>
+    <div class="about-content">
+      <div>
+        言語資源を蓄積し、流通させるための組織としては、欧米や中国においては、Linguistic Data Consortium (LDC) やEuropean Language Resources Association（ELRA）、Open Language Archives Community (OLAC)、Chinese-LDC (Chinese Linguistic Data Consortimu)といったコンソーシアムが、日本国内では、主に、言語資源協会GSK(Gengo Shigen Kyokai)が存在し機能している。
+      </div>
+      <div>
+        言語資源のメタ情報を体系的に蓄積する試みとしては、Deutsches Forschungszentrum for Kunstiliche Intelligencz (DFKI: <a href="http://www.dfki.de/lt//publications_show.php?id=148">http://www.dfki.de/lt//publications_show.php?id=148</a>) という研究機関が運営しているLanguage Technology World というサイト（<a href="http://www.lt-world.org/">http://www.lt-world.org/</a>）や、OLAC が運営するサイト（<a href="http://www.language-archives.org/">http://www.language-archives.org/</a>）で行なわれているものが挙げられる。
+      </div>
+      <div>
+        情報処理技術の発展や、その開発された技術を広く社会に還元させるためには、様々なコンソーシアムと情報交換を行いながら、相互に連携して研究を進めることが望まれる。そこで、SHACHIのメタデータは、OLACのメタデータセットに準拠し、さらにそれを拡張する形で、より詳細なメタ情報を収集している。OLACのメタデータは、ダブリン・コア(Dublin Core)と呼ばれるメタデータセットに準拠し、かつ、一部を拡張したものである。したがって、OLACメタ項目に準拠することは、ダブリン・コアに準拠することとほぼ等しく、世界中のデジタルデータの体系的な蓄積を効率的に遂行できるというメリットがある。
+      </div>
+    </div>
+
+    <h3 class="title">SHACHIの仕様</h3>
+    <div class="about-content">
+      <div>
+        <a href="/docs/shachi_metadataset_ja.pdf">SHACHI の仕様(2008/1/27版)</a>
+      </div>
+      <div>
+        この仕様書は暫定的なものであり、今後改訂される可能性があります。
+      </div>
+    </div>
+  </div>
+
+  <div id="shachi-home-footer"></div>
+</div>
+
+[%- END # WRAPPER '/_wrapper.tt' %]

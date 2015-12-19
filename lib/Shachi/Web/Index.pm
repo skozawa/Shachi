@@ -7,4 +7,9 @@ sub default {
     return $c->html_locale('index.html');
 }
 
+sub about {
+    my ($class, $c) = @_;
+    return $c->html_locale('about.html');
+}
+
 1;

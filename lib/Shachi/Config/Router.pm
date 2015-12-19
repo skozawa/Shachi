@@ -7,6 +7,11 @@ my $router = Router::Simple::Declare::router {
     connect '/' => {
         dispatch => 'Shachi::Web::Index',
     };
+    connect '/about' => {
+        dispatch => 'Shachi::Web::Index',
+        action   => 'about',
+    };
+
     connect '/resources' => {
         dispatch => 'Shachi::Web::Resource',
         action   => 'list',

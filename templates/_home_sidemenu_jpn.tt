@@ -5,7 +5,9 @@
       <li class="sidemenu-item[% ' current' IF sidemenu == 'home' %]">
         <a href="/">ホーム</a>
       </li>
-      <li class="sidemenu-item[% ' current' IF sidemenu == 'about' %]">SHACHIとは</li>
+      <li class="sidemenu-item[% ' current' IF sidemenu == 'about' %]">
+        <a href="/about">SHACHIとは</a>
+      </li>
       <li class="sidemenu-item[% ' current' IF sidemenu == 'publications' %]">関連論文</li>
       <li class="sidemenu-item[% ' current' IF sidemenu == 'news' %]">ニュース</li>
       <li class="sidemenu-item[% ' current' IF sidemenu == 'contact' %]">お問い合わせ</li>
