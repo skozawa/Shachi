@@ -22,4 +22,9 @@ sub news {
     return $c->html_locale('news.html');
 }
 
+sub contact {
+    my ($class, $c) = @_;
+    return $c->html_locale('contact.html');
+}
+
 1;

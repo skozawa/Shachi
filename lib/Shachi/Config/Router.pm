@@ -19,6 +19,10 @@ my $router = Router::Simple::Declare::router {
         dispatch => 'Shachi::Web::Index',
         action   => 'news',
     };
+    connect '/contact' => {
+        dispatch => 'Shachi::Web::Index',
+        action   => 'contact',
+    };
 
     connect '/resources' => {
         dispatch => 'Shachi::Web::Resource',

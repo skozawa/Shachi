@@ -14,15 +14,21 @@
       <li class="sidemenu-item[% ' current' IF sidemenu == 'news' %]">
         <a href="/news">ニュース</a>
       </li>
-      <li class="sidemenu-item[% ' current' IF sidemenu == 'contact' %]">お問い合わせ</li>
+      <li class="sidemenu-item[% ' current' IF sidemenu == 'contact' %]">
+        <a href="/contact">お問い合わせ</a>
+      </li>
     </ul>
   </div>
 
   <div class="sidemenu-container">
     <span class="title-label">パートナー</span>
     <ul class="sidemenu-list">
-      <li class="sidemenu-item banner"><img src="/images/ms_nict.jpg"></li>
-      <li class="sidemenu-item banner"><img src="/images/ms_matlab.jpg"></li>
+      <li class="sidemenu-item banner">
+        <a href="http://www.nict.go.jp/"><img src="/images/ms_nict.jpg"></a>
+      </li>
+      <li class="sidemenu-item banner">
+        <a href="http://slp.itc.nagoya-u.ac.jp/"><img src="/images/ms_matlab.jpg"></a>
+      </li>
     </ul>
   </div>
 </div>
