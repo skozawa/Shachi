@@ -12,4 +12,9 @@ sub about {
     return $c->html_locale('about.html');
 }
 
+sub publications {
+    my ($class, $c) = @_;
+    return $c->html_locale('publications.html');
+}
+
 1;

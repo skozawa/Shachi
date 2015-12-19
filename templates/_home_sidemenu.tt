@@ -8,7 +8,9 @@
       <li class="sidemenu-item[% ' current' IF sidemenu == 'about' %]">
         <a href="/about">About SHACHI</a>
       </li>
-      <li class="sidemenu-item[% ' current' IF sidemenu == 'publications' %]">Publications</li>
+      <li class="sidemenu-item[% ' current' IF sidemenu == 'publications' %]">
+        <a href="/publications">Publications</a>
+      </li>
       <li class="sidemenu-item[% ' current' IF sidemenu == 'news' %]">News</li>
       <li class="sidemenu-item[% ' current' IF sidemenu == 'contact' %]">Contact</li>
     </ul>
