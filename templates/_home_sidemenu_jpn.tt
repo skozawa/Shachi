@@ -11,7 +11,9 @@
       <li class="sidemenu-item[% ' current' IF sidemenu == 'publications' %]">
         <a href="/publications">関連論文</a>
       </li>
-      <li class="sidemenu-item[% ' current' IF sidemenu == 'news' %]">ニュース</li>
+      <li class="sidemenu-item[% ' current' IF sidemenu == 'news' %]">
+        <a href="/news">ニュース</a>
+      </li>
       <li class="sidemenu-item[% ' current' IF sidemenu == 'contact' %]">お問い合わせ</li>
     </ul>
   </div>

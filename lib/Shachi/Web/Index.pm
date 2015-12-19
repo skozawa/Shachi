@@ -17,4 +17,9 @@ sub publications {
     return $c->html_locale('publications.html');
 }
 
+sub news {
+    my ($class, $c) = @_;
+    return $c->html_locale('news.html');
+}
+
 1;
