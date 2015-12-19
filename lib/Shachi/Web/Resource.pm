@@ -63,7 +63,7 @@ sub statistics {
 
     my $target = $c->req->parameters->{target};
     my $metadata_list = Shachi::Service::Metadata->find_by_input_types(
-        db => $c->db, input_types => [INPUT_TYPE_SELECT, INPUT_TYPE_SELECTONLY],
+        db => $c->db, input_types => [INPUT_TYPE_SELECT, INPUT_TYPE_SELECTONLY, INPUT_TYPE_LANGUAGE],
     );
     return $c->html('statistics.html', { metadata_list => $metadata_list }) unless $target;
 

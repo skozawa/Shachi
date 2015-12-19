@@ -33,6 +33,22 @@ body {
   background-color: #CFE1ED;
 }
 
+h3.title {
+  border: 1px solid #999;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 5px;
+  background-color: #eee;
+}
+h3.title:before {
+  content: "";
+  border: 3px solid #40ABEA;
+  margin-right: 5px;
+  padding: 0;
+  border-top-width: 0px;
+  border-bottom-width: 0px;
+}
+
 div.container {
   width: 950px;
   background-color: #FFFFFF;
@@ -201,6 +217,7 @@ div.search-result-count-container {
   }
 }
 
+/* search page */
 div#facet-search-container {
   div#facet-search-form-container {
     float: right;
@@ -300,22 +317,8 @@ ul.resource-list {
   }
 }
 
+/* detail page */
 div.resource-detail-container {
-  h3.resource-title {
-    border: 1px solid #999;
-    border-radius: 5px;
-    padding: 5px;
-    margin: 5px;
-    background-color: #eee;
-  }
-  h3.resource-title:before {
-    content: "";
-    border: 3px solid #40ABEA;
-    margin-right: 5px;
-    padding: 0;
-    border-top-width: 0px;
-    border-bottom-width: 0px;
-  }
   .resource-meta-container {
     font-size: 95%;
     color: #999;
@@ -354,5 +357,40 @@ div.resource-detail-container {
         content: "]";
       }
     }
+  }
+}
+
+/* statistics page */
+.statistics-form {
+  font-weight: bold;
+  margin: 10px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+
+  select {
+    font-size: 16px;
+  }
+}
+
+div.statistics-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+  table {
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    border-spacing: 0;
+    font-size: 75%;
+  }
+  th {
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    background-color: #eee;
+  }
+  td {
+    border-bottom: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    background-color: #fff;
+    text-align: right;
   }
 }

@@ -105,7 +105,8 @@ use Class::Accessor::Lite::Lazy (
 sub allow_statistics {
     my $self = shift;
     return 1 if $self->input_type eq INPUT_TYPE_SELECT ||
-        $self->input_type eq INPUT_TYPE_SELECTONLY;
+        $self->input_type eq INPUT_TYPE_SELECTONLY ||
+            $self->input_type eq INPUT_TYPE_LANGUAGE;
     return 0;
 }
 
