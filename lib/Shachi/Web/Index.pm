@@ -4,7 +4,7 @@ use warnings;
 
 sub default {
     my ($class, $c) = @_;
-    return $c->html('index.html');
+    return $c->html_locale('index.html');
 }
 
 1;

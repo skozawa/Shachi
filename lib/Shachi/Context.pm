@@ -100,6 +100,18 @@ sub html {
     $self->res->content($content);
 }
 
+sub html_locale {
+    my ($self, $file, $args) = @_;
+    my $code = $self->lang ? $self->lang->code : 'eng';
+    my $locale_file = $file;
+    $locale_file =~ s/(\.html)?$/_$code$1/;
+    # locale先がなければDefaultのファイル名を利用
+    unless ( -r $self->config->root->file('templates', $locale_file) ) {
+        $locale_file = $file;
+    }
+    $self->html($locale_file, $args);
+}
+
 sub render_file {
     my ($self, $file, $args) = @_;
     die $self->throw_not_found unless -r $self->config->root->file('templates', $file);
