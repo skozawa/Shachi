@@ -1,0 +1,61 @@
+[%-# metadata, resource_metadata_list %]
+[%- IF resource_metadata_list %]
+  <ul class="resource-metadata-data">
+  [%- IF metadata.input_type == 'textarea' %]
+    [%- FOREACH resource_metadata IN resource_metadata_list %]
+      <li>
+        <span class="content">[% resource_metadata.content %]</span>
+      </li>
+    [%- END # FOREACH resource_metadata IN resource_metadata_list %]
+  [%- ELSIF metadata.input_type == 'select' %]
+    [%- FOREACH resource_metadata IN resource_metadata_list %]
+      <li>
+        [%- IF resource_metadata.value_id %]
+          <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
+        [%- END # IF resource_metadata.value_id %]
+        <span class="description">[% resource_metadata.description %]</span>
+      </li>
+    [%- END # FOREACH resource_metadata IN resource_metadata_list %]
+  [%- ELSIF metadata.input_type == 'select_only' %]
+    [%- FOREACH resource_metadata IN resource_metadata_list %]
+      <li>
+        <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
+      </li>
+    [%- END # FOREACH resource_metadata IN resource_metadata_list %]
+  [%- ELSIF metadata.input_type == 'relation' %]
+    [%- FOREACH resource_metadata IN resource_metadata_list %]
+      <li>
+        <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
+        <span class="description">[% resource_metadata.description %]</span>
+      </li>
+    [%- END # FOREACH resource_metadata IN resource_metadata_list %]
+  [%- ELSIF metadata.input_type == 'language' %]
+    [%- FOREACH resource_metadata IN resource_metadata_list %]
+      <li>
+        <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
+        <span class="description">[% resource_metadata.description %]</span>
+      </li>
+    [%- END # FOREACH resource_metadata IN resource_metadata_list %]
+  [%- ELSIF metadata.input_type == 'date' %]
+    [%- FOREACH resource_metadata IN resource_metadata_list %]
+      <li>
+        <span class="content">[% resource_metadata.content %]</span>
+        <span class="description">[% resource_metadata.description %]</span>
+      </li>
+    [%- END # FOREACH resource_metadata IN resource_metadata_list %]
+  [%- ELSIF metadata.input_type == 'range' %]
+    [%- FOREACH resource_metadata IN resource_metadata_list %]
+      <li>
+        <span class="content">[% resource_metadata.content %]</span>
+        <span class="description">[% resource_metadata.description %]</span>
+      </li>
+    [%- END # FOREACH resource_metadata IN resource_metadata_list %]
+  [%- ELSE # metadata.input_type == 'text' %]
+    [%- FOREACH resource_metadata IN resource_metadata_list %]
+      <li>
+        <span class="content">[% resource_metadata.content %]</span>
+      </li>
+    [%- END # FOREACH resource_metadata IN resource_metadata_list %]
+  [%- END # IF metadata.input_type == 'textarea' %]
+  </ul>
+[%- END # IF resource_metadata_list %]

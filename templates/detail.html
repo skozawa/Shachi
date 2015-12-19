@@ -1,19 +1,17 @@
 [%- WRAPPER '_wrapper.tt' %]
+
 <h3>[% resource.title %]</h3>
 <div class="resource-detail-container">
-  <table>
+  <table class="resource-metadata-list">
     [%- FOREACH metadata IN metadata_list %]
       <tr>
-        <td>[% metadata.label %]</td>
-        <td>
+        <td class="metadata">[% metadata.label %]</td>
+        <td class="metadata-value">
           [%- SET resource_metadata_list = resource.metadata(metadata) %]
-          [%- IF resource_metadata_list %]
-            <ul>
-              [%- FOREACH resource_metadata IN resource_metadata_list %]
-                <li>[% resource_metadata.value ? resource_metadata.value.value : resource_metadata.content %]</li>
-              [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
-            </ul>
-          [%- END # IF resource_metadata_list %]
+          [%- INCLUDE '_resource_metadata_list.tt' WITH
+              metadata = metadata,
+              resource_metadata_list = resource_metadata_list
+          %]
         </td>
       </tr>
     [%- END # FOREACH metadata IN metadata_list %]
