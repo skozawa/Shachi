@@ -1,7 +1,13 @@
 [%- WRAPPER '_wrapper.tt' %]
 
-<h3>[% resource.title %]</h3>
 <div class="resource-detail-container">
+  <h3 class="resource-title">[% resource.title %]</h3>
+
+  <div class="resource-meta-container">
+    <span class="created">registration: [% resource.created.strftime('%Y/%m/%d %T') %]</span>,
+    <span class="modified">last modified: [% resource.modified.strftime('%Y/%m/%d %T') %]</span>
+  </div>
+
   <table class="resource-metadata-list">
     [%- FOREACH metadata IN metadata_list %]
       <tr>
