@@ -2,6 +2,7 @@ package Shachi::Service::FacetSearch;
 use strict;
 use warnings;
 use Smart::Args;
+use SQL::Abstract;
 use Shachi::Model::Metadata;
 use Shachi::Service::Metadata;
 use Shachi::Service::Metadata::Value;
@@ -18,26 +19,7 @@ sub search {
         db => $db, ids => $query->all_value_ids
     ));
 
-    my $resource_ids = [];
     my $metadata_by_name = $metadata_list->hash_by('name');
-    # no information を指定しているmetadataを取得
-    my $no_info_metadata_ids = [ map {
-        my $metadata = $metadata_by_name->{$_};
-        $metadata ? $metadata->id : ()
-    } @{$query->no_info_metadata_names} ];
-    if( @$no_info_metadata_ids ) {
-        # TODO: BUG
-        $resource_ids = $db->shachi->table('resource')->select('id')
-            ->left_join('resource_metadata', {
-                'resource_metadata.metadata_id' => {
-                    -in => $no_info_metadata_ids,
-                },
-                id => 'resource_id',
-            })->search({
-                status => { '!=' => 'private' },
-                metadata_id => { '!=' => undef },
-            })->list->map('id')->to_a;
-    }
 
     my $metadata_conditions = [];
     foreach my $metadata ( @$metadata_list ) {
@@ -49,12 +31,27 @@ sub search {
         } } for @$value_ids;
     }
 
+    # no information を指定しているmetadataを取得
+    my $no_info_metadata_ids = [ map {
+        my $metadata = $metadata_by_name->{$_};
+        $metadata ? $metadata->id : ()
+    } @{$query->no_info_metadata_names} ];
+    my $no_info_conditions = do {
+        if ( @$no_info_metadata_ids ) {
+            my $sql = SQL::Abstract->new;
+            my ($sub_sql, @sub_bind) = $sql->select('resource_metadata', 'resource_id', {
+                metadata_id => { -in => $no_info_metadata_ids }
+            });
+            ["NOT IN ($sub_sql)" => @sub_bind];
+        }
+    };
+
     my $searched_resource_ids = $db->shachi->table('resource_metadata')
         ->select('resource_id')
         ->left_join('resource', { resource_id => 'id' })->search({
             status => { '!=' => 'private' },
             @$metadata_conditions ? (-or => $metadata_conditions) : (),
-            @$resource_ids ? (resource_id => { -in => $resource_ids }) : (),
+            $no_info_conditions ? (resource_id => \$no_info_conditions) : (),
         })->group_by('resource_id')
           ->having('COUNT(*) >= ' . (scalar @$metadata_conditions))
           ->list->map('resource_id')->to_a;
