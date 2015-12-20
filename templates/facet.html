@@ -14,6 +14,12 @@
       <div id="facet-search-current-query" class="facet-query-container">
         <span class="title-label">現在の検索条件</span>
         <ul class="current-query-list">
+          [%- IF query.has_keyword %]
+            <li>
+              <span class="metadata-name">キーワード</span>
+              <span class="metadata-value">[% query.keyword %]</span>
+            </li>
+          [%- END # IF query.has_keyword %]
           [%- FOREACH metadata IN facet_metadata_list %]
             [%- SET value_ids = query.value_ids(metadata.name) %]
             [%- IF value_ids.size() %]
