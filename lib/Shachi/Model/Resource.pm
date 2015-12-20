@@ -39,7 +39,7 @@ our @EXPORT = qw/
 use Class::Accessor::Lite::Lazy (
     new => 1,
     ro  => [qw/id shachi_id status annotator_id edit_status/],
-    rw  => [qw/annotator title metadata_list/],
+    rw  => [qw/annotator title description metadata_list/],
 );
 
 sub metadata {

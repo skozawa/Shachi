@@ -160,6 +160,33 @@ sub embed_title {
          my $language  => { isa => 'Shachi::Model::Language' },
          my $args      => { isa => 'HashRef', default => {} };
 
+    $class->embed_resource_metadata_content(
+        db => $db, resources => $resources, language => $language,
+        name => 'title', args => $args,
+    );
+}
+
+sub embed_description {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $resources => { isa => 'Shachi::Model::List' },
+         my $language  => { isa => 'Shachi::Model::Language' },
+         my $args      => { isa => 'HashRef', default => {} };
+
+    $class->embed_resource_metadata_content(
+        db => $db, resources => $resources, language => $language,
+        name => 'description', args => $args,
+    );
+}
+
+sub embed_resource_metadata_content {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $resources => { isa => 'Shachi::Model::List' },
+         my $language  => { isa => 'Shachi::Model::Language' },
+         my $name      => { isa => 'Str' },
+         my $args      => { isa => 'HashRef', default => {} };
+
     my $language_ids = do {
         # 指定した言語のメタデータがない場合に英語にフォールバックする
         if ( $args->{fillin_english} ) {
@@ -169,20 +196,20 @@ sub embed_title {
             [ $language->id ];
         }
     };
-    my $resource_titles = Shachi::Service::Resource::Metadata->find_resource_metadata_by_name(
-        db => $db, name => 'title', resource_ids => $resources->map('id')->to_a,
+    my $metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata_by_name(
+        db => $db, name => $name, resource_ids => $resources->map('id')->to_a,
         language_ids => $language_ids,
     );
     if ( $args->{fillin_english} ) {
         # Hash::MultiValueは複数ある場合、最後を返すので、指定した言語が最後になるようにソートする
         # ref. https://metacpan.org/pod/Hash::MultiValue#get
-        $resource_titles = $resource_titles->sort_by(sub { $_->language_id == $language->id });
+        $metadata_list = $metadata_list->sort_by(sub { $_->language_id == $language->id });
     }
-    my $title_by_resource_id = $resource_titles->hash_by('resource_id');
+    my $metadata_by_resource_id = $metadata_list->hash_by('resource_id');
 
     foreach my $resource ( @$resources ) {
-        my $title_metadata = $title_by_resource_id->{$resource->id} or next;
-        $resource->title($title_metadata->content);
+        my $metadata = $metadata_by_resource_id->{$resource->id} or next;
+        $resource->$name($metadata->content);
     }
 
     return $resources;
