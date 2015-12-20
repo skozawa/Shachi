@@ -11,20 +11,22 @@ sub search {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
          my $query => { isa => 'Shachi::FacetSearchQuery' },
-         my $metadata_list => { isa => 'Shachi::Model::List' },
-         my $args  => { isa => 'HashRef', default => {} };
+         my $metadata_list => { isa => 'Shachi::Model::List' };
 
+    # Facet検索で指定されてる値を設定
     $query->current_values(Shachi::Service::Metadata::Value->find_by_ids(
         db => $db, ids => $query->all_value_ids
     ));
 
     my $resource_ids = [];
     my $metadata_by_name = $metadata_list->hash_by('name');
+    # no information を指定しているmetadataを取得
     my $no_info_metadata_ids = [ map {
         my $metadata = $metadata_by_name->{$_};
         $metadata ? $metadata->id : ()
     } @{$query->no_info_metadata_names} ];
     if( @$no_info_metadata_ids ) {
+        # TODO: BUG
         $resource_ids = $db->shachi->table('resource')->select('id')
             ->left_join('resource_metadata', {
                 'resource_metadata.metadata_id' => {
@@ -70,12 +72,13 @@ sub search {
         $sth->execute(@bind);
         $searched_resource_ids = [ keys %{$sth->fetchall_hashref('resource_id')} ];
     }
+    $query->search_count(scalar @$searched_resource_ids);
 
     my $resources = $db->shachi->table('resource')->search({
         status => { '!=' => 'private' },
         id     => { -in => $searched_resource_ids },
     })->order_by('id asc')
-      ->offset($args->{offset} || 0)->limit($args->{limit} || 20)
+      ->offset($query->offset)->limit($query->limit)
       ->list;
 
     $class->embed_metadata_counts(

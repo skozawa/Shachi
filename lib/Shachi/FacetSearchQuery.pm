@@ -8,13 +8,23 @@ use Shachi::Model::Metadata;
 use Class::Accessor::Lite::Lazy (
     new => 1,
     ro  => [qw/params/],
-    rw  => [qw/current_values/],
-    ro_lazy => [qw/all_value_ids search_query/],
+    rw  => [qw/current_values total_count search_count/],
+    ro_lazy => [qw/all_value_ids search_query offset limit/],
 );
 
 sub _build_all_value_ids {
     my $self = shift;
     [ map { @{$self->valid_value_ids($_)} } @{FACET_METADATA_NAMES()} ];
+}
+
+sub _build_offset {
+    my $self = shift;
+    $self->params->{offset} || 0;
+}
+
+sub _build_limit {
+    my $self = shift;
+    $self->params->{limit} || 10;
 }
 
 sub _build_search_query {

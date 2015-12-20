@@ -39,16 +39,24 @@ sub facet {
         db => $c->db, names => FACET_METADATA_NAMES,
         args => { order_by_names => 1 },
     );
+    $query->total_count(Shachi::Service::Resource->count_not_private(db => $c->db));
     my $resources;
     if ( $query->has_any_query ) {
         $resources = Shachi::Service::FacetSearch->search(
             db => $c->db, query => $query, metadata_list => $facet_metadata_list,
-            args => { offset => 0, limit => 20 },
         );
+        if ( @$resources ) {
+            Shachi::Service::Resource->embed_title(
+                db => $c->db, resources => $resources, language => $c->lang,
+            );
+            Shachi::Service::Resource->embed_description(
+                db => $c->db, resources => $resources, language => $c->lang,
+            );
+        }
     } else {
         Shachi::Service::FacetSearch->embed_metadata_counts(
             db => $c->db, metadata_list => $facet_metadata_list,
-        )
+        );
     }
 
     return $c->html('facet.html', {
