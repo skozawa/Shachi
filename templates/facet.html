@@ -22,11 +22,21 @@
                 [%- FOREACH value_id IN value_ids %]
                   [%- IF value_id %]
                     [%- SET metadata_value = query.value_by_id(value_id) %]
-                    <span class="metadata-value">[% metadata_value.value %]</span>
-                    <input type="hidden" name="[% metadata.name %]" value="[% metadata_value.id %]">
+                    <span class="metadata-value">
+                      [% metadata_value.value %]
+                      <span class="delete-link" onclick="this.parentNode.removeChild(this);document['facet-form'].submit()">
+                        [削除]
+                        <input type="hidden" name="[% metadata.name %]" value="[% metadata_value.id %]">
+                      </span>
+                    </span>
                   [%- ELSE %]
-                    <span class="metadata-value">no information</span>
-                    <input type="hidden" name="[% metadata.name %]" value="0">
+                    <span class="metadata-value">
+                      no information
+                      <span class="delete-link" onclick="this.parentNode.removeChild(this);document['facet-form'].submit()">
+                        [削除]
+                        <input type="hidden" name="[% metadata.name %]" value="0">
+                      </span>
+                    </span>
                   [%- END # IF value_id %]
                 [%- END # FOREACH value_id IN value_ids %]
               </li>
