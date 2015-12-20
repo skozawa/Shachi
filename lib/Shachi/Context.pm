@@ -75,6 +75,13 @@ sub change_lang_link {
     $uri;
 }
 
+sub pager_link {
+    my ($self, $offset) = @_;
+    my $uri = $self->req->uri->clone;
+    $uri->query_param(offset => $offset);
+    $uri;
+}
+
 ## response
 sub respond_raw {
     my ($self, $code, $headers, $body) = @_;

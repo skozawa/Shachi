@@ -418,6 +418,21 @@ div#facet-search-container {
     width: 665px;
   }
   div#facet-search-pager {
+    text-align: center;
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li.pager-item {
+      display: inline-block;
+      margin: 5px;
+
+      &.current {
+        font-weight: bold;
+      }
+    }
+  }
+  div#facet-search-footer {
     clear: both;
   }
 }

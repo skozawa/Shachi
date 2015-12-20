@@ -91,4 +91,44 @@ sub has_value {
     any { $_ == $value_id } $self->value_ids($name);
 }
 
+## paging
+sub current_page_num {
+    my $self = shift;
+    int($self->offset / $self->limit) + 1;
+}
+
+sub pages {
+    my ($self, $num) = @_;
+    [ grep { $self->has_page($_) } ($self->current_page_num - $num .. $self->current_page_num + $num) ];
+}
+
+sub max_search_page_num {
+    my $self = shift;
+    return 0 unless $self->search_count;
+    int($self->search_count / $self->limit) + 1;
+}
+
+sub has_prev {
+    my $self = shift;
+    $self->has_page($self->current_page_num - 1);
+}
+
+sub has_next {
+    my $self = shift;
+    $self->has_page($self->current_page_num + 1);
+}
+
+sub has_page {
+    my ($self, $page) = @_;
+    return 0 if $page < 1;
+    return 0 unless $self->max_search_page_num;
+    return 0 if $page > $self->max_search_page_num;
+    return 1;
+}
+
+sub page_offset {
+    my ($self, $page) = @_;
+    ($page - 1) * $self->limit;
+}
+
 1;

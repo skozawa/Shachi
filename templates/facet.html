@@ -74,10 +74,29 @@
       </li>
       [%- END # FOREACH resource IN resources %]
     </ul>
+
+    [%- IF query.current_page_num -%]
+      <div id="facet-search-pager">
+        <ul>
+          [%- IF query.has_prev %]
+            <li class="pager-item"><a href="[% c.pager_link(query.page_offset(query.current_page_num - 1)) %]">前へ</a></li>
+          [%- END # IF query.has_prev %]
+          [%- FOREACH page IN query.pages(5) %]
+            [%- IF page == query.current_page_num %]
+              <li class="pager-item current">[% page %]</li>
+            [%- ELSE %]
+              <li class="pager-item"><a href="[% c.pager_link(query.page_offset(page)) %]">[% page %]</a></li>
+            [%- END # IF page == query.current_page_num %]
+          [%- END # FOREACH page IN query.pages %]
+          [%- IF query.has_next %]
+            <li class="pager-item"><a href="[% c.pager_link(query.page_offset(query.current_page_num + 1)) %]">次へ</a></li>
+          [%- END # IF query.has_next %]
+        </ul>
+      </div>
+    [%- END # IF query.current_page_num -%]
   </div>
 
-  <div id="facet-search-pager">
-  </div>
+  <div id="facet-search-footer"></div>
 </div>
 
 [% END # WRAPPER '_wrapper.tt' %]
