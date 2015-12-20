@@ -41,6 +41,31 @@ my $router = Router::Simple::Declare::router {
         action   => 'statistics',
     };
 
+    connect '/asia/' => {
+        dispatch => 'Shachi::Web::Index',
+        mode     => 'asia',
+    };
+    connect '/asia/about' => {
+        dispatch => 'Shachi::Web::Index',
+        action   => 'about',
+        mode     => 'asia',
+    };
+    connect '/asia/publications' => {
+        dispatch => 'Shachi::Web::Index',
+        action   => 'publications',
+        mode     => 'asia',
+    };
+    connect '/asia/news' => {
+        dispatch => 'Shachi::Web::Index',
+        action   => 'news',
+        mode     => 'asia',
+    };
+    connect '/asia/contact' => {
+        dispatch => 'Shachi::Web::Index',
+        action   => 'contact',
+        mode     => 'asia',
+    };
+
     connect '/admin/' => {
         dispatch => 'Shachi::Web::Admin',
     };

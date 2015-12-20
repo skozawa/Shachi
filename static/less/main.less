@@ -182,13 +182,13 @@ div.container {
           background-image: url('/images/menu_stats_jpn_hover.jpg');
         }
       }
-      &.asia a {
+      &.mode a {
         background-image: url('/images/menu_asia_eng.jpg');
         html.lang-jpn & {
           background-image: url('/images/menu_asia_jpn.jpg');
         }
       }
-      &.asia.current a, &.asia:hover a {
+      &.mode.current a, &.mode:hover a {
         background-image: url('/images/menu_asia_eng_hover.jpg');
         html.lang-jpn & {
           background-image: url('/images/menu_asia_jpn_hover.jpg');
@@ -544,5 +544,101 @@ div.statistics-container {
     border-right: 1px solid #ccc;
     background-color: #fff;
     text-align: right;
+  }
+}
+
+
+/** For Asia Mode **/
+html.mode-asia {
+  div#header {
+    background-image: url(/images/asia/header.jpg);
+  }
+
+  div#navi {
+    li.navi-item {
+      &.home a {
+        background-image: url('/images/asia/menu_home_eng.jpg');
+        html.lang-jpn & {
+          background-image: url('/images/asia/menu_home_jpn.jpg');
+        }
+      }
+      &.home.current a, &.home:hover a {
+        background-image: url('/images/asia/menu_home_eng_hover.jpg');
+        html.lang-jpn & {
+          background-image: url('/images/asia/menu_home_jpn_hover.jpg');
+        }
+      }
+      &.list a {
+        background-image: url('/images/asia/menu_list_eng.jpg');
+        html.lang-jpn & {
+          background-image: url('/images/asia/menu_list_jpn.jpg');
+        }
+      }
+      &.list.current a, &.list:hover a {
+        background-image: url('/images/asia/menu_list_eng_hover.jpg');
+        html.lang-jpn & {
+          background-image: url('/images/asia/menu_list_jpn_hover.jpg');
+        }
+      }
+      &.search a {
+        background-image: url('/images/asia/menu_search_eng.jpg');
+        html.lang-jpn & {
+          background-image: url('/images/asia/menu_search_jpn.jpg');
+        }
+      }
+      &.search.current a, &.search:hover a {
+        background-image: url('/images/asia/menu_search_eng_hover.jpg');
+        html.lang-jpn & {
+          background-image: url('/images/asia/menu_search_jpn_hover.jpg');
+        }
+      }
+      &.statistics a {
+        background-image: url('/images/asia/menu_stats_eng.jpg');
+        html.lang-jpn & {
+          background-image: url('/images/asia/menu_stats_jpn.jpg');
+        }
+      }
+      &.statistics.current a, &.statistics:hover a {
+        background-image: url('/images/asia/menu_stats_eng_hover.jpg');
+        html.lang-jpn & {
+          background-image: url('/images/asia/menu_stats_jpn_hover.jpg');
+        }
+      }
+      &.mode a {
+        background-image: url('/images/asia/menu_global_eng.jpg');
+        html.lang-jpn & {
+          background-image: url('/images/asia/menu_global_jpn.jpg');
+        }
+      }
+      &.mode.current a, &.mode:hover a {
+        background-image: url('/images/asia/menu_global_eng_hover.jpg');
+        html.lang-jpn & {
+          background-image: url('/images/asia/menu_global_jpn_hover.jpg');
+        }
+      }
+    }
+  }
+
+  h2.title:before {
+    border-left-color: #DEAB10;
+  }
+  h3.title:before {
+    border: 3px solid #DEAB10;
+  }
+  div#shachi-home div#home-main h2 {
+    color: #aa9966;
+  }
+  div#shachi-home div#home-sidemenu li.sidemenu-item a {
+    color: #7B6319;
+  }
+
+  a {
+    color: #aa9900;
+    &:visited {
+      color: #bbaa66;
+    }
+    &:hover {
+      color: #FF9900;
+    }
   }
 }

@@ -17,7 +17,7 @@ use Class::Accessor::Lite::Lazy (
     new => 1,
     ro  => [qw/env/],
     ro_lazy => [qw/
-        req res route db lang
+        req res route db lang mode
     /],
     rw_lazy => [qw/page_id/],
 );
@@ -49,6 +49,12 @@ sub _build_page_id {
         $page_id .= "-$action" if $action ne 'default';
     }
     return $page_id;
+}
+
+sub _build_mode {
+    my $self = shift;
+    return 'default' unless $self->route;
+    return $self->route->{mode} || 'default';
 }
 
 sub _build_lang {

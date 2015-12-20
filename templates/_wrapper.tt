@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="lang-[% c.lang.code %]">
+<html class="lang-[% c.lang.code %] mode-[% c.mode %]">
   <head>
     <meta charset="utf-8">
     <title>[% title || 'SHACHI' %]</title>
@@ -43,8 +43,12 @@
           <li class="navi-item statistics[% ' current' IF current_navi == 'statistics' %]">
             <a href="/resources/statistics">Statistics</a>
           </li>
-          <li class="navi-item asia">
-            <a href="#">Asia</a>
+          <li class="navi-item mode">
+            [%- IF c.mode == 'asia' %]
+              <a href="/">Global</a>
+            [%- ELSE %]
+              <a href="/asia/">Asia</a>
+            [%- END # IF c.mode == 'asia' %]
           </li>
         </ul>
       </div>
