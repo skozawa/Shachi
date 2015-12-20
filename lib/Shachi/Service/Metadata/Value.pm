@@ -44,8 +44,10 @@ sub find_by_id {
 sub find_by_ids {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
-         my $ids   => { isa => 'ArrayRef' };
-    $db->shachi->table('metadata_value')->search({ id => { -in => $ids } })->list;
+         my $ids   => { isa => 'ArrayRef' },
+         my $order => { default => 'id asc' };
+    $db->shachi->table('metadata_value')->search({ id => { -in => $ids } })
+        ->order_by($order)->list;
 }
 
 sub find_by_value_types {

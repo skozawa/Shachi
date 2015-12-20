@@ -119,6 +119,7 @@ sub embed_metadata_value_with_count {
 
     my $values_by_type = Shachi::Service::Metadata::Value->find_by_ids(
         db => $db, ids => $resource_metadata_counts->map('value_id')->to_a,
+        order => 'value asc',
     )->hash_by('value_type');
 
     foreach my $metadata ( @$metadata_list ) {
