@@ -176,3 +176,43 @@ sub no_info_metadata_names : Tests {
         cmp_deeply [ sort @{$query->no_info_metadata_names} ], [ 'language_area', 'type_annotation' ];
     };
 }
+
+sub current_page_num : Tests {
+    subtest 'default' => sub {
+        my $params = Hash::MultiValue->new;
+        my $query  = Shachi::FacetSearchQuery->new(params => $params);
+
+        is $query->current_page_num, 1;
+    };
+
+    subtest 'offset 50, limit 10' => sub {
+        my $params = Hash::MultiValue->new;
+        $params->add('offset' => 50);
+        $params->add('limit'  => 10);
+        my $query  = Shachi::FacetSearchQuery->new(params => $params);
+        is $query->current_page_num, 6;
+    };
+
+    subtest 'offset 50, limit 20' => sub {
+        my $params = Hash::MultiValue->new;
+        $params->add('offset' => 50);
+        $params->add('limit'  => 20);
+        my $query  = Shachi::FacetSearchQuery->new(params => $params);
+        is $query->current_page_num, 3;
+    };
+}
+
+sub has_page : Tests {
+    my $params = Hash::MultiValue->new;
+    $params->add('offset' => 0);
+    $params->add('limit'  => 10);
+    my $query  = Shachi::FacetSearchQuery->new(params => $params);
+
+    ok ! $query->has_page(-1), 'minus';
+    ok ! $query->has_page(1), 'no search count';
+
+    $query->search_count(100);
+
+    ok $query->has_page(5), 'has page';
+    ok ! $query->has_page(20), 'large page number';
+}
