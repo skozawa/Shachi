@@ -19,32 +19,13 @@ sub search {
         db => $db, ids => $query->all_value_ids
     ));
 
-    my $metadata_by_name = $metadata_list->hash_by('name');
+    my $metadata_conditions = $class->_metadata_conditions(
+        query => $query, metadata_list => $metadata_list
+    );
 
-    my $metadata_conditions = [];
-    foreach my $metadata ( @$metadata_list ) {
-        my $value_ids = $query->valid_value_ids($metadata->name);
-        next unless @$value_ids;
-        push @$metadata_conditions, { -and => {
-            metadata_id => $metadata->id,
-            value_id    => $_,
-        } } for @$value_ids;
-    }
-
-    # no information を指定しているmetadataを取得
-    my $no_info_metadata_ids = [ map {
-        my $metadata = $metadata_by_name->{$_};
-        $metadata ? $metadata->id : ()
-    } @{$query->no_info_metadata_names} ];
-    my $no_info_conditions = do {
-        if ( @$no_info_metadata_ids ) {
-            my $sql = SQL::Abstract->new;
-            my ($sub_sql, @sub_bind) = $sql->select('resource_metadata', 'resource_id', {
-                metadata_id => { -in => $no_info_metadata_ids }
-            });
-            ["NOT IN ($sub_sql)" => @sub_bind];
-        }
-    };
+    my $no_info_conditions = $class->_no_information_conditions(
+        query => $query, metadata_list => $metadata_list
+    );
 
     my $searched_resource_ids = $db->shachi->table('resource_metadata')
         ->select('resource_id')
@@ -84,6 +65,44 @@ sub search {
     );
 
     return $resources;
+}
+
+sub _metadata_conditions {
+    args my $class => 'ClassName',
+         my $query => { isa => 'Shachi::FacetSearchQuery' },
+         my $metadata_list => { isa => 'Shachi::Model::List' };
+
+    my $metadata_conditions = [];
+    foreach my $metadata ( @$metadata_list ) {
+        my $value_ids = $query->valid_value_ids($metadata->name);
+        next unless @$value_ids;
+        push @$metadata_conditions, { -and => {
+            metadata_id => $metadata->id,
+            value_id    => $_,
+        } } for @$value_ids;
+    }
+
+    return $metadata_conditions;
+}
+
+sub _no_information_conditions {
+    args my $class => 'ClassName',
+         my $query => { isa => 'Shachi::FacetSearchQuery' },
+         my $metadata_list => { isa => 'Shachi::Model::List' };
+
+    # no information を指定しているmetadataを取得
+    my $metadata_by_name = $metadata_list->hash_by('name');
+    my $no_info_metadata_ids = [ map {
+        my $metadata = $metadata_by_name->{$_};
+        $metadata ? $metadata->id : ()
+    } @{$query->no_info_metadata_names} ];
+    return unless @$no_info_metadata_ids;
+
+    my $sql = SQL::Abstract->new;
+    my ($sub_sql, @sub_bind) = $sql->select('resource_metadata', 'resource_id', {
+        metadata_id => { -in => $no_info_metadata_ids }
+    });
+    ["NOT IN ($sub_sql)" => @sub_bind];
 }
 
 sub embed_metadata_counts {
