@@ -207,6 +207,77 @@ sub _no_information_conditions : Tests {
     };
 }
 
+sub search_by_keyword : Tests {
+    truncate_db;
+    my $title = create_metadata(name => 'title');
+    my $title_alternative = create_metadata(name => 'title_alternative');
+    my $description = create_metadata(name => 'description');
+    my $type_purpose = create_metadata(name => 'type_purpose');
+
+    subtest 'contains title' => sub {
+        my $keyword = random_word;
+        my $resource = create_resource;
+        create_resource_metadata(resource => $resource, metadata => $title, content => $keyword);
+        my $db = Shachi::Database->new;
+        my $query = create_facet_search_query(['keyword', $keyword]);
+
+        my $ids = Shachi::Service::FacetSearch->search_by_keyword(
+            db => $db, query => $query, resource_ids => [$resource->id],
+        );
+        is scalar @$ids, 1;
+        is_deeply $ids, [ $resource->id ];
+    };
+
+    subtest 'contains title description or type_purpose' => sub {
+        my $keyword = random_word;
+        my $resource1 = create_resource;
+        create_resource_metadata(resource => $resource1, metadata => $description, content => $keyword);
+        my $resource2 = create_resource;
+        create_resource_metadata(resource => $resource2, content => $keyword);
+        my $resource3 = create_resource;
+        create_resource_metadata(resource => $resource3, metadata => $type_purpose, content => $keyword);
+        my $db = Shachi::Database->new;
+        my $query = create_facet_search_query(['keyword', $keyword]);
+
+        my $ids = Shachi::Service::FacetSearch->search_by_keyword(
+            db => $db, query => $query, resource_ids => [$resource1->id, $resource2->id, $resource3->id]
+        );
+        is scalar @$ids, 2;
+        is_deeply [ sort { $a <=> $b } @$ids ], [$resource1->id, $resource3->id];
+    };
+
+    subtest 'no resource_ids' => sub {
+        my $keyword = random_word;
+        my $resource1 = create_resource;
+        create_resource_metadata(resource => $resource1, metadata => $description, content => $keyword);
+        my $resource2 = create_resource;
+        create_resource_metadata(resource => $resource2, metadata => $type_purpose, content => $keyword);
+        my $db = Shachi::Database->new;
+        my $query = create_facet_search_query(['keyword', $keyword]);
+
+        my $ids = Shachi::Service::FacetSearch->search_by_keyword(
+            db => $db, query => $query, resource_ids => []
+        );
+        is scalar @$ids, 0;
+    };
+
+    subtest 'no keyword' => sub {
+        my $keyword = random_word;
+        my $resource1 = create_resource;
+        create_resource_metadata(resource => $resource1, metadata => $description, content => $keyword);
+        my $resource2 = create_resource;
+        create_resource_metadata(resource => $resource2, metadata => $type_purpose, content => $keyword);
+        my $db = Shachi::Database->new;
+        my $query = create_facet_search_query;
+
+        my $ids = Shachi::Service::FacetSearch->search_by_keyword(
+            db => $db, query => $query, resource_ids => [$resource1->id, $resource2->id]
+        );
+        is scalar @$ids, 2;
+        is_deeply $ids, [$resource1->id, $resource2->id];
+    };
+}
+
 # metadata1
 # - first value (2)
 # - second value (3)

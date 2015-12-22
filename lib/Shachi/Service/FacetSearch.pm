@@ -22,20 +22,10 @@ sub search {
     my $searched_resource_ids = $class->search_by_metadata(
         db => $db, query => $query, metadata_list => $metadata_list,
     );
+    $searched_resource_ids = $class->search_by_keyword(
+        db => $db, query => $query, resource_ids => $searched_resource_ids,
+    );
 
-    if ( $query->has_keyword ) {
-        my $metadata_for_keyword = Shachi::Service::Metadata->find_by_names(
-            db => $db, names => KEYWORD_SEARCH_METADATA_NAMES,
-        );
-        my ($sql, @bind) = $db->shachi->table('resource_metadata')->select('resource_id')->search({
-            resource_id => { -in => $searched_resource_ids },
-            metadata_id => { -in => $metadata_for_keyword->map('id')->to_a },
-        })->select_sql;
-        $sql .= ' AND ' . $query->search_query_sql . ' GROUP BY resource_id';
-        my $sth = $db->shachi->dbh->prepare($sql);
-        $sth->execute(@bind);
-        $searched_resource_ids = [ keys %{$sth->fetchall_hashref('resource_id')} ];
-    }
     $query->search_count(scalar @$searched_resource_ids);
 
     my $resources = $db->shachi->table('resource')->search({
@@ -115,6 +105,29 @@ sub _no_information_conditions {
         metadata_id => { -in => $no_info_metadata_ids }
     });
     ["NOT IN ($sub_sql)" => @sub_bind];
+}
+
+sub search_by_keyword {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $query => { isa => 'Shachi::FacetSearchQuery' },
+         my $resource_ids => { isa => 'ArrayRef' };
+
+    return $resource_ids unless $query->has_keyword;
+    return $resource_ids unless @$resource_ids;
+
+    my $metadata_for_keyword = Shachi::Service::Metadata->find_by_names(
+        db => $db, names => KEYWORD_SEARCH_METADATA_NAMES,
+    );
+    my ($sql, @bind) = $db->shachi->table('resource_metadata')->select('resource_id')->search({
+        resource_id => { -in => $resource_ids },
+        metadata_id => { -in => $metadata_for_keyword->map('id')->to_a },
+    })->select_sql;
+    $sql .= ' AND ' . $query->search_query_sql . ' GROUP BY resource_id';
+    my $sth = $db->shachi->dbh->prepare($sql);
+    $sth->execute(@bind);
+
+    [ keys %{$sth->fetchall_hashref('resource_id')} ];
 }
 
 sub embed_metadata_counts {
