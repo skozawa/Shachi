@@ -6,8 +6,10 @@ use warnings;
 use lib glob '{.,t,modules/*}/lib';
 use Exporter::Lite;
 use String::Random qw/random_regex/;
+use Hash::MultiValue;
 use Shachi::Database;
 use Shachi::Model::Metadata;
+use Shachi::FacetSearchQuery;
 use Shachi::Service::Annotator;
 use Shachi::Service::Language;
 use Shachi::Service::Metadata;
@@ -24,6 +26,7 @@ our @EXPORT = qw/
     create_metadata_value
     create_resource
     create_resource_metadata
+    create_facet_search_query
 
     truncate_db
 /;
@@ -127,6 +130,12 @@ sub create_resource_metadata {
         language_id => $language->id,
         %args,
     });
+}
+
+sub create_facet_search_query {
+    my $params = Hash::MultiValue->new;
+    $params->add($_->[0], $_->[1]) for @_;
+    Shachi::FacetSearchQuery->new(params => $params);
 }
 
 sub truncate_db {
