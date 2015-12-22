@@ -33,8 +33,6 @@ sub embed_metadata_value_with_count : Tests {
         return ($metadata, $value_list);
     };
 
-    my $db = Shachi::Database->new;
-
     my ($metadata1, $metadata1_values) = $create_metadata_and_values->(VALUE_TYPE_ROLE, 3);
     my ($metadata2, $metadata2_values) = $create_metadata_and_values->(VALUE_TYPE_LEVEL, 5);
     my ($metadata3, $metadata3_values) = $create_metadata_and_values->(VALUE_TYPE_STYLE, 2);
@@ -53,6 +51,7 @@ sub embed_metadata_value_with_count : Tests {
         create_resource_metadata(resource => $resources->[$_->[0]], metadata => $metadata3, value_id => $metadata3_values->[$_->[1]]->id);
     }
 
+    my $db = Shachi::Database->new;
     my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2, $metadata3]);
     Shachi::Service::FacetSearch->embed_metadata_value_with_count(
         db => $db, metadata_list => $metadata_list, resource_ids => [ map { $_->id } @$resources ],
@@ -90,4 +89,53 @@ sub embed_metadata_value_with_count : Tests {
     is $metadata3->values->[0]->resource_count, 3;
     is $metadata3->values->[1]->id, $metadata3_values->[1]->id;
     is $metadata3->values->[1]->resource_count, 3;
+}
+
+# metadata1
+# - no information (2)
+# - first value (2), second value (1), thrid value (0)
+# metadata2
+# - no informatioin (1)
+# - first value (1), second value (0), third value (2), fourth value (0), fifth value (1)
+# metadata3
+# - no information (0)
+# - first value (3), second value (3)
+sub embed_no_metadata_resource_count : Tests {
+    truncate_db;
+
+    my $create_metadata_and_values = sub {
+        my ($value_type, $value_num) = @_;
+        my $metadata = create_metadata(value_type => $value_type);
+        my $values = [ map { create_metadata_value(value_type => $value_type) } (1..$value_num) ];
+        my $value_list = Shachi::Model::List->new(list => $values)->sort_by(sub { $_->value }, sub { $_[0]->[1] cmp $_[1]->[1] });
+        return ($metadata, $value_list);
+    };
+
+    my ($metadata1, $metadata1_values) = $create_metadata_and_values->(VALUE_TYPE_ROLE, 3);
+    my ($metadata2, $metadata2_values) = $create_metadata_and_values->(VALUE_TYPE_LEVEL, 5);
+    my ($metadata3, $metadata3_values) = $create_metadata_and_values->(VALUE_TYPE_STYLE, 2);
+
+    my $resources = [ map { create_resource } (1..5) ];
+    # create resource metadata for metadata1
+    for ( [0, 0], [1, 0], [2, 1] ) {
+        create_resource_metadata(resource => $resources->[$_->[0]], metadata => $metadata1, value_id => $metadata1_values->[$_->[1]]->id);
+    }
+    # create resource metadata for metadata2
+    for ( [0, 0], [1, 2], [2, 2], [4, 4] ) {
+        create_resource_metadata(resource => $resources->[$_->[0]], metadata => $metadata2, value_id => $metadata2_values->[$_->[1]]->id);
+    }
+    # create resource metadata for metadata3
+    for ( [0, 0], [1, 0], [2, 0], [2, 1], [3, 1], [4, 1] ) {
+        create_resource_metadata(resource => $resources->[$_->[0]], metadata => $metadata3, value_id => $metadata3_values->[$_->[1]]->id);
+    }
+
+    my $db = Shachi::Database->new;
+    my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2, $metadata3]);
+    Shachi::Service::FacetSearch->embed_no_metadata_resource_count(
+        db => $db, metadata_list => $metadata_list, resource_ids => [ map { $_->id } @$resources ],
+    );
+
+    is $metadata1->no_metadata_resource_count, 2;
+    is $metadata2->no_metadata_resource_count, 1;
+    ok ! $metadata3->no_metadata_resource_count;
 }
