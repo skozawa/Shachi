@@ -19,23 +19,9 @@ sub search {
         db => $db, ids => $query->all_value_ids
     ));
 
-    my $metadata_conditions = $class->_metadata_conditions(
-        query => $query, metadata_list => $metadata_list
+    my $searched_resource_ids = $class->search_by_metadata(
+        db => $db, query => $query, metadata_list => $metadata_list,
     );
-
-    my $no_info_conditions = $class->_no_information_conditions(
-        query => $query, metadata_list => $metadata_list
-    );
-
-    my $searched_resource_ids = $db->shachi->table('resource_metadata')
-        ->select('resource_id')
-        ->left_join('resource', { resource_id => 'id' })->search({
-            status => { '!=' => 'private' },
-            @$metadata_conditions ? (-or => $metadata_conditions) : (),
-            $no_info_conditions ? (resource_id => \$no_info_conditions) : (),
-        })->group_by('resource_id')
-          ->having('COUNT(*) >= ' . (scalar @$metadata_conditions))
-          ->list->map('resource_id')->to_a;
 
     if ( $query->has_keyword ) {
         my $metadata_for_keyword = Shachi::Service::Metadata->find_by_names(
@@ -65,6 +51,32 @@ sub search {
     );
 
     return $resources;
+}
+
+sub search_by_metadata {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $query => { isa => 'Shachi::FacetSearchQuery' },
+         my $metadata_list => { isa => 'Shachi::Model::List' };
+
+    my $metadata_conditions = $class->_metadata_conditions(
+        query => $query, metadata_list => $metadata_list
+    );
+    my $no_info_conditions = $class->_no_information_conditions(
+        query => $query, metadata_list => $metadata_list
+    );
+
+    my $resource_ids = $db->shachi->table('resource_metadata')
+        ->select('resource_id')
+        ->left_join('resource', { resource_id => 'id' })->search({
+            status => { '!=' => 'private' },
+            @$metadata_conditions ? (-or => $metadata_conditions) : (),
+            $no_info_conditions ? (resource_id => \$no_info_conditions) : (),
+        })->group_by('resource_id')
+          ->having('COUNT(*) >= ' . (scalar @$metadata_conditions))
+          ->list->map('resource_id')->to_a;
+
+    return $resource_ids;
 }
 
 sub _metadata_conditions {
