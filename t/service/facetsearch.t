@@ -416,6 +416,7 @@ sub embed_metadata_value_with_count : Tests {
     my ($metadata3, $metadata3_values) = $create_metadata_and_values->(value_type => VALUE_TYPE_STYLE, value_num => 2);
 
     my $resources = [ map { create_resource } (1..5) ];
+    set_asia($resources->[$_]) for (1,2,3);
     # create resource metadata for metadata1
     for ( [0, 0], [1, 0], [2, 1], [3, 1], [4, 1] ) {
         create_resource_metadata(resource => $resources->[$_->[0]], metadata => $metadata1, value_id => $metadata1_values->[$_->[1]]->id);
@@ -430,43 +431,101 @@ sub embed_metadata_value_with_count : Tests {
     }
 
     my $db = Shachi::Database->new;
-    my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2, $metadata3]);
-    Shachi::Service::FacetSearch->embed_metadata_value_with_count(
-        db => $db, metadata_list => $metadata_list, resource_ids => [ map { $_->id } @$resources ],
-    );
 
-    # metadata1
-    # - first value (2)
-    # - second value (3)
-    # - thrid value (0)
-    is scalar @{$metadata1->values}, 2;
-    is $metadata1->values->[0]->id, $metadata1_values->[0]->id;
-    is $metadata1->values->[0]->resource_count, 2;
-    is $metadata1->values->[1]->id, $metadata1_values->[1]->id;
-    is $metadata1->values->[1]->resource_count, 3;
+    subtest 'count metadata value' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2, $metadata3]);
+        Shachi::Service::FacetSearch->embed_metadata_value_with_count(
+            db => $db, metadata_list => $metadata_list
+        );
 
-    # metadata2
-    # - first value (1)
-    # - second value (0)
-    # - third value (2)
-    # - fourth value (0)
-    # - fifth value (1)
-    is scalar @{$metadata2->values}, 3;
-    is $metadata2->values->[0]->id, $metadata2_values->[0]->id;
-    is $metadata2->values->[0]->resource_count, 1;
-    is $metadata2->values->[1]->id, $metadata2_values->[2]->id;
-    is $metadata2->values->[1]->resource_count, 2;
-    is $metadata2->values->[2]->id, $metadata2_values->[4]->id;
-    is $metadata2->values->[2]->resource_count, 1;
+        # metadata1
+        # - first value (2), second value (3), thrid value (0)
+        is scalar @{$metadata_list->[0]->values}, 2;
+        is $metadata_list->[0]->values->[0]->id, $metadata1_values->[0]->id;
+        is $metadata_list->[0]->values->[0]->resource_count, 2;
+        is $metadata_list->[0]->values->[1]->id, $metadata1_values->[1]->id;
+        is $metadata_list->[0]->values->[1]->resource_count, 3;
 
-    # metadata3
-    # - first value (3)
-    # - second value (3)
-    is scalar @{$metadata3->values}, 2;
-    is $metadata3->values->[0]->id, $metadata3_values->[0]->id;
-    is $metadata3->values->[0]->resource_count, 3;
-    is $metadata3->values->[1]->id, $metadata3_values->[1]->id;
-    is $metadata3->values->[1]->resource_count, 3;
+        # metadata2
+        # - first value (1), second value (0), third value (2), fourth value (0), fifth value (1)
+        is scalar @{$metadata_list->[1]->values}, 3;
+        is $metadata_list->[1]->values->[0]->id, $metadata2_values->[0]->id;
+        is $metadata_list->[1]->values->[0]->resource_count, 1;
+        is $metadata_list->[1]->values->[1]->id, $metadata2_values->[2]->id;
+        is $metadata_list->[1]->values->[1]->resource_count, 2;
+        is $metadata_list->[1]->values->[2]->id, $metadata2_values->[4]->id;
+        is $metadata_list->[1]->values->[2]->resource_count, 1;
+
+        # metadata3
+        # - first value (3), second value (3)
+        is scalar @{$metadata_list->[2]->values}, 2;
+        is $metadata_list->[2]->values->[0]->id, $metadata3_values->[0]->id;
+        is $metadata_list->[2]->values->[0]->resource_count, 3;
+        is $metadata_list->[2]->values->[1]->id, $metadata3_values->[1]->id;
+        is $metadata_list->[2]->values->[1]->resource_count, 3;
+    };
+
+    subtest 'count metadata value with resource_ids' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2, $metadata3]);
+        Shachi::Service::FacetSearch->embed_metadata_value_with_count(
+            db => $db, metadata_list => $metadata_list, resource_ids => [ map { $_->id } @$resources ],
+        );
+
+        # metadata1
+        # - first value (2), second value (3), thrid value (0)
+        is scalar @{$metadata_list->[0]->values}, 2;
+        is $metadata_list->[0]->values->[0]->id, $metadata1_values->[0]->id;
+        is $metadata_list->[0]->values->[0]->resource_count, 2;
+        is $metadata_list->[0]->values->[1]->id, $metadata1_values->[1]->id;
+        is $metadata_list->[0]->values->[1]->resource_count, 3;
+
+        # metadata2
+        # - first value (1), second value (0), third value (2), fourth value (0), fifth value (1)
+        is scalar @{$metadata_list->[1]->values}, 3;
+        is $metadata_list->[1]->values->[0]->id, $metadata2_values->[0]->id;
+        is $metadata_list->[1]->values->[0]->resource_count, 1;
+        is $metadata_list->[1]->values->[1]->id, $metadata2_values->[2]->id;
+        is $metadata_list->[1]->values->[1]->resource_count, 2;
+        is $metadata_list->[1]->values->[2]->id, $metadata2_values->[4]->id;
+        is $metadata_list->[1]->values->[2]->resource_count, 1;
+
+        # metadata3
+        # - first value (3), second value (3)
+        is scalar @{$metadata_list->[2]->values}, 2;
+        is $metadata_list->[2]->values->[0]->id, $metadata3_values->[0]->id;
+        is $metadata_list->[2]->values->[0]->resource_count, 3;
+        is $metadata_list->[2]->values->[1]->id, $metadata3_values->[1]->id;
+        is $metadata_list->[2]->values->[1]->resource_count, 3;
+    };
+
+    subtest 'count metadata value for asia mode' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2, $metadata3]);
+        Shachi::Service::FacetSearch->embed_metadata_value_with_count(
+            db => $db, metadata_list => $metadata_list, mode => 'asia',
+        );
+
+        # metadata1
+        # - first value (1), second value (2), thrid value (0)
+        is scalar @{$metadata_list->[0]->values}, 2;
+        is $metadata_list->[0]->values->[0]->id, $metadata1_values->[0]->id;
+        is $metadata_list->[0]->values->[0]->resource_count, 1;
+        is $metadata_list->[0]->values->[1]->id, $metadata1_values->[1]->id;
+        is $metadata_list->[0]->values->[1]->resource_count, 2;
+
+        # metadata2
+        # - first value (0), second value (0), third value (2), fourth value (0), fifth value (0)
+        is scalar @{$metadata_list->[1]->values}, 1;
+        is $metadata_list->[1]->values->[0]->id, $metadata2_values->[2]->id;
+        is $metadata_list->[1]->values->[0]->resource_count, 2;
+
+        # metadata3
+        # - first value (2), second value (2)
+        is scalar @{$metadata_list->[2]->values}, 2;
+        is $metadata_list->[2]->values->[0]->id, $metadata3_values->[0]->id;
+        is $metadata_list->[2]->values->[0]->resource_count, 2;
+        is $metadata_list->[2]->values->[1]->id, $metadata3_values->[1]->id;
+        is $metadata_list->[2]->values->[1]->resource_count, 2;
+    };
 }
 
 # metadata1
@@ -486,6 +545,8 @@ sub embed_no_metadata_resource_count : Tests {
     my ($metadata3, $metadata3_values) = $create_metadata_and_values->(value_type => VALUE_TYPE_STYLE, value_num => 2);
 
     my $resources = [ map { create_resource } (1..5) ];
+    set_asia($resources->[$_]) for (1,2,3);
+
     # create resource metadata for metadata1
     for ( [0, 0], [1, 0], [2, 1] ) {
         create_resource_metadata(resource => $resources->[$_->[0]], metadata => $metadata1, value_id => $metadata1_values->[$_->[1]]->id);
@@ -500,12 +561,37 @@ sub embed_no_metadata_resource_count : Tests {
     }
 
     my $db = Shachi::Database->new;
-    my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2, $metadata3]);
-    Shachi::Service::FacetSearch->embed_no_metadata_resource_count(
-        db => $db, metadata_list => $metadata_list, resource_ids => [ map { $_->id } @$resources ],
-    );
 
-    is $metadata1->no_metadata_resource_count, 2;
-    is $metadata2->no_metadata_resource_count, 1;
-    ok ! $metadata3->no_metadata_resource_count;
+    subtest 'count no information' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2, $metadata3]);
+        Shachi::Service::FacetSearch->embed_no_metadata_resource_count(
+            db => $db, metadata_list => $metadata_list
+        );
+
+        is $metadata_list->[0]->no_metadata_resource_count, 2;
+        is $metadata_list->[1]->no_metadata_resource_count, 1;
+        ok ! $metadata_list->[2]->no_metadata_resource_count;
+    };
+
+    subtest 'count no information with resource_ids' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2, $metadata3]);
+        Shachi::Service::FacetSearch->embed_no_metadata_resource_count(
+            db => $db, metadata_list => $metadata_list, resource_ids => [ map { $_->id } @$resources ],
+        );
+
+        is $metadata_list->[0]->no_metadata_resource_count, 2;
+        is $metadata_list->[1]->no_metadata_resource_count, 1;
+        ok ! $metadata_list->[2]->no_metadata_resource_count;
+    };
+
+    subtest 'count no information for asia' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2, $metadata3]);
+        Shachi::Service::FacetSearch->embed_no_metadata_resource_count(
+            db => $db, metadata_list => $metadata_list, mode => 'asia',
+        );
+
+        is $metadata_list->[0]->no_metadata_resource_count, 1;
+        is $metadata_list->[1]->no_metadata_resource_count, 1;
+        ok ! $metadata_list->[2]->no_metadata_resource_count;
+    };
 }

@@ -58,7 +58,7 @@ sub facet {
         }
     } else {
         Shachi::Service::FacetSearch->embed_metadata_counts(
-            db => $c->db, metadata_list => $facet_metadata_list,
+            db => $c->db, metadata_list => $facet_metadata_list, mode => $c->mode,
         );
     }
 

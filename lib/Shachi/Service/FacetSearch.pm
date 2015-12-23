@@ -4,6 +4,7 @@ use warnings;
 use Smart::Args;
 use SQL::Abstract;
 use Shachi::Model::Metadata;
+use Shachi::Service::Asia;
 use Shachi::Service::Metadata;
 use Shachi::Service::Metadata::Value;
 use Shachi::Service::Resource;
@@ -134,13 +135,14 @@ sub embed_metadata_counts {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
          my $metadata_list => { isa => 'Shachi::Model::List' },
-         my $resource_ids  => { optional => 1 };
+         my $resource_ids  => { optional => 1 },
+         my $mode  => { isa => 'Str', default => 'default' };
 
     $class->embed_metadata_value_with_count(
-        db => $db, metadata_list => $metadata_list, resource_ids => $resource_ids,
+        db => $db, metadata_list => $metadata_list, resource_ids => $resource_ids, mode => $mode,
     );
     $class->embed_no_metadata_resource_count(
-        db => $db, metadata_list => $metadata_list, resource_ids => $resource_ids,
+        db => $db, metadata_list => $metadata_list, resource_ids => $resource_ids, mode => $mode,
     );
 }
 
@@ -148,15 +150,25 @@ sub embed_metadata_value_with_count {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
          my $metadata_list => { isa => 'Shachi::Model::List' },
-         my $resource_ids  => { optional => 1 };
+         my $resource_ids  => { optional => 1 },
+         my $mode  => { isa => 'Str', default => 'default' };
 
+    my $conditions = {
+        metadata_id => { -in => $metadata_list->map('id')->to_a },
+        status      => { '!=' => 'private' },
+    };
+    # resource_ids がある場合は resource_ids優先
+    # ない場合、mode=asia ならAsiaリソースに限定する
+    if ( $resource_ids ) {
+        $conditions->{resource_id} = { -in => $resource_ids };
+    } elsif ( $mode eq 'asia' ) {
+        my $subquery = Shachi::Service::Asia->resource_ids_subquery(db => $db);
+        $conditions->{resource_id} = \$subquery;
+    }
     my $resource_metadata_counts = $db->shachi->table('resource_metadata')
         ->select(\'COUNT(DISTINCT(resource_id)) as count, metadata_id, value_id')
-        ->left_join('resource', { resource_id => 'id' })->search({
-            metadata_id => { -in => $metadata_list->map('id')->to_a },
-            status      => { '!=' => 'private' },
-            $resource_ids ? (resource_id => { -in => $resource_ids }) : (),
-    })->group_by('metadata_id, value_id')->list;
+        ->left_join('resource', { resource_id => 'id' })
+            ->search($conditions)->group_by('metadata_id, value_id')->list;
     my $resource_metadata_by_metadata_and_value = $resource_metadata_counts->hash_by(sub {
         $_->metadata_id . '_' . $_->value_id
     });
@@ -184,18 +196,28 @@ sub embed_no_metadata_resource_count {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
          my $metadata_list => { isa => 'Shachi::Model::List' },
-         my $resource_ids  => { optional => 1 };
+         my $resource_ids  => { optional => 1 },
+         my $mode  => { isa => 'Str', default => 'default' };
 
     my $resource_count = $resource_ids ? scalar @$resource_ids :
-        Shachi::Service::Resource->count_not_private(db => $db);
+        Shachi::Service::Resource->count_not_private(db => $db, mode => $mode);
 
+    my $conditions = {
+        metadata_id => { -in => $metadata_list->map('id')->to_a },
+        status      => { '!=' => 'private' },
+    };
+    # resource_ids がある場合は resource_ids優先
+    # ない場合、mode=asia ならAsiaリソースに限定する
+    if ( $resource_ids ) {
+        $conditions->{resource_id} = { -in => $resource_ids };
+    } elsif ( $mode eq 'asia' ) {
+        my $subquery = Shachi::Service::Asia->resource_ids_subquery(db => $db);
+        $conditions->{resource_id} = \$subquery;
+    }
     my $has_metadata_count = $db->shachi->table('resource_metadata')
         ->select(\'COUNT(DISTINCT(resource_id)) as count, metadata_id')
-        ->left_join('resource', { resource_id => 'id' })->search({
-            metadata_id => { -in => $metadata_list->map('id')->to_a },
-            status      => { '!=' => 'private' },
-            $resource_ids ? (resource_id => { -in => $resource_ids }) : (),
-        })->group_by('metadata_id')->list;
+        ->left_join('resource', { resource_id => 'id' })
+            ->search($conditions)->group_by('metadata_id')->list;
     my $count_by_metadata_id = $has_metadata_count->hash_by('metadata_id');
 
     foreach my $metadata ( @$metadata_list ) {
