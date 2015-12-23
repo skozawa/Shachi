@@ -76,7 +76,7 @@ sub has_any_query {
 
 sub no_info_metadata_names {
     my $self = shift;
-    [ grep { length $self->params->{$_} && $self->params->{$_} == 0 } @{FACET_METADATA_NAMES()} ];
+    [ grep { any { $_ == 0 } @{$self->value_ids($_)} } @{FACET_METADATA_NAMES()} ];
 }
 
 sub value_by_id {
