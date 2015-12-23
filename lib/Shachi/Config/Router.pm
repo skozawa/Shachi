@@ -4,6 +4,7 @@ use warnings;
 use Router::Simple::Declare qw(connect);
 
 my $router = Router::Simple::Declare::router {
+    # Home
     connect '/' => {
         dispatch => 'Shachi::Web::Index',
     };
@@ -24,6 +25,7 @@ my $router = Router::Simple::Declare::router {
         action   => 'contact',
     };
 
+    # Resources
     connect '/resources' => {
         dispatch => 'Shachi::Web::Resource',
         action   => 'list',
@@ -41,6 +43,7 @@ my $router = Router::Simple::Declare::router {
         action   => 'statistics',
     };
 
+    # For Asia
     connect '/asia/' => {
         dispatch => 'Shachi::Web::Index',
         mode     => 'asia',
@@ -65,7 +68,13 @@ my $router = Router::Simple::Declare::router {
         action   => 'contact',
         mode     => 'asia',
     };
+    connect '/asia/resources' => {
+        dispatch => 'Shachi::Web::Resource',
+        action   => 'list',
+        mode     => 'asia',
+    };
 
+    # Admin
     connect '/admin/' => {
         dispatch => 'Shachi::Web::Admin',
     };

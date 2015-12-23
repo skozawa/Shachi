@@ -4,6 +4,8 @@ use Shachi::Database;
 use Shachi::Service::Resource;
 use Shachi::Service::Resource::Metadata;
 use Shachi::Model::Language;
+use Shachi::Model::Metadata;
+use Shachi::Model::Metadata::Value;
 use Shachi::Model::Resource;
 
 sub _require : Test(startup => 1) {
@@ -89,6 +91,25 @@ sub find_by_id : Tests {
         );
         is $resource->id, $found_resource->id;
     };
+}
+
+sub search_asia_all : Tests {
+    truncate_db;
+    my $resources = [ map { create_resource } (1..5) ];
+    my $language_area = create_metadata(
+        name => 'language_area', value_type => VALUE_TYPE_LANGUAGE_AREA,
+    );
+    my $asia = create_metadata_value(value_type => VALUE_TYPE_LANGUAGE_AREA, value => LANGUAGE_AREA_ASIA);
+    my $japan = create_metadata_value(value_type => VALUE_TYPE_LANGUAGE_AREA, value => LANGUAGE_AREA_JAPAN);
+
+    create_resource_metadata(resource => $resources->[1], metadata => $language_area,
+                             value_id => $asia->id);
+    create_resource_metadata(resource => $resources->[3], metadata => $language_area,
+                             value_id => $japan->id);
+
+    my $db = Shachi::Database->new;
+    my $asia_resources = Shachi::Service::Resource->search_asia_all(db => $db);
+    is_deeply $asia_resources->map('id')->to_a, [$resources->[1]->id, $resources->[3]->id];
 }
 
 sub search_titles : Tests {

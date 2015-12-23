@@ -4,8 +4,10 @@ use warnings;
 use Carp qw/croak/;
 use Smart::Args;
 use List::MoreUtils qw/any/;
+use SQL::Abstract;
 use Shachi::Model::List;
 use Shachi::Model::Language;
+use Shachi::Model::Metadata::Value;
 use Shachi::Model::Resource;
 use Shachi::Service::Annotator;
 use Shachi::Service::Language;
@@ -115,6 +117,30 @@ sub search_all {
          my $db    => { isa => 'Shachi::Database' };
 
     return $db->shachi->table('resource')->search({
+        status => { '!=' => 'private' },
+    })->order_by('id asc')->list;
+}
+
+sub search_asia_all {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' };
+
+    my $language_area = Shachi::Service::Metadata->find_by_name(db => $db, name => 'language_area');
+    return Shachi::Model::List->new( list => [] ) unless $language_area;
+    my $asia_and_japan = Shachi::Service::Metadata::Value->find_by_values_and_value_type(
+        db => $db, value_type => $language_area->value_type,
+        values => [LANGUAGE_AREA_ASIA, LANGUAGE_AREA_JAPAN],
+    );
+    return Shachi::Model::List->new( list => [] ) unless $asia_and_japan->size;
+
+    my $sql = SQL::Abstract->new;
+    my ($sub_sql, @sub_bind) = $sql->select('resource_metadata', 'resource_id', {
+        metadata_id => $language_area->id,
+        value_id    => { -in => $asia_and_japan->map('id')->to_a },
+    });
+    my $sub_query = ["IN ($sub_sql)" => @sub_bind];
+    return $db->shachi->table('resource')->search({
+        id     => \$sub_query,
         status => { '!=' => 'private' },
     })->order_by('id asc')->list;
 }

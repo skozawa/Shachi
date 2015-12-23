@@ -23,7 +23,9 @@ sub find_by_id {
 
 sub list {
     my ($class, $c) = @_;
-    my $resources = Shachi::Service::Resource->search_all(db => $c->db);
+    my $resources = $c->mode eq 'asia'
+        ? Shachi::Service::Resource->search_asia_all(db => $c->db)
+        : Shachi::Service::Resource->search_all(db => $c->db);
     Shachi::Service::Resource->embed_title(
         db => $c->db, resources => $resources,
         language => $c->lang, args => { fillin_english => 1 },
