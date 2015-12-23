@@ -9,6 +9,7 @@ use String::Random qw/random_regex/;
 use Hash::MultiValue;
 use Shachi::Database;
 use Shachi::Model::Metadata;
+use Shachi::Model::Metadata::Value;
 use Shachi::FacetSearchQuery;
 use Shachi::Service::Annotator;
 use Shachi::Service::Language;
@@ -26,6 +27,7 @@ our @EXPORT = qw/
     create_metadata_value
     create_resource
     create_resource_metadata
+    set_asia
     create_facet_search_query
 
     truncate_db
@@ -130,6 +132,23 @@ sub create_resource_metadata {
         language_id => $language->id,
         %args,
     });
+}
+
+sub set_asia {
+    my ($resource, $language) = @_;
+    my $language_area = Shachi::Service::Metadata->find_by_name(
+        db => db, name => METADATA_LANGUAGE_AREA
+    ) || create_metadata(
+        name => METADATA_LANGUAGE_AREA, value_type => VALUE_TYPE_LANGUAGE_AREA, input_type => INPUT_TYPE_SELECT
+    );
+    my $asia = Shachi::Service::Metadata::Value->find_by_values_and_value_type(
+        db => db, value_type => VALUE_TYPE_LANGUAGE_AREA, values => [LANGUAGE_AREA_ASIA],
+    )->first || create_metadata_value(value_type => VALUE_TYPE_LANGUAGE_AREA, value => LANGUAGE_AREA_ASIA);
+
+    create_resource_metadata(
+        resource => $resource, metadata => $language_area, value_id => $asia->id,
+        $language ? (language => $language) : (),
+    );
 }
 
 sub create_facet_search_query {

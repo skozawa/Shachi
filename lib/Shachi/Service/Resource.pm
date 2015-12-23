@@ -106,6 +106,11 @@ sub find_resource_detail {
         $resource->title($titles->[0]->content) if @$titles;
     }
 
+    if (my $language_area = $metadata_list->grep(sub { $_->name eq METADATA_LANGUAGE_AREA })->first) {
+        my $language_areas = $resource->metadata($language_area);
+        $resource->language_areas([ map { $_->value ? $_->value->value : () } @$language_areas ]);
+    }
+
     my $annotator = Shachi::Service::Annotator->find_by_id(db => $db, id => $resource->annotator_id);
     $resource->annotator($annotator);
 

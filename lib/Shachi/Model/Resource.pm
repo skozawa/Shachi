@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use parent qw/Shachi::Model/;
 use Exporter::Lite;
+use Shachi::Model::Metadata::Value;
 
 use constant {
     STATUS_PUBLIC => 'public',
@@ -39,7 +40,7 @@ our @EXPORT = qw/
 use Class::Accessor::Lite::Lazy (
     new => 1,
     ro  => [qw/id shachi_id status annotator_id edit_status/],
-    rw  => [qw/annotator title description metadata_list/],
+    rw  => [qw/annotator title description metadata_list language_areas/],
 );
 
 sub metadata {
@@ -58,6 +59,14 @@ sub created {
 sub modified {
     my $self = shift;
     $self->{_modified} ||= $self->_from_db_timestamp($self->{modified});
+}
+
+sub is_asia_resource {
+    my $self = shift;
+    return 0 unless $self->language_areas;
+    scalar grep {
+        $_ eq LANGUAGE_AREA_ASIA || $_ eq LANGUAGE_AREA_JAPAN
+    } @{$self->language_areas};
 }
 
 sub link {

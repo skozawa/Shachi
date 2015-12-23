@@ -14,6 +14,7 @@ sub find_by_id {
         db => $c->db, id => $resource_id, language => $c->lang,
     );
     return $c->throw_not_found unless $resource;
+    return $c->throw_not_found if $c->mode eq 'asia' && !$resource->is_asia_resource;
 
     return $c->html('detail.html', {
         resource => $resource,

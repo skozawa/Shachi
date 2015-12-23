@@ -24,6 +24,25 @@ sub find_by_id : Tests {
     };
 }
 
+sub find_by_id_asia : Tests {
+    truncate_db;
+    my $english = create_language(code => ENGLISH_CODE);
+
+    subtest 'found resource' => sub {
+        my $resource = create_resource;
+        set_asia($resource, $english);
+        my $mech = create_mech;
+        $mech->get_ok("/asia/resources/@{[ $resource->id ]}");
+    };
+
+    subtest 'not asia resource' => sub {
+        my $resource = create_resource;
+        my $mech = create_mech;
+        $mech->get("/asia/resources/@{[ $resource->id ]}");
+        is $mech->res->code, 404;
+    };
+}
+
 sub list : Tests {
     truncate_db;
     my $english = create_language(code => ENGLISH_CODE);
@@ -31,6 +50,16 @@ sub list : Tests {
     subtest 'list' => sub {
         my $mech = create_mech;
         $mech->get_ok('/resources');
+    };
+}
+
+sub list_asia : Tests {
+    truncate_db;
+    my $english = create_language(code => ENGLISH_CODE);
+
+    subtest 'list' => sub {
+        my $mech = create_mech;
+        $mech->get_ok('/asia/resources');
     };
 }
 
@@ -66,5 +95,20 @@ sub statistics : Tests {
         my $metadata = create_metadata(input_type => INPUT_TYPE_TEXT);
         $mech->get("/resources/statistics?target=@{[ $metadata->name ]}");
         is $mech->res->code, 400;
+    };
+}
+
+sub statistics_asia : Tests {
+    truncate_db;
+
+    subtest 'without target' => sub {
+        my $mech = create_mech;
+        $mech->get_ok('/asia/resources/statistics');
+    };
+
+    subtest 'with target' => sub {
+        my $mech = create_mech;
+        my $metadata = create_metadata(input_type => INPUT_TYPE_SELECT);
+        $mech->get_ok("/asia/resources/statistics?target=@{[ $metadata->name ]}");
     };
 }
