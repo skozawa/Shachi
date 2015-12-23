@@ -19,6 +19,123 @@ my $create_metadata_and_values = sub {
     return ($metadata, $value_list);
 };
 
+sub search : Tests {
+    truncate_db;
+    # Data Preparation
+    # metadata1: value1, value2, value3
+    my ($metadata1, $metadata1_values) = $create_metadata_and_values->(
+        name => 'type', value_type => VALUE_TYPE_ROLE, value_num => 3,
+    );
+    # metadata2: value1, value2
+    my ($metadata2, $metadata2_values) = $create_metadata_and_values->(
+        name => 'contributor_author_level', value_type => VALUE_TYPE_LEVEL, value_num => 2,
+    );
+    my $resources = [ map { create_resource } (1..10) ];
+    # resource1: metadata1-value1
+    # resource2: metadata1-value2, metadata2-value1
+    # resource3: metadata1-value2, metadata2-value2, has_keyword
+    # resource4: metadata1-value1
+    # resource5: metadata1-value2, metadata2-value2
+    # resource6: metadata1-value1, metadata2-value1
+    # resource7: has_keyword
+    # resource8: metadata1-value1, metadata1-value2
+    # resource9: metadata2-value1
+    # resource10: metadata1-value1, metadata2-value1, has_keyword
+
+    # metadata1
+    for ([0, 0], [1, 1], [2, 1], [3, 0],[4, 1], [5, 0], [7, 0], [7, 1], [9, 0]) {
+        create_resource_metadata(resource => $resources->[$_->[0]], metadata => $metadata1, value_id => $metadata1_values->[$_->[1]]->id);
+    }
+    # metadata2
+    for ([1, 0], [2, 1], [4, 1], [5, 0], [8, 0], [9, 0]) {
+        create_resource_metadata(resource => $resources->[$_->[0]], metadata => $metadata2, value_id => $metadata2_values->[$_->[1]]->id);
+    }
+    my $keyword = random_word;
+    my $title = create_metadata(name => METADATA_TITLE);
+    for ( (2, 6, 9) ) {
+        create_resource_metadata(resource => $resources->[$_], metadata => $title, content => $keyword);
+    }
+
+    my $db = Shachi::Database->new;
+
+    subtest 'search by metadata' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2]);
+        my $query = create_facet_search_query([$metadata1->name, $metadata1_values->[0]->id], ['limit', 2]);
+
+        my $searched_resources = Shachi::Service::FacetSearch->search(
+            db => $db, query => $query, metadata_list => $metadata_list,
+        );
+        is scalar @$searched_resources, 2;
+        is_deeply $searched_resources->map('id')->to_a, [$resources->[0]->id, $resources->[3]->id];
+        is $query->search_count, 5;
+        is scalar @{$metadata_list->[0]->values}, 2;
+        is $metadata_list->[0]->values->[0]->resource_count, 5;
+        is $metadata_list->[0]->values->[1]->resource_count, 1;
+        ok ! $metadata_list->[0]->no_metadata_resource_count;
+        is scalar @{$metadata_list->[1]->values}, 1;
+        is $metadata_list->[1]->values->[0]->resource_count, 2;
+        is $metadata_list->[1]->no_metadata_resource_count, 3;
+    };
+
+    subtest 'search by no information' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2]);
+        my $query = create_facet_search_query([$metadata2->name, 0], ['limit', 2]);
+
+        my $searched_resources = Shachi::Service::FacetSearch->search(
+            db => $db, query => $query, metadata_list => $metadata_list,
+        );
+        is scalar @$searched_resources, 2;
+        is_deeply $searched_resources->map('id')->to_a, [$resources->[0]->id, $resources->[3]->id];
+        is $query->search_count, 4;
+        is scalar @{$metadata_list->[0]->values}, 2;
+        is $metadata_list->[0]->values->[0]->resource_count, 3;
+        is $metadata_list->[0]->values->[1]->resource_count, 1;
+        is $metadata_list->[0]->no_metadata_resource_count, 1;
+        is scalar @{$metadata_list->[1]->values}, 0;
+        is $metadata_list->[1]->no_metadata_resource_count, 4;
+    };
+
+    subtest 'search by keyword' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2]);
+        my $query = create_facet_search_query(['keyword', $keyword], ['limit', 2]);
+
+        my $searched_resources = Shachi::Service::FacetSearch->search(
+            db => $db, query => $query, metadata_list => $metadata_list,
+        );
+        is scalar @$searched_resources, 2;
+        is_deeply $searched_resources->map('id')->to_a, [$resources->[2]->id, $resources->[6]->id];
+        is $query->search_count, 3;
+        is scalar @{$metadata_list->[0]->values}, 2;
+        is $metadata_list->[0]->values->[0]->resource_count, 1;
+        is $metadata_list->[0]->values->[1]->resource_count, 1;
+        is $metadata_list->[0]->no_metadata_resource_count, 1;
+        is scalar @{$metadata_list->[1]->values}, 2;
+        is $metadata_list->[1]->values->[0]->resource_count, 1;
+        is $metadata_list->[1]->values->[1]->resource_count, 1;
+        is $metadata_list->[1]->no_metadata_resource_count, 1;
+    };
+
+    subtest 'no query' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2]);
+        my $query = create_facet_search_query(['limit', 2]);
+
+        my $searched_resources = Shachi::Service::FacetSearch->search(
+            db => $db, query => $query, metadata_list => $metadata_list,
+        );
+        is scalar @$searched_resources, 2;
+        is_deeply $searched_resources->map('id')->to_a, [$resources->[0]->id, $resources->[1]->id];
+        is $query->search_count, 10;
+        is scalar @{$metadata_list->[0]->values}, 2;
+        is $metadata_list->[0]->values->[0]->resource_count, 5;
+        is $metadata_list->[0]->values->[1]->resource_count, 4;
+        is $metadata_list->[0]->no_metadata_resource_count, 2;
+        is scalar @{$metadata_list->[1]->values}, 2;
+        is $metadata_list->[1]->values->[0]->resource_count, 4;
+        is $metadata_list->[1]->values->[1]->resource_count, 2;
+        is $metadata_list->[1]->no_metadata_resource_count, 4;
+    };
+}
+
 sub search_by_metadata : Tests {
     truncate_db;
     # Data preparation
