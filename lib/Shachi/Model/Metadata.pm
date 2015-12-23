@@ -5,6 +5,12 @@ use parent qw/Shachi::Model/;
 use Exporter::Lite;
 
 use constant {
+    METADATA_TITLE => 'title',
+    METADATA_TITLE_ALTERNATIVE => 'title_alternative',
+    METADATA_DESCRIPTION => 'description',
+    METADATA_TYPE_PURPOSE => 'type_purpose',
+    METADATA_LANGUAGE_AREA => 'language_area',
+
     INPUT_TYPE_TEXT => 'text',
     INPUT_TYPE_TEXTAREA => 'textarea',
     INPUT_TYPE_SELECT => 'select',
@@ -72,11 +78,14 @@ use constant FACET_METADATA_NAMES => [qw/
     type_annotation
 /];
 
-use constant KEYWORD_SEARCH_METADATA_NAMES => [qw/
-    title title_alternative description type_purpose
-/];
+use constant KEYWORD_SEARCH_METADATA_NAMES => [
+    METADATA_TITLE, METADATA_TITLE_ALTERNATIVE, METADATA_DESCRIPTION, METADATA_TYPE_PURPOSE
+];
 
 our @EXPORT = qw/
+    METADATA_TITLE METADATA_TITLE_ALTERNATIVE METADATA_DESCRIPTION METADATA_TYPE_PURPOSE
+    METADATA_LANGUAGE_AREA
+
     INPUT_TYPE_TEXT INPUT_TYPE_TEXTAREA INPUT_TYPE_SELECT INPUT_TYPE_SELECTONLY
     INPUT_TYPE_RELATION INPUT_TYPE_LANGUAGE INPUT_TYPE_DATE INPUT_TYPE_RANGE
     METADATA_INPUT_TYPES

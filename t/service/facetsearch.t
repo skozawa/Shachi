@@ -209,10 +209,10 @@ sub _no_information_conditions : Tests {
 
 sub search_by_keyword : Tests {
     truncate_db;
-    my $title = create_metadata(name => 'title');
-    my $title_alternative = create_metadata(name => 'title_alternative');
-    my $description = create_metadata(name => 'description');
-    my $type_purpose = create_metadata(name => 'type_purpose');
+    my $title = create_metadata(name => METADATA_TITLE);
+    my $title_alternative = create_metadata(name => METADATA_TITLE_ALTERNATIVE);
+    my $description = create_metadata(name => METADATA_DESCRIPTION);
+    my $type_purpose = create_metadata(name => METADATA_TYPE_PURPOSE);
 
     subtest 'contains title' => sub {
         my $keyword = random_word;

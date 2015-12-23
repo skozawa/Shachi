@@ -7,6 +7,7 @@ use List::MoreUtils qw/any/;
 use SQL::Abstract;
 use Shachi::Model::List;
 use Shachi::Model::Language;
+use Shachi::Model::Metadata;
 use Shachi::Model::Metadata::Value;
 use Shachi::Model::Resource;
 use Shachi::Service::Annotator;
@@ -101,7 +102,7 @@ sub find_resource_detail {
     );
 
     $resource->metadata_list($resource_metadata_list);
-    if (my $title_metadata = $metadata_list->grep(sub { $_->name eq 'title' })->first) {
+    if (my $title_metadata = $metadata_list->grep(sub { $_->name eq METADATA_TITLE })->first) {
         my $titles = $resource->metadata($title_metadata);
         $resource->title($titles->[0]->content) if @$titles;
     }
@@ -125,7 +126,7 @@ sub search_asia_all {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' };
 
-    my $language_area = Shachi::Service::Metadata->find_by_name(db => $db, name => 'language_area');
+    my $language_area = Shachi::Service::Metadata->find_by_name(db => $db, name => METADATA_LANGUAGE_AREA);
     return Shachi::Model::List->new( list => [] ) unless $language_area;
     my $asia_and_japan = Shachi::Service::Metadata::Value->find_by_values_and_value_type(
         db => $db, value_type => $language_area->value_type,
@@ -150,7 +151,7 @@ sub search_titles {
          my $db    => { isa => 'Shachi::Database' },
          my $query => { isa => 'Str' };
 
-    my $title_metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => 'title');
+    my $title_metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => METADATA_TITLE);
     return Shachi::Model::List->new( list => [] ) unless $title_metadata;
     my $resource_metadata_list = $db->shachi->table('resource_metadata')->search({
         metadata_id => $title_metadata->id,
@@ -188,7 +189,7 @@ sub embed_title {
 
     $class->embed_resource_metadata_content(
         db => $db, resources => $resources, language => $language,
-        name => 'title', args => $args,
+        name => METADATA_TITLE, args => $args,
     );
 }
 
@@ -201,7 +202,7 @@ sub embed_description {
 
     $class->embed_resource_metadata_content(
         db => $db, resources => $resources, language => $language,
-        name => 'description', args => $args,
+        name => METADATA_DESCRIPTION, args => $args,
     );
 }
 

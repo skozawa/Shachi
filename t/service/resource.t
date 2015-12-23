@@ -97,7 +97,7 @@ sub search_asia_all : Tests {
     truncate_db;
     my $resources = [ map { create_resource } (1..5) ];
     my $language_area = create_metadata(
-        name => 'language_area', value_type => VALUE_TYPE_LANGUAGE_AREA,
+        name => METADATA_LANGUAGE_AREA, value_type => VALUE_TYPE_LANGUAGE_AREA,
     );
     my $asia = create_metadata_value(value_type => VALUE_TYPE_LANGUAGE_AREA, value => LANGUAGE_AREA_ASIA);
     my $japan = create_metadata_value(value_type => VALUE_TYPE_LANGUAGE_AREA, value => LANGUAGE_AREA_JAPAN);
@@ -114,7 +114,7 @@ sub search_asia_all : Tests {
 
 sub search_titles : Tests {
     truncate_db;
-    my $title_metadata = create_metadata(name => 'title');
+    my $title_metadata = create_metadata(name => METADATA_TITLE);
     my $titles = [
         "Arabic Data Set",
         "Biology Database",
@@ -148,7 +148,7 @@ sub count_not_private : Tests {
 
 sub embed_title : Tests {
     truncate_db;
-    my $title_metadata = create_metadata(name => 'title');
+    my $title_metadata = create_metadata(name => METADATA_TITLE);
     my $english = create_language(code => ENGLISH_CODE);
 
     subtest 'embed title normally' => sub {
