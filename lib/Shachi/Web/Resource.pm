@@ -46,7 +46,7 @@ sub facet {
     my $resources;
     if ( $query->has_any_query ) {
         $resources = Shachi::Service::FacetSearch->search(
-            db => $c->db, query => $query, metadata_list => $facet_metadata_list,
+            db => $c->db, query => $query, metadata_list => $facet_metadata_list, mode => $c->mode,
         );
         if ( @$resources ) {
             Shachi::Service::Resource->embed_title(

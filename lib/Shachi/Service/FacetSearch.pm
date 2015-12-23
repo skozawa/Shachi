@@ -13,7 +13,8 @@ sub search {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
          my $query => { isa => 'Shachi::FacetSearchQuery' },
-         my $metadata_list => { isa => 'Shachi::Model::List' };
+         my $metadata_list => { isa => 'Shachi::Model::List' },
+         my $mode  => { isa => 'Str', default => 'default' };
 
     # Facet検索で指定されてる値を設定
     $query->current_values(Shachi::Service::Metadata::Value->find_by_ids(
@@ -21,7 +22,7 @@ sub search {
     ));
 
     my $searched_resource_ids = $class->search_by_metadata(
-        db => $db, query => $query, metadata_list => $metadata_list,
+        db => $db, query => $query, metadata_list => $metadata_list, mode => $mode,
     );
     $searched_resource_ids = $class->search_by_keyword(
         db => $db, query => $query, resource_ids => $searched_resource_ids,
@@ -48,7 +49,8 @@ sub search_by_metadata {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
          my $query => { isa => 'Shachi::FacetSearchQuery' },
-         my $metadata_list => { isa => 'Shachi::Model::List' };
+         my $metadata_list => { isa => 'Shachi::Model::List' },
+         my $mode  => { isa => 'Str', default => 'default' };
 
     my $metadata_conditions = $class->_metadata_conditions(
         query => $query, metadata_list => $metadata_list
@@ -57,15 +59,19 @@ sub search_by_metadata {
         query => $query, metadata_list => $metadata_list
     );
 
-    my $resource_ids = $db->shachi->table('resource_metadata')
-        ->select('resource_id')
-        ->left_join('resource', { resource_id => 'id' })->search({
-            status => { '!=' => 'private' },
-            @$metadata_conditions ? (-or => $metadata_conditions) : (),
-            $no_info_conditions ? (resource_id => \$no_info_conditions) : (),
-        })->group_by('resource_id')
-          ->having('COUNT(*) >= ' . (scalar @$metadata_conditions))
-          ->list->map('resource_id')->to_a;
+    my $conditions = {};
+    $conditions->{'-or'} = $metadata_conditions if @$metadata_conditions;
+    $conditions->{'-and'} = [ { status => { '!=' => 'private' } } ];
+    push @{$conditions->{'-and'}}, { resource_id => \$no_info_conditions } if $no_info_conditions;
+    if ( $mode eq 'asia' ) {
+        my $subquery = Shachi::Service::Asia->resource_ids_subquery(db => $db);
+        push @{$conditions->{'-and'}}, { resource_id => \$subquery };
+    }
+
+    my $resource_ids = $db->shachi->table('resource_metadata')->select('resource_id')
+        ->left_join('resource', { resource_id => 'id' })->search($conditions)
+        ->group_by('resource_id')->having('COUNT(*) >= ' . (scalar @$metadata_conditions))
+        ->list->map('resource_id')->to_a;
 
     return $resource_ids;
 }

@@ -31,6 +31,7 @@ sub search : Tests {
         name => 'contributor_author_level', value_type => VALUE_TYPE_LEVEL, value_num => 2,
     );
     my $resources = [ map { create_resource } (1..10) ];
+    set_asia($resources->[$_]) for (5..9);
     # resource1: metadata1-value1
     # resource2: metadata1-value2, metadata2-value1
     # resource3: metadata1-value2, metadata2-value2, has_keyword
@@ -134,6 +135,80 @@ sub search : Tests {
         is $metadata_list->[1]->values->[1]->resource_count, 2;
         is $metadata_list->[1]->no_metadata_resource_count, 4;
     };
+
+    subtest 'search by metadata (asia)' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2]);
+        my $query = create_facet_search_query([$metadata1->name, $metadata1_values->[0]->id], ['limit', 2]);
+
+        my $searched_resources = Shachi::Service::FacetSearch->search(
+            db => $db, query => $query, metadata_list => $metadata_list, mode => 'asia',
+        );
+        is scalar @$searched_resources, 2;
+        is_deeply $searched_resources->map('id')->to_a, [$resources->[5]->id, $resources->[7]->id];
+        is $query->search_count, 3;
+        is scalar @{$metadata_list->[0]->values}, 2;
+        is $metadata_list->[0]->values->[0]->resource_count, 3;
+        is $metadata_list->[0]->values->[1]->resource_count, 1;
+        ok ! $metadata_list->[0]->no_metadata_resource_count;
+        is scalar @{$metadata_list->[1]->values}, 1;
+        is $metadata_list->[1]->values->[0]->resource_count, 2;
+        is $metadata_list->[1]->no_metadata_resource_count, 1;
+    };
+
+    subtest 'search by no information (asia)' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2]);
+        my $query = create_facet_search_query([$metadata2->name, 0], ['limit', 2]);
+
+        my $searched_resources = Shachi::Service::FacetSearch->search(
+            db => $db, query => $query, metadata_list => $metadata_list, mode => 'asia',
+        );
+        is scalar @$searched_resources, 2;
+        is_deeply $searched_resources->map('id')->to_a, [$resources->[6]->id, $resources->[7]->id];
+        is $query->search_count, 2;
+        is scalar @{$metadata_list->[0]->values}, 2;
+        is $metadata_list->[0]->values->[0]->resource_count, 1;
+        is $metadata_list->[0]->values->[1]->resource_count, 1;
+        is $metadata_list->[0]->no_metadata_resource_count, 1;
+        is scalar @{$metadata_list->[1]->values}, 0;
+        is $metadata_list->[1]->no_metadata_resource_count, 2;
+    };
+
+    subtest 'search by keyword (asia)' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2]);
+        my $query = create_facet_search_query(['keyword', $keyword], ['limit', 2]);
+
+        my $searched_resources = Shachi::Service::FacetSearch->search(
+            db => $db, query => $query, metadata_list => $metadata_list, mode => 'asia',
+        );
+        is scalar @$searched_resources, 2;
+        is_deeply $searched_resources->map('id')->to_a, [$resources->[6]->id, $resources->[9]->id];
+        is $query->search_count, 2;
+        is scalar @{$metadata_list->[0]->values}, 1;
+        is $metadata_list->[0]->values->[0]->resource_count, 1;
+        is $metadata_list->[0]->no_metadata_resource_count, 1;
+        is scalar @{$metadata_list->[1]->values}, 1;
+        is $metadata_list->[1]->values->[0]->resource_count, 1;
+        is $metadata_list->[1]->no_metadata_resource_count, 1;
+    };
+
+    subtest 'no query' => sub {
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2]);
+        my $query = create_facet_search_query(['limit', 2]);
+
+        my $searched_resources = Shachi::Service::FacetSearch->search(
+            db => $db, query => $query, metadata_list => $metadata_list, mode => 'asia',
+        );
+        is scalar @$searched_resources, 2;
+        is_deeply $searched_resources->map('id')->to_a, [$resources->[5]->id, $resources->[6]->id];
+        is $query->search_count, 5;
+        is scalar @{$metadata_list->[0]->values}, 2;
+        is $metadata_list->[0]->values->[0]->resource_count, 3;
+        is $metadata_list->[0]->values->[1]->resource_count, 1;
+        is $metadata_list->[0]->no_metadata_resource_count, 2;
+        is scalar @{$metadata_list->[1]->values}, 1;
+        is $metadata_list->[1]->values->[0]->resource_count, 3;
+        is $metadata_list->[1]->no_metadata_resource_count, 2;
+    };
 }
 
 sub search_by_metadata : Tests {
@@ -152,6 +227,7 @@ sub search_by_metadata : Tests {
         name => 'form', value_type => VALUE_TYPE_FORM, value_num => 3,
     );
     my $resources = [ map { create_resource } (1..5) ];
+    set_asia($resources->[$_]) for (0,1,2);
     # metadata1
     for ([0, 0], [1, 1], [2, 1], [3, 0],[4, 1]) {
         create_resource_metadata(resource => $resources->[$_->[0]], metadata => $metadata1, value_id => $metadata1_values->[$_->[1]]->id);
@@ -186,6 +262,19 @@ sub search_by_metadata : Tests {
         is_deeply [ sort { $a <=> $b } @$resource_ids ], [$resources->[2]->id, $resources->[4]->id];
     };
 
+    subtest 'search by certain metadata values (asia)' => sub {
+        my $db = Shachi::Database->new;
+        my $query = create_facet_search_query(
+            [$metadata1->name, $metadata1_values->[1]->id],
+            [$metadata2->name, $metadata2_values->[1]->id],
+        );
+        my $resource_ids = Shachi::Service::FacetSearch->search_by_metadata(
+            db => $db, query => $query, metadata_list => $metadata_list, mode => 'asia',
+        );
+        is scalar @$resource_ids, 1;
+        is_deeply [ sort { $a <=> $b } @$resource_ids ], [$resources->[2]->id];
+    };
+
     # search resource1 and resource4 by no infromation for metadata2
     subtest 'search by no information metadata' => sub {
         my $db = Shachi::Database->new;
@@ -197,6 +286,16 @@ sub search_by_metadata : Tests {
         is_deeply [ sort { $a <=> $b } @$resource_ids ], [$resources->[0]->id, $resources->[3]->id];
     };
 
+    subtest 'search by no information metadata (asia)' => sub {
+        my $db = Shachi::Database->new;
+        my $query = create_facet_search_query([$metadata2->name, 0]);
+        my $resource_ids = Shachi::Service::FacetSearch->search_by_metadata(
+            db => $db, query => $query, metadata_list => $metadata_list, mode => 'asia',
+        );
+        is scalar @$resource_ids, 1;
+        is_deeply [ sort { $a <=> $b } @$resource_ids ], [$resources->[0]->id];
+    };
+
     # search resource1 by metadata3-value1 and no information for metadata2
     subtest 'search by metadata and no information' => sub {
         my $db = Shachi::Database->new;
@@ -206,6 +305,19 @@ sub search_by_metadata : Tests {
         );
         my $resource_ids = Shachi::Service::FacetSearch->search_by_metadata(
             db => $db, query => $query, metadata_list => $metadata_list
+        );
+        is scalar @$resource_ids, 1;
+        is_deeply [ sort { $a <=> $b } @$resource_ids ], [$resources->[0]->id];
+    };
+
+    subtest 'search by metadata and no information (asia)' => sub {
+        my $db = Shachi::Database->new;
+        my $query = create_facet_search_query(
+            [$metadata3->name, $metadata3_values->[0]->id],
+            [$metadata2->name, 0]
+        );
+        my $resource_ids = Shachi::Service::FacetSearch->search_by_metadata(
+            db => $db, query => $query, metadata_list => $metadata_list, mode => 'asia',
         );
         is scalar @$resource_ids, 1;
         is_deeply [ sort { $a <=> $b } @$resource_ids ], [$resources->[0]->id];
@@ -224,6 +336,18 @@ sub search_by_metadata : Tests {
         is scalar @$resource_ids, 0;
     };
 
+    subtest 'not match query (asia)' => sub {
+        my $db = Shachi::Database->new;
+        my $query = create_facet_search_query(
+            [$metadata1->name, $metadata1_values->[0]->id],
+            [$metadata3->name, $metadata3_values->[2]->id],
+        );
+        my $resource_ids = Shachi::Service::FacetSearch->search_by_metadata(
+            db => $db, query => $query, metadata_list => $metadata_list, mode => 'asia',
+        );
+        is scalar @$resource_ids, 0;
+    };
+
     subtest 'no query' => sub {
         my $db = Shachi::Database->new;
         my $query = create_facet_search_query;
@@ -232,6 +356,16 @@ sub search_by_metadata : Tests {
         );
         is scalar @$resource_ids, 5;
         is_deeply [ sort { $a <=> $b } @$resource_ids ], [ map { $_->id } @$resources ];
+    };
+
+    subtest 'no query (asia)' => sub {
+        my $db = Shachi::Database->new;
+        my $query = create_facet_search_query;
+        my $resource_ids = Shachi::Service::FacetSearch->search_by_metadata(
+            db => $db, query => $query, metadata_list => $metadata_list, mode => 'asia',
+        );
+        is scalar @$resource_ids, 3;
+        is_deeply [ sort { $a <=> $b } @$resource_ids ], [$resources->[0]->id, $resources->[1]->id, $resources->[2]->id];
     };
 }
 
