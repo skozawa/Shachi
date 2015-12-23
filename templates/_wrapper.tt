@@ -16,7 +16,7 @@
         </div>
         <div id="header-menu-container">
           <ul id="header-menu">
-            <li class="header-menu-item">Home</li>
+            <li class="header-menu-item"><a href="/">Home</a></li>
             <li class="header-menu-item">
               [%- IF c.lang.code != 'eng' %]
                 <a href="[% c.change_lang_link('eng') %]">English</a>

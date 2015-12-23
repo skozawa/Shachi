@@ -104,6 +104,16 @@ div.container {
       }
       li.header-menu-item {
         display: inline-block;
+        margin-right: 5px;
+
+        a {
+          text-decoration: none;
+          color: #0000EE;
+
+          &:visited {
+            color: #0000EE;
+          }
+        }
       }
       li.header-menu-item:before {
         content: "";
@@ -552,6 +562,18 @@ div.statistics-container {
 html.mode-asia {
   div#header {
     background-image: url(/images/asia/header.jpg);
+
+    div#header-menu-container li.header-menu-item {
+      &:before {
+        border-left-color: #DEAB10;
+      }
+      a {
+        color: #A57B00;
+        &:visited {
+          color: #A57B00;
+        }
+      }
+    }
   }
 
   div#navi {
