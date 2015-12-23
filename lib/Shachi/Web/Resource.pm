@@ -42,7 +42,10 @@ sub facet {
         db => $c->db, names => FACET_METADATA_NAMES,
         args => { order_by_names => 1 },
     );
-    $query->total_count(Shachi::Service::Resource->count_not_private(db => $c->db));
+    $query->total_count(
+        $c->mode eq 'asia' ? Shachi::Service::Resource->count_not_private_asia(db => $c->db)
+            : Shachi::Service::Resource->count_not_private(db => $c->db)
+    );
     my $resources;
     if ( $query->has_any_query ) {
         $resources = Shachi::Service::FacetSearch->search(

@@ -78,6 +78,11 @@ my $router = Router::Simple::Declare::router {
         action   => 'find_by_id',
         mode     => 'asia',
     };
+    connect '/asia/resources/facet' => {
+        dispatch => 'Shachi::Web::Resource',
+        action   => 'facet',
+        mode     => 'asia',
+    };
     connect '/asia/resources/statistics' => {
         dispatch => 'Shachi::Web::Resource',
         action   => 'statistics',

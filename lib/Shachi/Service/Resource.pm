@@ -173,6 +173,17 @@ sub count_not_private {
     })->count;
 }
 
+sub count_not_private_asia {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' };
+
+    my $resource_rs = Shachi::Service::Asia->resource_resultset(db => $db);
+    return 0 unless $resource_rs;
+    $resource_rs->search({
+        status => { '!=' => 'private' },
+    })->select(\'COUNT(DISTINCT(resource_id))')->single_value;
+}
+
 sub embed_title {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
