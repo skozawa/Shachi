@@ -1,7 +1,11 @@
-[%- WRAPPER '_wrapper.tt' %]
+[%- WRAPPER '_wrapper.tt' WITH current_navi = 'statistics' %]
 
 <form name="statistics-form" class="statistics-form" method="get">
+  [%- IF c.lang && c.lang.code == 'jpn' %]
+  メタデータを選択してください:
+  [%- ELSE %]
   Select metadata:
+  [%- END %]
   <select name="target" onchange="document.statistics-form.submit()">
     <option>-- Select metadata --</option>
     [%- FOREACH m IN metadata_list %]
