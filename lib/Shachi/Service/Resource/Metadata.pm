@@ -178,7 +178,7 @@ sub statistics_by_year {
     my $resource_metadata_list = $db->shachi->table('resource_metadata')
         ->left_join('resource', { resource_id => 'id' })->search({
             metadata_id => $metadata->id,
-            status => 'public',
+            status => { '!=' => 'private' },
         })->list;
 
     my $metadata_value_by_id = Shachi::Service::Metadata::Value->find_by_ids(
