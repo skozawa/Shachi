@@ -136,14 +136,18 @@ sub search_titles : Tests {
 
 sub count_not_private : Tests {
     truncate_db;
-    create_resource(status => 'public');
-    create_resource(status => 'private');
-    create_resource(status => 'limited_by_LDC');
-    create_resource(status => 'limited_by_ELRA');
+    for (qw/public private limited_by_LDC limited_by_ELRA/) {
+        create_resource(status => $_);
+        my $r = create_resource(status => $_);
+        set_asia($r);
+    }
 
     my $db = Shachi::Database->new;
     my $count = Shachi::Service::Resource->count_not_private(db => $db);
-    is $count, 3;
+    is $count, 6;
+
+    my $count_asia = Shachi::Service::Resource->count_not_private(db => $db, mode => 'asia');
+    is $count_asia, 3;
 }
 
 sub embed_title : Tests {

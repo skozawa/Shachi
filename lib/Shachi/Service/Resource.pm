@@ -166,22 +166,20 @@ sub search_titles {
 
 sub count_not_private {
     args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' };
+         my $db    => { isa => 'Shachi::Database' },
+         my $mode  => { isa => 'Str', default => 'default' };
 
-    return $db->shachi->table('resource')->search({
-        status => { '!=' => 'private' }
-    })->count;
-}
+    my $resource_rs = do {
+        if ( $mode eq 'asia' ) {
+            Shachi::Service::Asia->resource_resultset(db => $db);
+        } else {
+            $db->shachi->table('resource');
+        }
+    } or return 0;
 
-sub count_not_private_asia {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' };
-
-    my $resource_rs = Shachi::Service::Asia->resource_resultset(db => $db);
-    return 0 unless $resource_rs;
     $resource_rs->search({
         status => { '!=' => 'private' },
-    })->select(\'COUNT(DISTINCT(resource_id))')->single_value;
+    })->select(\'COUNT(DISTINCT(me.id))')->single_value;
 }
 
 sub embed_title {
