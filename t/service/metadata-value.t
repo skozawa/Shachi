@@ -45,14 +45,14 @@ sub create : Tests {
     };
 }
 
-sub find_by_value_and_value_type : Tests {
+sub find_by_values_and_value_type : Tests {
     subtest 'find normally' => sub {
         my $db = Shachi::Database->new;
         my $value = create_metadata_value;
 
-        cmp_deeply $value, Shachi::Service::Metadata::Value->find_by_value_and_value_type(
-            db => $db, value => $value->value, value_type => $value->value_type,
-        );
+        cmp_deeply $value, Shachi::Service::Metadata::Value->find_by_values_and_value_type(
+            db => $db, values => [$value->value], value_type => $value->value_type,
+        )->first;
     };
 }
 

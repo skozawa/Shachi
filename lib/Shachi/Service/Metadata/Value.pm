@@ -22,16 +22,16 @@ sub create {
     );
 }
 
-sub find_by_value_and_value_type {
+sub find_by_values_and_value_type {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
          my $value_type => { isa => 'Str' },
-         my $value => { isa => 'Str' };
+         my $values => { isa => 'ArrayRef' };
 
     $db->shachi->table('metadata_value')->search({
         value_type => $value_type,
-        value      => $value,
-    })->single;
+        value      => { -in => $values },
+    })->list;
 }
 
 sub find_by_id {
