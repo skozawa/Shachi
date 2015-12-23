@@ -7,6 +7,7 @@ use Shachi::Model::List;
 use Shachi::Model::Language;
 use Shachi::Model::Metadata;
 use Shachi::Model::Resource::Metadata;
+use Shachi::Service::Asia;
 use Shachi::Service::Language;
 use Shachi::Service::Metadata;
 use Shachi::Service::Metadata::Value;
@@ -173,13 +174,19 @@ sub find_resource_metadata {
 sub statistics_by_year {
     args my $class    => 'ClassName',
          my $db       => { isa => 'Shachi::Database' },
-         my $metadata => { isa => 'Shachi::Model::Metadata' };
+         my $metadata => { isa => 'Shachi::Model::Metadata' },
+         my $mode     => { isa => 'Str' };
 
+    my $conditions = {
+        metadata_id => $metadata->id,
+        status => { '!=' => 'private' },
+    };
+    if ( $mode eq 'asia' ) {
+        my $sub_query = Shachi::Service::Asia->resource_ids_subquery(db => $db);
+        $conditions->{resource_id} = \$sub_query if @$sub_query;
+    }
     my $resource_metadata_list = $db->shachi->table('resource_metadata')
-        ->left_join('resource', { resource_id => 'id' })->search({
-            metadata_id => $metadata->id,
-            status => { '!=' => 'private' },
-        })->list;
+        ->left_join('resource', { resource_id => 'id' })->search($conditions)->list;
 
     my $metadata_value_by_id = Shachi::Service::Metadata::Value->find_by_ids(
         db => $db, ids => $resource_metadata_list->map(sub {

@@ -82,7 +82,7 @@ sub statistics {
     return $c->throw_bad_request unless $metadata->allow_statistics;
 
     my $statistics = Shachi::Service::Resource::Metadata->statistics_by_year(
-        db => $c->db, metadata => $metadata,
+        db => $c->db, metadata => $metadata, mode => $c->mode,
     );
     $c->html('statistics.html', {
         metadata_list => $metadata_list,

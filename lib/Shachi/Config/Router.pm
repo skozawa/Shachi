@@ -73,6 +73,11 @@ my $router = Router::Simple::Declare::router {
         action   => 'list',
         mode     => 'asia',
     };
+    connect '/asia/resources/statistics' => {
+        dispatch => 'Shachi::Web::Resource',
+        action   => 'statistics',
+        mode     => 'asia',
+    };
 
     # Admin
     connect '/admin/' => {

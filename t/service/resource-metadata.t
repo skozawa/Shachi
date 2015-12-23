@@ -319,8 +319,14 @@ sub statistics_by_year : Tests {
     truncate_db;
 
     my $issued_metadata = create_metadata(name => 'date_issued');
+    my $language_area = create_metadata(
+        name = METADATA_LANGUAGE_AREA, value_type => VALUE_TYPE_LANGUAGE_AREA
+    );
+    my $asia = create_metadata_value(
+        value_type => VALUE_TYPE_LANGUAGE_AREA, value => LANGUAGE_AREA_ASIA,
+    );
     my $create_resource = sub {
-        my ($metadata, $value, $date) = @_;
+        my ($metadata, $value, $date, $is_asia) = @_;
         my $resource = create_resource;
         create_resource_metadata(
             resource => $resource, metadata => $metadata, value_id => $value->id,
@@ -328,6 +334,11 @@ sub statistics_by_year : Tests {
         create_resource_metadata(
             resource => $resource, metadata => $issued_metadata, content => $date,
         );
+        if ( $is_asia ) {
+            create_resource_metadata(
+                resource => $resource, metadata => $language_area, value_id => $asia->id,
+            );
+        }
     };
 
     subtest 'statistics' => sub {
@@ -336,25 +347,30 @@ sub statistics_by_year : Tests {
         my $metadata = create_metadata(input_type => INPUT_TYPE_SELECT);
         my $values = [ map { create_metadata_value } (1..3) ];
 
-        #         2000 2001 2005 2015 UNK total
+        # default 2000 2001 2005 2015 UNK total
         # value1     1    0    2    0   1     4
         # value2     0    1    1    0   0     2
         # value3     1    0    0    1   1     3
         # total      2    1    3    1   2     9
-        $create_resource->($metadata, $values->[0], '2000-01-01');
+        # -------------------------------------
+        # asia    2000 2001 2005 2015 UNK total
+        # value1     1    0    1    0   0     2
+        # value2     0    0    1    0   0     1
+        # value3     0    0    0    1   1     2
+        # total      1    0    2    1   1     5
+        $create_resource->($metadata, $values->[0], '2000-01-01', 1);
         $create_resource->($metadata, $values->[0], '2005-01-01');
-        $create_resource->($metadata, $values->[0], '2005-11-01');
+        $create_resource->($metadata, $values->[0], '2005-11-01', 1);
         $create_resource->($metadata, $values->[0], '');
         $create_resource->($metadata, $values->[1], '2001-03-01');
-        $create_resource->($metadata, $values->[1], '2005-07-01');
+        $create_resource->($metadata, $values->[1], '2005-07-01', 1);
         $create_resource->($metadata, $values->[2], '2000-05-03');
-        $create_resource->($metadata, $values->[2], '2015-07-07');
-        $create_resource->($metadata, $values->[2], '');
+        $create_resource->($metadata, $values->[2], '2015-07-07', 1);
+        $create_resource->($metadata, $values->[2], '', 1);
 
         my $statistics = Shachi::Service::Resource::Metadata->statistics_by_year(
-            db => $db, metadata => $metadata,
+            db => $db, metadata => $metadata, mode => 'default'
         );
-
         cmp_deeply $statistics, {
             2000 => {
                 $values->[0]->value => 1,
@@ -384,6 +400,35 @@ sub statistics_by_year : Tests {
                 $values->[1]->value => 2,
                 $values->[2]->value => 3,
                 total => 9,
+            },
+        };
+
+        my $statistics_asia = Shachi::Service::Resource::Metadata->statistics_by_year(
+            db => $db, metadata => $metadata, mode => 'asia'
+        );
+        cmp_deeply $statistics_asia, {
+            2000 => {
+                $values->[0]->value => 1,
+                total => 1,
+            },
+            2005 => {
+                $values->[0]->value => 1,
+                $values->[1]->value => 1,
+                total => 1,
+            },
+            2015 => {
+                $values->[2]->value => 1,
+                total => 1,
+            },
+            UNK => {
+                $values->[2]->value => 1,
+                total => 1,
+            },
+            total => {
+                $values->[0]->value => 2,
+                $values->[1]->value => 1,
+                $values->[2]->value => 2,
+                total => 5,
             },
         };
     };
