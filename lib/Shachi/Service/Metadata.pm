@@ -64,8 +64,8 @@ sub find_by_names {
 }
 
 sub embed_metadata_values {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
+    args my $class         => 'ClassName',
+         my $db            => { isa => 'Shachi::Database' },
          my $metadata_list => { isa => 'Shachi::Model::List' };
 
     my $values_by_type = Shachi::Service::Metadata::Value->find_by_value_types(
@@ -89,8 +89,8 @@ sub find_shown_metadata {
 }
 
 sub find_by_input_types {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
+    args my $class       => 'ClassName',
+         my $db          => { isa => 'Shachi::Database' },
          my $input_types => { isa => 'ArrayRef' };
 
     $db->shachi->table('metadata')->search({

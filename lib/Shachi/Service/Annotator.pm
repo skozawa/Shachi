@@ -41,11 +41,11 @@ sub find_all {
 }
 
 sub embed_resources {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
+    args my $class      => 'ClassName',
+         my $db         => { isa => 'Shachi::Database' },
          my $annotators => { isa => 'Shachi::Model::List' },
-         my $language => { isa => 'Shachi::Model::Language' },
-         my $args => { isa => 'HashRef', default => {} };
+         my $language   => { isa => 'Shachi::Model::Language' },
+         my $args       => { isa => 'HashRef', default => {} };
 
     my $resources = $db->shachi->table('resource')->search({
         annotator_id => { -in => $annotators->map('id')->to_a },
@@ -64,8 +64,8 @@ sub embed_resources {
 }
 
 sub embed_resource_count {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
+    args my $class      => 'ClassName',
+         my $db         => { isa => 'Shachi::Database' },
          my $annotators => { isa => 'Shachi::Model::List' };
 
     my $count_by_annotator_id = $db->shachi->table('resource')

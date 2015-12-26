@@ -50,11 +50,11 @@ sub create_multi_from_json {
 }
 
 sub update_multi_from_json {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
+    args my $class         => 'ClassName',
+         my $db            => { isa => 'Shachi::Database' },
          my $resource_id,
          my $metadata_list => { optional => 1 },
-         my $json  => { isa => 'HashRef' };
+         my $json          => { isa => 'HashRef' };
 
     my $language = Shachi::Service::Language->find_by_code(
         db => $db, code => $json->{metadata_language} || ENGLISH_CODE,
@@ -78,11 +78,11 @@ sub update_multi_from_json {
 }
 
 sub _create_insert_data_from_json {
-    args my $db   => { isa => 'Shachi::Database' },
+    args my $db            => { isa => 'Shachi::Database' },
          my $resource_id,
          my $metadata_list => { isa => 'Shachi::Model::List' },
-         my $language => { isa => 'Shachi::Model::Language' },
-         my $json => { isa => 'HashRef' };
+         my $language      => { isa => 'Shachi::Model::Language' },
+         my $json          => { isa => 'HashRef' };
 
     my $language_names = $metadata_list->map(sub {
         return unless $_->input_type eq INPUT_TYPE_LANGUAGE;
@@ -127,9 +127,9 @@ sub find_by_ids {
 }
 
 sub find_resource_metadata_by_name {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
-         my $name  => { isa => 'Str' },
+    args my $class        => 'ClassName',
+         my $db           => { isa => 'Shachi::Database' },
+         my $name         => { isa => 'Str' },
          my $resource_ids => { isa => 'ArrayRef' },
          my $language_ids => { isa => 'ArrayRef' };
 
@@ -187,8 +187,8 @@ sub find_resource_metadata {
 
 # 複数言語のメタデータがある場合は指定した言語でメタデータを絞り込む
 sub _exclude_multilang_values {
-    args my $class => 'ClassName',
-         my $language => { isa => 'Shachi::Model::Language' },
+    args my $class         => 'ClassName',
+         my $language      => { isa => 'Shachi::Model::Language' },
          my $metadata_list => { isa => 'Shachi::Model::List' },
          my $resource_metadata_list => { isa => 'Shachi::Model::List' };
 

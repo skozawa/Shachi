@@ -93,6 +93,23 @@ sub find_by_id : Tests {
     };
 }
 
+sub count_not_private : Tests {
+    truncate_db;
+    for (qw/public private limited_by_LDC limited_by_ELRA/) {
+        create_resource(status => $_);
+        my $r = create_resource(status => $_);
+        set_asia($r);
+        set_language_area($r, LANGUAGE_AREA_JAPAN);
+    }
+
+    my $db = Shachi::Database->new;
+    my $count = Shachi::Service::Resource->count_not_private(db => $db);
+    is $count, 6;
+
+    my $count_asia = Shachi::Service::Resource->count_not_private(db => $db, mode => 'asia');
+    is $count_asia, 3;
+}
+
 sub search_all : Tests {
     truncate_db;
     my $resources = [ map { create_resource } (1..10) ];
@@ -132,23 +149,6 @@ sub search_titles : Tests {
         );
         is $resources->size, 2;
     };
-}
-
-sub count_not_private : Tests {
-    truncate_db;
-    for (qw/public private limited_by_LDC limited_by_ELRA/) {
-        create_resource(status => $_);
-        my $r = create_resource(status => $_);
-        set_asia($r);
-        set_language_area($r, LANGUAGE_AREA_JAPAN);
-    }
-
-    my $db = Shachi::Database->new;
-    my $count = Shachi::Service::Resource->count_not_private(db => $db);
-    is $count, 6;
-
-    my $count_asia = Shachi::Service::Resource->count_not_private(db => $db, mode => 'asia');
-    is $count_asia, 3;
 }
 
 sub embed_title : Tests {
@@ -255,7 +255,7 @@ sub update_annotator : Tests {
 }
 
 sub update_status : Tests {
-    my $identifier_metadata = create_metadata(name => 'identifier');
+    my $identifier_metadata = create_metadata(name => METADATA_IDENTIFIER);
 
     subtest 'update normally' => sub {
         my $db = Shachi::Database->new;

@@ -86,7 +86,7 @@ sub create_language {
 sub create_metadata {
     my (%args) = @_;
 
-    my $name = delete $args{name} || random_word;
+    my $name = delete $args{name} || random_word(30);
     my $label = delete $args{label} || random_word;
     my $order_num = delete $args{order_num} || int(rand(100));
     my $input_type = delete $args{input_type} || INPUT_TYPE_TEXT;
@@ -144,11 +144,16 @@ sub set_language_area {
     my $language_area = Shachi::Service::Metadata->find_by_name(
         db => db, name => METADATA_LANGUAGE_AREA
     ) || create_metadata(
-        name => METADATA_LANGUAGE_AREA, value_type => VALUE_TYPE_LANGUAGE_AREA, input_type => INPUT_TYPE_SELECT
+        name       => METADATA_LANGUAGE_AREA,
+        value_type => VALUE_TYPE_LANGUAGE_AREA,
+        input_type => INPUT_TYPE_SELECT
     );
     my $value = Shachi::Service::Metadata::Value->find_by_values_and_value_type(
         db => db, value_type => VALUE_TYPE_LANGUAGE_AREA, values => [$language_area_value],
-    )->first || create_metadata_value(value_type => VALUE_TYPE_LANGUAGE_AREA, value => $language_area_value);
+    )->first || create_metadata_value(
+        value_type => VALUE_TYPE_LANGUAGE_AREA,
+        value      => $language_area_value
+    );
     create_resource_metadata(
         resource => $resource, metadata => $language_area, value_id => $value->id,
         $language ? (language => $language) : (),

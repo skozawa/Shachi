@@ -238,7 +238,7 @@ sub update_multi_from_json : Tests {
 
 sub find_resource_metadata_by_name : Tests {
     truncate_db;
-    my $title_metadata = create_metadata(name => 'title');
+    my $title_metadata = create_metadata(name => METADATA_TITLE);
 
     subtest 'find normally' => sub {
         my $db = Shachi::Database->new;

@@ -117,6 +117,24 @@ sub find_resource_detail {
     return ($resource, $metadata_list);
 }
 
+sub count_not_private {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $mode  => { isa => 'Str', default => 'default' };
+
+    my $resource_rs = do {
+        if ( $mode eq 'asia' ) {
+            Shachi::Service::Asia->resource_resultset(db => $db);
+        } else {
+            $db->shachi->table('resource');
+        }
+    } or return 0;
+
+    $resource_rs->search({
+        status => { '!=' => 'private' },
+    })->select(\'COUNT(DISTINCT(me.id))')->single_value;
+}
+
 sub search_all {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
@@ -158,27 +176,9 @@ sub search_titles {
     return $resources;
 }
 
-sub count_not_private {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
-         my $mode  => { isa => 'Str', default => 'default' };
-
-    my $resource_rs = do {
-        if ( $mode eq 'asia' ) {
-            Shachi::Service::Asia->resource_resultset(db => $db);
-        } else {
-            $db->shachi->table('resource');
-        }
-    } or return 0;
-
-    $resource_rs->search({
-        status => { '!=' => 'private' },
-    })->select(\'COUNT(DISTINCT(me.id))')->single_value;
-}
-
 sub embed_title {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
+    args my $class     => 'ClassName',
+         my $db        => { isa => 'Shachi::Database' },
          my $resources => { isa => 'Shachi::Model::List' },
          my $language  => { isa => 'Shachi::Model::Language' },
          my $args      => { isa => 'HashRef', default => {} };
@@ -190,8 +190,8 @@ sub embed_title {
 }
 
 sub embed_description {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
+    args my $class     => 'ClassName',
+         my $db        => { isa => 'Shachi::Database' },
          my $resources => { isa => 'Shachi::Model::List' },
          my $language  => { isa => 'Shachi::Model::Language' },
          my $args      => { isa => 'HashRef', default => {} };
@@ -203,8 +203,8 @@ sub embed_description {
 }
 
 sub embed_resource_metadata_content {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
+    args my $class     => 'ClassName',
+         my $db        => { isa => 'Shachi::Database' },
          my $resources => { isa => 'Shachi::Model::List' },
          my $language  => { isa => 'Shachi::Model::Language' },
          my $name      => { isa => 'Str' },
@@ -286,7 +286,7 @@ sub _status {
     return $status if $status eq STATUS_PRIVATE;
 
     my $identifiers = $db->shachi->table('resource_metadata')->search({
-        metadata_name => 'identifier',
+        metadata_name => METADATA_IDENTIFIER,
         resource_id   => $id,
     })->list;
 

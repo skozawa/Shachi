@@ -10,11 +10,11 @@ use Shachi::Service::Metadata::Value;
 use Shachi::Service::Resource;
 
 sub search {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
-         my $query => { isa => 'Shachi::FacetSearchQuery' },
+    args my $class         => 'ClassName',
+         my $db            => { isa => 'Shachi::Database' },
+         my $query         => { isa => 'Shachi::FacetSearchQuery' },
          my $metadata_list => { isa => 'Shachi::Model::List' },
-         my $mode  => { isa => 'Str', default => 'default' };
+         my $mode          => { isa => 'Str', default => 'default' };
 
     # Facet検索で指定されてる値を設定
     $query->current_values(Shachi::Service::Metadata::Value->find_by_ids(
@@ -33,9 +33,7 @@ sub search {
     my $resources = $db->shachi->table('resource')->search({
         status => { '!=' => 'private' },
         id     => { -in => $searched_resource_ids },
-    })->order_by('id asc')
-      ->offset($query->offset)->limit($query->limit)
-      ->list;
+    })->order_by('id asc')->offset($query->offset)->limit($query->limit)->list;
 
     $class->embed_metadata_counts(
         db => $db, metadata_list => $metadata_list,
@@ -46,11 +44,11 @@ sub search {
 }
 
 sub search_by_metadata {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
-         my $query => { isa => 'Shachi::FacetSearchQuery' },
+    args my $class         => 'ClassName',
+         my $db            => { isa => 'Shachi::Database' },
+         my $query         => { isa => 'Shachi::FacetSearchQuery' },
          my $metadata_list => { isa => 'Shachi::Model::List' },
-         my $mode  => { isa => 'Str', default => 'default' };
+         my $mode          => { isa => 'Str', default => 'default' };
 
     my $metadata_conditions = $class->_metadata_conditions(
         query => $query, metadata_list => $metadata_list
@@ -77,8 +75,8 @@ sub search_by_metadata {
 }
 
 sub _metadata_conditions {
-    args my $class => 'ClassName',
-         my $query => { isa => 'Shachi::FacetSearchQuery' },
+    args my $class         => 'ClassName',
+         my $query         => { isa => 'Shachi::FacetSearchQuery' },
          my $metadata_list => { isa => 'Shachi::Model::List' };
 
     my $metadata_conditions = [];
@@ -95,11 +93,10 @@ sub _metadata_conditions {
 }
 
 sub _no_information_conditions {
-    args my $class => 'ClassName',
-         my $query => { isa => 'Shachi::FacetSearchQuery' },
+    args my $class         => 'ClassName',
+         my $query         => { isa => 'Shachi::FacetSearchQuery' },
          my $metadata_list => { isa => 'Shachi::Model::List' };
 
-    # no information を指定しているmetadataを取得
     return unless @{$query->no_info_metadata_names};
 
     my $sql = SQL::Abstract->new;
@@ -110,9 +107,9 @@ sub _no_information_conditions {
 }
 
 sub search_by_keyword {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
-         my $query => { isa => 'Shachi::FacetSearchQuery' },
+    args my $class        => 'ClassName',
+         my $db           => { isa => 'Shachi::Database' },
+         my $query        => { isa => 'Shachi::FacetSearchQuery' },
          my $resource_ids => { isa => 'ArrayRef' };
 
     return $resource_ids unless $query->has_keyword;
@@ -145,11 +142,11 @@ sub embed_metadata_counts {
 }
 
 sub embed_metadata_value_with_count {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
+    args my $class         => 'ClassName',
+         my $db            => { isa => 'Shachi::Database' },
          my $metadata_list => { isa => 'Shachi::Model::List' },
          my $resource_ids  => { optional => 1 },
-         my $mode  => { isa => 'Str', default => 'default' };
+         my $mode          => { isa => 'Str', default => 'default' };
 
     my $conditions = {
         metadata_name => { -in => $metadata_list->map('name')->to_a },
@@ -191,11 +188,11 @@ sub embed_metadata_value_with_count {
 }
 
 sub embed_no_metadata_resource_count {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
+    args my $class         => 'ClassName',
+         my $db            => { isa => 'Shachi::Database' },
          my $metadata_list => { isa => 'Shachi::Model::List' },
          my $resource_ids  => { optional => 1 },
-         my $mode  => { isa => 'Str', default => 'default' };
+         my $mode          => { isa => 'Str', default => 'default' };
 
     my $resource_count = $resource_ids ? scalar @$resource_ids :
         Shachi::Service::Resource->count_not_private(db => $db, mode => $mode);
