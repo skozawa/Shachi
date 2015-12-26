@@ -150,11 +150,27 @@ sub find_resource_metadata {
          my $language      => { isa => 'Shachi::Model::Language' },
          my $args          => { isa => 'HashRef', default => {} };
 
+    my $language_ids = do {
+        # 指定した言語のメタデータがない場合に英語にフォールバックする
+        if ( $args->{fillin_english} ) {
+            my $english = Shachi::Service::Language->find_by_code(db => $db, code => ENGLISH_CODE);
+            [ $language->id, $english->id ];
+        } else {
+            [ $language->id ];
+        }
+    };
+
     my $resource_metadata_list = $db->shachi->table('resource_metadata')->search({
         resource_id => $resource->id,
         metadata_id => { -in => $metadata_list->map('id')->to_a },
-        language_id => $language->id,
+        language_id => { -in => $language_ids },
     })->order_by('id asc')->list;
+
+    $resource_metadata_list = $class->_exclude_multilang_values(
+        language => $language, metadata_list => $metadata_list,
+        resource_metadata_list => $resource_metadata_list,
+    ) if $args->{fillin_english};
+
 
     if ( $args->{with_value} ) {
         my $metadata_value_by_id = Shachi::Service::Metadata::Value->find_by_ids(
@@ -169,6 +185,32 @@ sub find_resource_metadata {
     }
 
     return $resource_metadata_list;
+}
+
+# 複数言語のメタデータがある場合は指定した言語でメタデータを絞り込む
+sub _exclude_multilang_values {
+    args my $class => 'ClassName',
+         my $language => { isa => 'Shachi::Model::Language' },
+         my $metadata_list => { isa => 'Shachi::Model::List' },
+         my $resource_metadata_list => { isa => 'Shachi::Model::List' };
+
+    # 指定した言語が最後になるようにソートする
+    my $resource_metadata_by_metadata_id = $resource_metadata_list
+        ->sort_by(sub { $_->language_id == $language->id })->hash_by('metadata_id');
+
+    my $remain_ids = {};
+    foreach my $metadata ( @$metadata_list ) {
+        my @list = $resource_metadata_by_metadata_id->get_all($metadata->id);
+        next unless @list;
+        my $has_target_language_metadata = $list[-1]->language_id == $language->id;
+        # 指定した言語のデータがある場合はそれのみ、ない場合は全部追加
+        foreach my $item ( @list ) {
+            $remain_ids->{$item->id} = 1 if !$has_target_language_metadata ||
+                ($has_target_language_metadata && $item->language_id == $language->id);
+        }
+    }
+
+    $resource_metadata_list->grep(sub { $remain_ids->{$_->id} });
 }
 
 sub statistics_by_year {

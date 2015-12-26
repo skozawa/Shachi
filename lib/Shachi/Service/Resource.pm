@@ -97,7 +97,7 @@ sub find_resource_detail {
 
     my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
         db => $db, resource => $resource, metadata_list => $metadata_list,
-        language => $language, args => { with_value => 1 },
+        language => $language, args => { with_value => 1, %$args },
     );
 
     $resource->metadata_list($resource_metadata_list);
