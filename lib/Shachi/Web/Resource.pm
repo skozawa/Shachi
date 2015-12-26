@@ -12,7 +12,7 @@ sub find_by_id {
     my $resource_id = $c->route->{resource_id};
     my ($resource, $metadata_list) = Shachi::Service::Resource->find_resource_detail(
         db => $c->db, id => $resource_id, language => $c->lang,
-        args => { fillin_english => 1 },
+        args => { fillin_english => 1, only_public => 1 },
     );
     return $c->throw_not_found unless $resource;
     return $c->throw_not_found if $c->mode eq 'asia' && !$resource->is_asia_resource;

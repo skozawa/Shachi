@@ -93,6 +93,88 @@ sub find_by_id : Tests {
     };
 }
 
+sub find_resource_detail : Tests {
+    my $create_data = sub {
+        my ($resource) = @_;
+        my $english = get_english;
+        my $language = create_language;
+        my $metadata_list = Shachi::Model::List->new(list => [
+            create_metadata(name => METADATA_TITLE),
+            create_metadata(name => METADATA_DESCRIPTION),
+            create_metadata(name => METADATA_IDENTIFIER),
+            create_metadata(name => METADATA_LANGUAGE_AREA),
+            create_metadata(value_type => VALUE_TYPE_STYLE),
+        ]);
+        create_resource_metadata(resource => $resource, language => $language,
+                                 metadata => $metadata_list->[$_]) for (0..2);
+        set_language_area($resource, LANGUAGE_AREA_ASIA, $english);
+        set_language_area($resource, LANGUAGE_AREA_JAPAN, $english);
+        my $value = create_metadata_value(value_type => VALUE_TYPE_STYLE);
+        create_resource_metadata(resource => $resource, language => $english,
+                                 metadata => $metadata_list->[4], value_id => $value->id);
+
+        return ($metadata_list, $language);
+    };
+
+    my $db = Shachi::Database->new;
+    subtest 'find normally' => sub {
+        truncate_db_with_setup;
+        my $annotator = create_annotator;
+        my $resource = create_resource(annotator => $annotator);
+        my ($metadata_list, $language) = $create_data->($resource);
+
+        my ($found_resource, $ml) = Shachi::Service::Resource->find_resource_detail(
+            db => $db, id => $resource->id, language => $language,
+            args => { metadata_list => $metadata_list },
+        );
+        is $found_resource->id, $resource->id;
+        is $found_resource->metadata_list->size, 3;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_TITLE)}, 1;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_DESCRIPTION)}, 1;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_IDENTIFIER)}, 1;
+        is $found_resource->annotator->id, $annotator->id;
+    };
+
+    subtest 'find normally with fillin_english' => sub {
+        truncate_db_with_setup;
+        my $annotator = create_annotator;
+        my $resource = create_resource(annotator => $annotator);
+        my ($metadata_list, $language) = $create_data->($resource);
+
+        my ($found_resource, $ml) = Shachi::Service::Resource->find_resource_detail(
+            db => $db, id => $resource->id, language => $language,
+            args => { metadata_list => $metadata_list, fillin_english => 1 },
+        );
+        is $found_resource->id, $resource->id;
+        is $found_resource->metadata_list->size, 6;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_TITLE)}, 1;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_DESCRIPTION)}, 1;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_IDENTIFIER)}, 1;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_LANGUAGE_AREA)}, 2;
+        is scalar @{$found_resource->metadata_list_by_name($metadata_list->last->name)}, 1;
+        ok $found_resource->metadata_list_by_name($metadata_list->last->name)->[0]->value;
+        is $found_resource->annotator->id, $annotator->id;
+    };
+
+    subtest 'find normally with only public' => sub {
+        truncate_db_with_setup;
+        my $annotator = create_annotator;
+        my $resource = create_resource(annotator => $annotator, status => STATUS_LIMITED_BY_ELRA);
+        my ($metadata_list, $language) = $create_data->($resource);
+
+        my ($found_resource, $ml) = Shachi::Service::Resource->find_resource_detail(
+            db => $db, id => $resource->id, language => $language,
+            args => { metadata_list => $metadata_list, only_public => 1 },
+        );
+        is $found_resource->id, $resource->id;
+        is $found_resource->metadata_list->size, 2;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_TITLE)}, 1;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_DESCRIPTION)}, 0;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_IDENTIFIER)}, 1;
+        is $found_resource->annotator->id, $annotator->id;
+    };
+}
+
 sub count_not_private : Tests {
     truncate_db;
     for (qw/public private limited_by_LDC limited_by_ELRA/) {

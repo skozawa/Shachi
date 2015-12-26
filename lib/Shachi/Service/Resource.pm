@@ -99,6 +99,10 @@ sub find_resource_detail {
         db => $db, resource => $resource, metadata_list => $metadata_list,
         language => $language, args => { with_value => 1, %$args },
     );
+    # ELRA, LDCからの自動取得データは取得しないように
+    $resource_metadata_list = $resource_metadata_list->grep(sub {
+        $_->metadata_name eq METADATA_TITLE || $_->metadata_name eq METADATA_IDENTIFIER
+    }) if $args->{only_public} && !$resource->is_public;
 
     $resource->metadata_list($resource_metadata_list);
 
