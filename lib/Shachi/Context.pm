@@ -17,7 +17,7 @@ use Class::Accessor::Lite::Lazy (
     new => 1,
     ro  => [qw/env/],
     ro_lazy => [qw/
-        req res route db lang mode
+        req res route db lang admin_lang mode
     /],
     rw_lazy => [qw/page_id/],
 );
@@ -65,6 +65,13 @@ sub _build_lang {
         path   => '/',
         expires => time + 24 * 60 * 60,
     };
+    Shachi::Service::Language->find_by_code(db => $self->db, code => $code);
+}
+
+# 管理画面ではcookieは考慮しない
+sub _build_admin_lang {
+    my $self = shift;
+    my $code = $self->req->param('ln') || ENGLISH_CODE;
     Shachi::Service::Language->find_by_code(db => $self->db, code => $code);
 }
 

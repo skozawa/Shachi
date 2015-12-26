@@ -141,8 +141,8 @@
 <div class="resource-detail-container" data-resource-id="[% resource.id %]">
   <div class="resource-detail-header">
     <h3 class="shachi-id">[% resource.shachi_id %]</h3>
-    <div class="resource-metadata-language" data-metadata-language="[% c.lang && c.lang.code || 'eng' %]">
-      [%- IF c.lang && c.lang.code == 'jpn' %]
+    <div class="resource-metadata-language" data-metadata-language="[% c.admin_lang && c.admin_lang.code || 'eng' %]">
+      [%- IF c.admin_lang && c.admin_lang.code == 'jpn' %]
         <span><a href="[% resource.admin_link %]">English</a></span> / <span class="current">Japanese</span>
       [%- ELSE %]
         <span class="current">English</span> / <span><a href="[% resource.admin_link('jpn') %]">Japanese</a></span>
