@@ -2,6 +2,7 @@ package t::Shachi::Service::Resource::Metadata;
 use t::test;
 use Shachi::Database;
 use Shachi::Model::Metadata;
+use Shachi::Model::Metadata::Value;
 use Shachi::Model::List;
 use Shachi::Service::Resource::Metadata;
 
@@ -269,6 +270,7 @@ sub find_resource_metadata : Tests {
 
     my $setup_resource = sub {
         my $resource = create_resource;
+        my $english  = get_english;
         my $language = create_language;
         my $metadata1 = create_metadata(value_type => VALUE_TYPE_STYLE);
         my $value1 = create_metadata_value(value_type => VALUE_TYPE_STYLE);
@@ -280,8 +282,14 @@ sub find_resource_metadata : Tests {
                                  language => $language, value_id => $value2->id);
         my $metadata3 = create_metadata;
         create_resource_metadata(resource => $resource, metadata => $metadata3, language => $language);
+        my $metadata4 = create_metadata(value_type => VALUE_TYPE_STYLE);
+        my $value4 = create_metadata_value(value_type => VALUE_TYPE_STYLE);
+        create_resource_metadata(resource => $resource, metadata => $metadata4,
+                                 language => $english,  value_id => $value4->id);
 
-        my $metadata_list = Shachi::Model::List->new(list => [ $metadata1, $metadata2, $metadata3 ]);
+        my $metadata_list = Shachi::Model::List->new(
+            list => [ $metadata1, $metadata2, $metadata3, $metadata4 ]
+        );
 
         return ($resource, $language, $metadata_list);
     };
@@ -313,15 +321,80 @@ sub find_resource_metadata : Tests {
         ok $resource_metadata_list->any(sub { $_->value });
         is $resource_metadata_list->grep(sub { $_->value })->size, 2;
     };
+
+    subtest 'find normally with fillin_english' => sub {
+        my $db = Shachi::Database->new;
+        my ($resource, $language, $metadata_list) = $setup_resource->();
+
+        my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
+            db => $db, resource => $resource, metadata_list => $metadata_list,
+            language => $language, args => { fillin_english => 1 },
+        );
+
+        is $resource_metadata_list->size, 4;
+        ok ! $resource_metadata_list->any(sub { $_->value });
+    };
+
+    subtest 'find normally with fillin_english and value' => sub {
+        my $db = Shachi::Database->new;
+        my ($resource, $language, $metadata_list) = $setup_resource->();
+
+        my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
+            db => $db, resource => $resource, metadata_list => $metadata_list,
+            language => $language, args => { fillin_english => 1, with_value => 1 },
+        );
+
+        is $resource_metadata_list->size, 4;
+        ok $resource_metadata_list->any(sub { $_->value });
+        is $resource_metadata_list->grep(sub { $_->value })->size, 3;
+    };
 }
 
+sub _exclude_multilang_values : Tests {
+    my $create_data = sub {
+        my $english = get_english;
+        my $language = create_language;
+        my $resource = create_resource;
+
+        my $resource_metadata_list = Shachi::Model::List->new(list => []);
+        my $metadata1 = create_metadata; # only english
+        $resource_metadata_list = $resource_metadata_list->push(create_resource_metadata(
+            resource => $resource, metadata => $metadata1, language => $english
+        )) for (1..2);
+        my $metadata2 = create_metadata; # only $language
+        $resource_metadata_list = $resource_metadata_list->push(create_resource_metadata(
+            resource => $resource, metadata => $metadata2, language => $language
+        ));
+        my $metadata3 = create_metadata; # english and $language
+        $resource_metadata_list = $resource_metadata_list->push(create_resource_metadata(
+            resource => $resource, metadata => $metadata3, language => $language
+        )) for (1..2);
+        $resource_metadata_list = $resource_metadata_list->push(create_resource_metadata(
+            resource => $resource, metadata => $metadata3, language => $english
+        )) for (1..2);
+
+        my $metadata_list = Shachi::Model::List->new(list => [$metadata1, $metadata2, $metadata3]);
+        return ($resource, $language, $metadata_list, $resource_metadata_list);
+    };
+
+    my ($resource, $language, $metadata_list, $resource_metadata_list) = $create_data->();
+    is $resource_metadata_list->size, 7;
+    ok 1;
+
+    my $excluded_list = Shachi::Service::Resource::Metadata->_exclude_multilang_values(
+        language => $language, metadata_list => $metadata_list,
+        resource_metadata_list => $resource_metadata_list,
+    );
+    is $excluded_list->size, 5;
+    is_deeply $excluded_list->map('id')->to_a, $resource_metadata_list->first(5)->map('id')->to_a;
+}
 
 sub statistics_by_year : Tests {
     truncate_db;
 
     my $issued_metadata = create_metadata(name => METADATA_DATE_ISSUED);
     my $language_area = create_metadata(
-        name = METADATA_LANGUAGE_AREA, value_type => VALUE_TYPE_LANGUAGE_AREA
+        name => METADATA_LANGUAGE_AREA, value_type => VALUE_TYPE_LANGUAGE_AREA
     );
     my $asia = create_metadata_value(
         value_type => VALUE_TYPE_LANGUAGE_AREA, value => LANGUAGE_AREA_ASIA,
