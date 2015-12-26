@@ -13,7 +13,7 @@
       <tr>
         <td class="metadata">[% metadata.label %]</td>
         <td class="metadata-value">
-          [%- SET resource_metadata_list = resource.metadata(metadata) %]
+          [%- SET resource_metadata_list = resource.metadata_list_by_name(metadata.name) %]
           [%- INCLUDE '_resource_metadata_list.tt' WITH
               metadata = metadata,
               resource_metadata_list = resource_metadata_list

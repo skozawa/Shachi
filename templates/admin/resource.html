@@ -5,7 +5,7 @@
     <li>
       <span class="content">[% resource_metadata.content %]</span>
     </li>
-  [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
+  [%- END # FOREACH resource_metadata IN resource_metadata_list %]
 [%- END # MACRO metadata_list_text %]
 
 [%- MACRO metadata_list_textarea(resource_metadata_list) BLOCK %]
@@ -13,7 +13,7 @@
     <li>
       <span class="content">[% resource_metadata.content %]</span>
     </li>
-  [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
+  [%- END # FOREACH resource_metadata IN resource_metadata_list %]
 [%- END # MACRO metadata_list_textarea %]
 
 [%- MACRO metadata_list_select(resource_metadata_list) BLOCK %]
@@ -24,7 +24,7 @@
       [%- END # IF resource_metadata.value_id %]
       <span class="description">[% resource_metadata.description %]</span>
     </li>
-  [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
+  [%- END # FOREACH resource_metadata IN resource_metadata_list %]
 [%- END # MACRO metadata_list_select %]
 
 [%- MACRO metadata_list_select_only(resource_metadata_list) BLOCK %]
@@ -32,7 +32,7 @@
     <li>
       <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
     </li>
-  [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
+  [%- END # FOREACH resource_metadata IN resource_metadata_list %]
 [%- END # MACRO metadata_list_select_only %]
 
 [%- MACRO metadata_list_relation(resource_metadata_list) BLOCK %]
@@ -41,7 +41,7 @@
       <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
       <span class="description">[% resource_metadata.description %]</span>
     </li>
-  [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
+  [%- END # FOREACH resource_metadata IN resource_metadata_list %]
 [%- END # MACRO metadata_list_relation %]
 
 [%- MACRO metadata_list_language(resource_metadata_list) BLOCK %]
@@ -50,7 +50,7 @@
       <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
       <span class="description">[% resource_metadata.description %]</span>
     </li>
-  [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
+  [%- END # FOREACH resource_metadata IN resource_metadata_list %]
 [%- END # MACRO metadata_list_language %]
 
 [%- MACRO metadata_list_date(resource_metadata_list) BLOCK %]
@@ -59,7 +59,7 @@
       <span class="content">[% resource_metadata.content %]</span>
       <span class="description">[% resource_metadata.description %]</span>
     </li>
-  [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
+  [%- END # FOREACH resource_metadata IN resource_metadata_list %]
 [%- END # MACRO metadata_list_date %]
 
 [%- MACRO metadata_list_range(resource_metadata_list) BLOCK %]
@@ -68,7 +68,7 @@
       <span class="content">[% resource_metadata.content %]</span>
       <span class="description">[% resource_metadata.description %]</span>
     </li>
-  [%- END # FOREACH resource_metadata IN resource.metadata(metadata) %]
+  [%- END # FOREACH resource_metadata IN resource_metadata_list %]
 [%- END # MACRO metadata_list_range %]
 
 
@@ -180,7 +180,7 @@
         [% END # IF metadata.multi_value %]
       </ul>
       <div class="resource-metadata-unit">
-        [%- SET resource_metadata_list = resource.metadata(metadata) %]
+        [%- SET resource_metadata_list = resource.metadata_list_by_name(metadata.name) %]
         [%- IF resource_metadata_list %]
           <ul class="resource-metadata-data">
             [%- IF metadata.input_type == 'textarea' %]
