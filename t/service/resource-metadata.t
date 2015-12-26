@@ -15,7 +15,7 @@ sub create : Tests {
         my $db = Shachi::Database->new;
         my $args = {
             resource_id => int(rand(10000)),
-            metadata_id => int(rand(10000)),
+            metadata_name => random_word,
             language_id => int(rand(10000)),
             value_id    => int(rand(10000)),
         };
@@ -25,7 +25,7 @@ sub create : Tests {
         ok $resource_metadata;
         isa_ok $resource_metadata, 'Shachi::Model::Resource::Metadata';
         is $resource_metadata->resource_id, $args->{resource_id}, 'equal resource_id';
-        is $resource_metadata->metadata_id, $args->{metadata_id}, 'equal metadata_id';
+        is $resource_metadata->metadata_name, $args->{metadata_name}, 'equal metadata_name';
         is $resource_metadata->language_id, $args->{language_id}, 'equal language_id';
         is $resource_metadata->value_id, $args->{value_id}, 'equal value_id';
         ok $resource_metadata->id, 'has id';
@@ -35,7 +35,7 @@ sub create : Tests {
         my $db = Shachi::Database->new;
         my $args = {
             resource_id => int(rand(10000)),
-            metadata_id => int(rand(10000)),
+            metadata_name => random_word,
             language_id => int(rand(10000)),
         };
 
@@ -133,7 +133,7 @@ sub update_multi_from_json : Tests {
         my $resource = create_resource;
         my $old_metadata = create_resource_metadata(
             resource_id => $resource->id,
-            metadata_id => $metadata_list->{title}->id,
+            metadata_name => $metadata_list->{title}->name,
             language_id => $language->id
         );
 
@@ -161,7 +161,7 @@ sub update_multi_from_json : Tests {
         my $resource = create_resource;
         my $old_metadata = create_resource_metadata(
             resource_id => $resource->id,
-            metadata_id => $metadata_list->{subject_resourceSubject}->id,
+            metadata_name => $metadata_list->{subject_resourceSubject}->name,
             language_id => $language->id,
         );
         my $resource_subject_value = create_metadata_value;
@@ -193,12 +193,12 @@ sub update_multi_from_json : Tests {
         my $resource = create_resource;
         create_resource_metadata(
             resource_id => $resource->id,
-            metadata_id => $metadata_list->{subject_monoMultilingual}->id,
+            metadata_name => $metadata_list->{subject_monoMultilingual}->name,
             language_id => $language->id,
         );
         create_resource_metadata(
             resource_id => $resource->id,
-            metadata_id => $metadata_list->{language}->id,
+            metadata_name => $metadata_list->{language}->name,
             language_id => $language->id,
         );
         my $mono_multilingual_value = create_metadata_value;
@@ -488,7 +488,7 @@ sub statistics_by_year : Tests {
             2005 => {
                 $values->[0]->value => 1,
                 $values->[1]->value => 1,
-                total => 1,
+                total => 2,
             },
             2015 => {
                 $values->[2]->value => 1,

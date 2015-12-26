@@ -16,10 +16,6 @@ sub resource_ids_subquery : Tests {
     my $subquery1 = Shachi::Service::Asia->resource_ids_subquery(db => $db);
     is_deeply $subquery1, [], 'no language_area metadata';
 
-    my $language_area = create_metadata(
-        name => METADATA_LANGUAGE_AREA, value_type => VALUE_TYPE_LANGUAGE_AREA,
-    );
-
     my $subquery2 = Shachi::Service::Asia->resource_ids_subquery(db => $db);
     is_deeply $subquery2, [], 'no asia or japan metadata value';
 
@@ -28,7 +24,7 @@ sub resource_ids_subquery : Tests {
 
     my $subquery3 = Shachi::Service::Asia->resource_ids_subquery(db => $db);
     is_deeply $subquery3, [
-        "IN (SELECT resource_id FROM resource_metadata WHERE ( ( metadata_id = ? AND value_id IN ( ?, ? ) ) ))",
-        $language_area->id, $asia->id, $japan->id,
+        "IN (SELECT resource_id FROM resource_metadata WHERE ( ( metadata_name = ? AND value_id IN ( ?, ? ) ) ))",
+        METADATA_LANGUAGE_AREA, $asia->id, $japan->id,
     ];
 }

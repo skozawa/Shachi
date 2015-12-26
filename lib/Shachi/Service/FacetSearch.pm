@@ -86,8 +86,8 @@ sub _metadata_conditions {
         my $value_ids = $query->valid_value_ids($metadata->name);
         next unless @$value_ids;
         push @$metadata_conditions, { -and => {
-            metadata_id => $metadata->id,
-            value_id    => $_,
+            metadata_name => $metadata->name,
+            value_id      => $_,
         } } for @$value_ids;
     }
 
@@ -100,16 +100,11 @@ sub _no_information_conditions {
          my $metadata_list => { isa => 'Shachi::Model::List' };
 
     # no information を指定しているmetadataを取得
-    my $metadata_by_name = $metadata_list->hash_by('name');
-    my $no_info_metadata_ids = [ map {
-        my $metadata = $metadata_by_name->{$_};
-        $metadata ? $metadata->id : ()
-    } @{$query->no_info_metadata_names} ];
-    return unless @$no_info_metadata_ids;
+    return unless @{$query->no_info_metadata_names};
 
     my $sql = SQL::Abstract->new;
     my ($sub_sql, @sub_bind) = $sql->select('resource_metadata', 'resource_id', {
-        metadata_id => { -in => $no_info_metadata_ids }
+        metadata_name => { -in => $query->no_info_metadata_names }
     });
     ["NOT IN ($sub_sql)" => @sub_bind];
 }
@@ -123,12 +118,9 @@ sub search_by_keyword {
     return $resource_ids unless $query->has_keyword;
     return $resource_ids unless @$resource_ids;
 
-    my $metadata_for_keyword = Shachi::Service::Metadata->find_by_names(
-        db => $db, names => KEYWORD_SEARCH_METADATA_NAMES,
-    );
     my ($sql, @bind) = $db->shachi->table('resource_metadata')->select('resource_id')->search({
-        resource_id => { -in => $resource_ids },
-        metadata_id => { -in => $metadata_for_keyword->map('id')->to_a },
+        resource_id   => { -in => $resource_ids },
+        metadata_name => { -in => KEYWORD_SEARCH_METADATA_NAMES },
     })->select_sql;
     $sql .= ' AND ' . $query->search_query_sql . ' GROUP BY resource_id';
     my $sth = $db->shachi->dbh->prepare($sql);
@@ -160,8 +152,8 @@ sub embed_metadata_value_with_count {
          my $mode  => { isa => 'Str', default => 'default' };
 
     my $conditions = {
-        metadata_id => { -in => $metadata_list->map('id')->to_a },
-        status      => { '!=' => 'private' },
+        metadata_name => { -in => $metadata_list->map('name')->to_a },
+        status        => { '!=' => 'private' },
     };
     # resource_ids がある場合は resource_ids優先
     # ない場合、mode=asia ならAsiaリソースに限定する
@@ -172,11 +164,11 @@ sub embed_metadata_value_with_count {
         $conditions->{resource_id} = \$subquery;
     }
     my $resource_metadata_counts = $db->shachi->table('resource_metadata')
-        ->select(\'COUNT(DISTINCT(resource_id)) as count, metadata_id, value_id')
+        ->select(\'COUNT(DISTINCT(resource_id)) as count, metadata_name, value_id')
         ->left_join('resource', { resource_id => 'id' })
-            ->search($conditions)->group_by('metadata_id, value_id')->list;
+            ->search($conditions)->group_by('metadata_name, value_id')->list;
     my $resource_metadata_by_metadata_and_value = $resource_metadata_counts->hash_by(sub {
-        $_->metadata_id . '_' . $_->value_id
+        $_->metadata_name . '_' . $_->value_id
     });
 
     my $values_by_type = Shachi::Service::Metadata::Value->find_by_ids(
@@ -189,7 +181,7 @@ sub embed_metadata_value_with_count {
         my @metadata_values;
         foreach my $value ( @values ) {
             my $resource_metadata = $resource_metadata_by_metadata_and_value->{
-                $metadata->id . '_' . $value->id
+                $metadata->name . '_' . $value->id
             } or next;
             $value->resource_count($resource_metadata->{count});
             push @metadata_values, $value;
@@ -209,8 +201,8 @@ sub embed_no_metadata_resource_count {
         Shachi::Service::Resource->count_not_private(db => $db, mode => $mode);
 
     my $conditions = {
-        metadata_id => { -in => $metadata_list->map('id')->to_a },
-        status      => { '!=' => 'private' },
+        metadata_name => { -in => $metadata_list->map('name')->to_a },
+        status        => { '!=' => 'private' },
     };
     # resource_ids がある場合は resource_ids優先
     # ない場合、mode=asia ならAsiaリソースに限定する
@@ -221,13 +213,13 @@ sub embed_no_metadata_resource_count {
         $conditions->{resource_id} = \$subquery;
     }
     my $has_metadata_count = $db->shachi->table('resource_metadata')
-        ->select(\'COUNT(DISTINCT(resource_id)) as count, metadata_id')
+        ->select(\'COUNT(DISTINCT(resource_id)) as count, metadata_name')
         ->left_join('resource', { resource_id => 'id' })
-            ->search($conditions)->group_by('metadata_id')->list;
-    my $count_by_metadata_id = $has_metadata_count->hash_by('metadata_id');
+            ->search($conditions)->group_by('metadata_name')->list;
+    my $count_by_metadata_name = $has_metadata_count->hash_by('metadata_name');
 
     foreach my $metadata ( @$metadata_list ) {
-        my $resource_metadata = $count_by_metadata_id->{$metadata->id};
+        my $resource_metadata = $count_by_metadata_name->{$metadata->name};
         my $count = $resource_metadata ? $resource_metadata->{count} || 0 : 0;
         $metadata->no_metadata_resource_count($resource_count - $count);
     }

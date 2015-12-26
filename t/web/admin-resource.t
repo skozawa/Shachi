@@ -166,12 +166,12 @@ sub update_metadata : Tests {
         my $resource = create_resource;
         create_resource_metadata(
             resource_id => $resource->id,
-            metadata_id => $metadata_list->{title}->id,
+            metadata_name => $metadata_list->{title}->name,
             language_id => $language->id,
         );
         create_resource_metadata(
             resource_id => $resource->id,
-            metadata_id => $metadata_list->{language}->id,
+            metadata_name => $metadata_list->{language}->name,
             language_id => $language->id,
         );
         my $language_value = create_language;

@@ -67,12 +67,12 @@ DROP TABLE IF EXISTS `resource_metadata`;
 CREATE TABLE `resource_metadata` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `resource_id` bigint NOT NULL,
-  `metadata_id` bigint NOT NULL,
   `language_id` bigint NOT NULL,
+  `metadata_name` varchar(100) NOT NULL,
   `value_id` bigint NOT NULL DEFAULT 0,
   `content` text,
   `description` text,
   PRIMARY KEY (`id`),
   KEY `idx_resource_language` (`resource_id`, `language_id`),
-  KEY `idx_metadata_value` (`metadata_id`, `value_id`)
+  KEY `idx_metadata_value` (`metadata_name`, `value_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -133,7 +133,7 @@ sub create_resource_metadata {
 
     return Shachi::Service::Resource::Metadata->create(db => db, args => {
         resource_id => $resource->id,
-        metadata_id => $metadata->id,
+        metadata_name => $metadata->name,
         language_id => $language->id,
         %args,
     });

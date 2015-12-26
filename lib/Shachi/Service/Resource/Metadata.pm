@@ -18,7 +18,7 @@ sub create {
          my $args  => { isa => 'HashRef' };
 
     $args->{$_} or croak 'required ' . $_
-        for qw/resource_id metadata_id language_id/;
+        for qw/resource_id metadata_name language_id/;
 
     my $resource_metadata = $db->shachi->table('resource_metadata')->insert($args);
     my $last_insert_id = $db->shachi->dbh->last_insert_id(undef, undef, 'resource_metadata', undef);
@@ -70,9 +70,9 @@ sub update_multi_from_json {
     );
 
     $db->shachi->table('resource_metadata')->search({
-        resource_id => $resource_id,
-        language_id => $language->id,
-        metadata_id => $metadata_list->map('id')->to_a,
+        resource_id   => $resource_id,
+        language_id   => $language->id,
+        metadata_name => $metadata_list->map('name')->to_a,
     })->delete;
     $db->shachi->table('resource_metadata')->insert_multi($data) if @$data;
 }
@@ -104,12 +104,12 @@ sub _create_insert_data_from_json {
                 $item->{value_id} = $lang ? $lang->value_id : 0;
             }
             push @$data, +{
-                resource_id => $resource_id,
-                metadata_id => $metadata->id,
-                language_id => $language->id,
-                value_id    => $item->{value_id} || 0,
-                content     => $item->{content} || '',
-                description => $item->{description} || '',
+                resource_id   => $resource_id,
+                metadata_name => $metadata->name,
+                language_id   => $language->id,
+                value_id      => $item->{value_id} || 0,
+                content       => $item->{content} || '',
+                description   => $item->{description} || '',
             };
         }
     }
@@ -133,12 +133,10 @@ sub find_resource_metadata_by_name {
          my $resource_ids => { isa => 'ArrayRef' },
          my $language_ids => { isa => 'ArrayRef' };
 
-    my $metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => $name);
-    return Shachi::Model::List->new( list => [] ) unless $metadata;
     $db->shachi->table('resource_metadata')->search({
-        metadata_id => $metadata->id,
-        resource_id => { -in => $resource_ids },
-        language_id => { -in => $language_ids },
+        metadata_name => $name,
+        resource_id   => { -in => $resource_ids },
+        language_id   => { -in => $language_ids },
     })->list;
 }
 
@@ -161,9 +159,9 @@ sub find_resource_metadata {
     };
 
     my $resource_metadata_list = $db->shachi->table('resource_metadata')->search({
-        resource_id => $resource->id,
-        metadata_id => { -in => $metadata_list->map('id')->to_a },
-        language_id => { -in => $language_ids },
+        resource_id   => $resource->id,
+        metadata_name => { -in => $metadata_list->map('name')->to_a },
+        language_id   => { -in => $language_ids },
     })->order_by('id asc')->list;
 
     $resource_metadata_list = $class->_exclude_multilang_values(
@@ -195,12 +193,12 @@ sub _exclude_multilang_values {
          my $resource_metadata_list => { isa => 'Shachi::Model::List' };
 
     # 指定した言語が最後になるようにソートする
-    my $resource_metadata_by_metadata_id = $resource_metadata_list
-        ->sort_by(sub { $_->language_id == $language->id })->hash_by('metadata_id');
+    my $resource_metadata_by_metadata_name = $resource_metadata_list
+        ->sort_by(sub { $_->language_id == $language->id })->hash_by('metadata_name');
 
     my $remain_ids = {};
     foreach my $metadata ( @$metadata_list ) {
-        my @list = $resource_metadata_by_metadata_id->get_all($metadata->id);
+        my @list = $resource_metadata_by_metadata_name->get_all($metadata->name);
         next unless @list;
         my $has_target_language_metadata = $list[-1]->language_id == $language->id;
         # 指定した言語のデータがある場合はそれのみ、ない場合は全部追加
@@ -220,7 +218,7 @@ sub statistics_by_year {
          my $mode     => { isa => 'Str' };
 
     my $conditions = {
-        metadata_id => $metadata->id,
+        metadata_name => $metadata->name,
         status => { '!=' => 'private' },
     };
     if ( $mode eq 'asia' ) {
@@ -236,9 +234,8 @@ sub statistics_by_year {
         })->to_a,
     )->hash_by('id');
 
-    my $issued_metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => METADATA_DATE_ISSUED);
     my $issued_by_resource_id = $db->shachi->table('resource_metadata')->search({
-        metadata_id => $issued_metadata->id,
+        metadata_name => METADATA_DATE_ISSUED,
         resource_id => { -in => $resource_metadata_list->map('resource_id')->to_a },
     })->list->hash_by('resource_id');
 

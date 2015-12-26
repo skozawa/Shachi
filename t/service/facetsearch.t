@@ -380,8 +380,8 @@ sub _metadata_conditions : Tests {
             query => $query, metadata_list => $metadata_list,
         );
         cmp_deeply $conditions, [
-            { -and => { metadata_id => $metadata1->id, value_id => 2 } },
-            { -and => { metadata_id => $metadata2->id, value_id => 5 } },
+            { -and => { metadata_name => $metadata1->name, value_id => 2 } },
+            { -and => { metadata_name => $metadata2->name, value_id => 5 } },
         ];
     };
 
@@ -395,7 +395,7 @@ sub _metadata_conditions : Tests {
             query => $query, metadata_list => $metadata_list,
         );
         cmp_deeply $conditions, [
-            { -and => { metadata_id => $metadata2->id, value_id => 5 } },
+            { -and => { metadata_name => $metadata2->name, value_id => 5 } },
         ];
     };
 
@@ -409,7 +409,7 @@ sub _metadata_conditions : Tests {
             query => $query, metadata_list => $metadata_list,
         );
         cmp_deeply $conditions, [
-            { -and => { metadata_id => $metadata1->id, value_id => 2 } },
+            { -and => { metadata_name => $metadata1->name, value_id => 2 } },
         ];
     };
 }
@@ -426,8 +426,8 @@ sub _no_information_conditions : Tests {
             query => $query, metadata_list => $metadata_list,
         );
         cmp_deeply $no_info_conditions, [
-            "NOT IN (SELECT resource_id FROM resource_metadata WHERE ( metadata_id IN ( ?, ? ) ))",
-            $metadata1->id, $metadata2->id,
+            "NOT IN (SELECT resource_id FROM resource_metadata WHERE ( metadata_name IN ( ?, ? ) ))",
+            $metadata1->name, $metadata2->name,
         ];
     };
 

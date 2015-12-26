@@ -256,7 +256,7 @@ sub migrate_resources {
 
                 $dbix_new->table('resource_metadata')->insert({
                     resource_id => $data->{id},
-                    metadata_id => $meta->{data}->{id},
+                    metadata_name => $meta->{data}->{name},
                     language_id => $eng_language_id,
                     value_id => $value_id,
                     $content ? (content => $content) : (),

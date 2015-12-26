@@ -46,8 +46,8 @@ use Class::Accessor::Lite::Lazy (
 sub metadata {
     my ($self, $metadata) = @_;
     return unless $metadata && $self->metadata_list;
-    $self->{_metadata_by_id} ||= $self->metadata_list->hash_by('metadata_id');
-    my @list = $self->{_metadata_by_id}->get_all($metadata->id);
+    $self->{_metadata_by_name} ||= $self->metadata_list->hash_by('metadata_name');
+    my @list = $self->{_metadata_by_name}->get_all($metadata->name);
     return \@list;
 }
 

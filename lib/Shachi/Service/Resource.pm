@@ -140,10 +140,8 @@ sub search_titles {
          my $db    => { isa => 'Shachi::Database' },
          my $query => { isa => 'Str' };
 
-    my $title_metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => METADATA_TITLE);
-    return Shachi::Model::List->new( list => [] ) unless $title_metadata;
     my $resource_metadata_list = $db->shachi->table('resource_metadata')->search({
-        metadata_id => $title_metadata->id,
+        metadata_name => METADATA_TITLE,
         content => { regexp => $query },
     })->list;
 
@@ -287,12 +285,9 @@ sub _status {
     my ($db, $id, $status) = @_;
     return $status if $status eq STATUS_PRIVATE;
 
-    my $metadata_identifier = Shachi::Service::Metadata->find_by_name(db => $db, name => 'identifier');
-    return STATUS_PUBLIC unless $metadata_identifier;
-
     my $identifiers = $db->shachi->table('resource_metadata')->search({
-        metadata_id => $metadata_identifier->id,
-        resource_id => $id,
+        metadata_name => 'identifier',
+        resource_id   => $id,
     })->list;
 
     return STATUS_PUBLIC unless $identifiers->size;

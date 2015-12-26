@@ -178,13 +178,13 @@ sub update_metadata {
     my $language = Shachi::Service::Language->find_by_code(
         db => $c->db, code => $contents->{metadata_language} || ENGLISH_CODE,
     );
-    my $resource_metadata_by_metadata_id = Shachi::Service::Resource::Metadata->find_resource_metadata(
+    my $resource_metadata_by_metadata_name = Shachi::Service::Resource::Metadata->find_resource_metadata(
         db => $c->db, resource => $resource, metadata_list => $metadata_list,
         language => $language, args => { with_value => 1 },
-    )->hash_by('metadata_id');
+    )->hash_by('metadata_name');
     my $res = {};
     foreach my $metadata ( @$metadata_list ) {
-        my @resource_metadata_list = $resource_metadata_by_metadata_id->get_all($metadata->id);
+        my @resource_metadata_list = $resource_metadata_by_metadata_name->get_all($metadata->name);
         $res->{$metadata->name} = [ map {
             +{
                 $_->value ? (
