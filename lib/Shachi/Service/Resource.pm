@@ -234,6 +234,7 @@ sub embed_resource_metadata_content {
 
     foreach my $resource ( @$resources ) {
         my $metadata = $metadata_by_resource_id->{$resource->id} or next;
+        next if $args->{only_public} && !$resource->is_public;;
         $resource->$name($metadata->content);
     }
 

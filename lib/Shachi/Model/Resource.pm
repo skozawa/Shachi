@@ -51,6 +51,11 @@ sub metadata {
     return \@list;
 }
 
+sub is_public {
+    my $self = shift;
+    $self->status eq STATUS_PUBLIC;
+}
+
 sub created {
     my $self = shift;
     $self->{_created} ||= $self->_from_db_timestamp($self->{created});

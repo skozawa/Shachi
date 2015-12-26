@@ -54,7 +54,7 @@ sub facet {
             );
             Shachi::Service::Resource->embed_description(
                 db => $c->db, resources => $resources, language => $c->lang,
-                args => { fillin_english => 1 },
+                args => { fillin_english => 1, only_public => 1 },
             );
         }
     } else {
