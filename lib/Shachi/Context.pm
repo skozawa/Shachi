@@ -68,6 +68,11 @@ sub _build_lang {
     Shachi::Service::Language->find_by_code(db => $self->db, code => $code);
 }
 
+sub is_japanese {
+    my $self = shift;
+    $self->lang && $self->lang->code eq JAPANESE_CODE ? 1 : 0;
+}
+
 # 管理画面ではcookieは考慮しない
 sub _build_admin_lang {
     my $self = shift;

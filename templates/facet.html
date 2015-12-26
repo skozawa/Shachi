@@ -1,10 +1,21 @@
 [%- WRAPPER '_wrapper.tt' WITH current_navi = 'search' %]
 
 <div class="search-result-count-container">
-  <span class="total">言語資源の登録件数: [% query.total_count %]件</span>
-  [% IF query.search_count %]
-    <span class="result-count">[% query.search_count %] 件中 [% query.offset + 1 %] - [% query.offset + query.limit %] 件目</span>
-  [% END # IF query.search_count %]
+  [%- IF c.is_japanese %]
+    <span class="total">言語資源の登録件数: [% query.total_count %]件</span>
+    [% IF query.search_count %]
+      <span class="result-count">
+        [% query.search_count %] 件中 [% query.offset + 1 %] - [% query.offset + query.limit %] 件目
+      </span>
+    [% END # IF query.search_count %]
+  [%- ELSE %]
+    <span class="total">Language resource #: [% query.total_count %]</span>
+    [% IF query.search_count %]
+      <span class="result-count">
+        Results [% query.offset + 1 %] - [% query.offset + query.limit %] of [% query.search_count %]
+      </span>
+    [% END # IF query.search_count %]
+  [%- END # IF c.is_japanese %]
 </div>
 
 <div id="facet-search-container">
@@ -12,11 +23,11 @@
 
     <form name="facet-form" method="GET">
       <div id="facet-search-current-query" class="facet-query-container">
-        <span class="title-label">現在の検索条件</span>
+        <span class="title-label">[% c.is_japanese ? '現在の検索条件' : 'Current query' %]</span>
         <ul class="current-query-list">
           [%- IF query.has_keyword %]
             <li>
-              <span class="metadata-name">キーワード</span>
+              <span class="metadata-name">[% c.is_japanese ? 'キーワード' : 'Keyword' %]</span>
               <span class="metadata-value">[% query.keyword %]</span>
             </li>
           [%- END # IF query.has_keyword %]
@@ -31,7 +42,7 @@
                     <span class="metadata-value">
                       [% metadata_value.value %]
                       <span class="delete-link" onclick="this.parentNode.removeChild(this);document['facet-form'].submit()">
-                        [削除]
+                        [[% c.is_japanese ? '削除' : 'Delete' %]]
                         <input type="hidden" name="[% metadata.name %]" value="[% metadata_value.id %]">
                       </span>
                     </span>
@@ -39,7 +50,7 @@
                     <span class="metadata-value">
                       no information
                       <span class="delete-link" onclick="this.parentNode.removeChild(this);document['facet-form'].submit()">
-                        [削除]
+                        [[% c.is_japanese ? '削除' : 'Delete' %]]
                         <input type="hidden" name="[% metadata.name %]" value="0">
                       </span>
                     </span>
@@ -52,13 +63,13 @@
       </div>
 
       <div id="facet-search-keyword" class="facet-query-container">
-        <span class="title-label">キーワードを入力</span>
+        <span class="title-label">[% c.is_japanese ? 'キーワードを入力' : 'Input keywords' %]</span>
         <input class="keyword" type="text" name="keyword" value="[% query.keyword %]">
         <input class="search" type="submit" value="search">
       </div>
 
       <div id="facet-search-query" class="facet-query-container">
-        <span class="title-label">検索条件を選択</span>
+        <span class="title-label">[% c.is_japanese ? '検索条件を選択' : 'Select items' %]</span>
         <ul class="facet-query-list">
           [%- FOREACH metadata IN facet_metadata_list %]
           <li class="facet-query-item">
@@ -95,7 +106,7 @@
       <div id="facet-search-pager">
         <ul>
           [%- IF query.has_prev %]
-            <li class="pager-item"><a href="[% c.pager_link(query.page_offset(query.current_page_num - 1)) %]">前へ</a></li>
+            <li class="pager-item"><a href="[% c.pager_link(query.page_offset(query.current_page_num - 1)) %]">[% c.is_japanese ? '前へ' : 'Previous' %]</a></li>
           [%- END # IF query.has_prev %]
           [%- FOREACH page IN query.pages(5) %]
             [%- IF page == query.current_page_num %]
@@ -105,7 +116,7 @@
             [%- END # IF page == query.current_page_num %]
           [%- END # FOREACH page IN query.pages %]
           [%- IF query.has_next %]
-            <li class="pager-item"><a href="[% c.pager_link(query.page_offset(query.current_page_num + 1)) %]">次へ</a></li>
+            <li class="pager-item"><a href="[% c.pager_link(query.page_offset(query.current_page_num + 1)) %]">[% c.is_japanese ? '次へ' : 'Next' %]</a></li>
           [%- END # IF query.has_next %]
         </ul>
       </div>

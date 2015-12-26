@@ -5,11 +5,12 @@ use parent qw/Shachi::Model/;
 use Exporter::Lite;
 
 use constant {
-    ENGLISH_CODE => 'eng',
+    ENGLISH_CODE  => 'eng',
+    JAPANESE_CODE => 'jpn',
 };
 
 our @EXPORT = qw/
-    ENGLISH_CODE
+    ENGLISH_CODE JAPANESE_CODE
 /;
 
 use Class::Accessor::Lite::Lazy (

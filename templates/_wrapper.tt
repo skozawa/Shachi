@@ -18,11 +18,11 @@
           <ul id="header-menu">
             <li class="header-menu-item"><a href="/">Home</a></li>
             <li class="header-menu-item">
-              [%- IF c.lang.code != 'eng' %]
+              [%- IF c.is_japanese %]
                 <a href="[% c.change_lang_link('eng') %]">English</a>
               [%- ELSE %]
                 <a href="[% c.change_lang_link('jpn') %]">Japanese</a>
-              [%- END # IF c.lang.code != 'eng' %]
+              [%- END # IF c.is_japanese %]
             </li>
           </ul>
         </div>

@@ -1,6 +1,6 @@
 [%- WRAPPER '_wrapper.tt' WITH current_navi = 'list' %]
 <div class="search-count-container">
-  <span>[% resources.size %] [% c.lang && c.lang.code == 'jpn' ? '件' : 'resources' %]</span>
+  <span>[% resources.size %] [% c.is_japanese ? '件' : 'resources' %]</span>
 </div>
 <div class="resource-list-container">
   <ul class="resource-list">
