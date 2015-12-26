@@ -54,13 +54,13 @@ sub create_multi_from_json : Tests {
     my $language = create_language;
     my $metadata_list = +{ map {
         $_->[0] => create_metadata(name => $_->[0], input_type => $_->[1])
-    } (['title', INPUT_TYPE_TEXT],
-     ['description', INPUT_TYPE_TEXTAREA],
+    } ([METADATA_TITLE, INPUT_TYPE_TEXT],
+     [METADATA_DESCRIPTION, INPUT_TYPE_TEXTAREA],
      ['subject_resourceSubject', INPUT_TYPE_SELECT],
      ['subject_monoMultilingual', INPUT_TYPE_SELECTONLY],
      ['relation', INPUT_TYPE_RELATION],
      ['language', INPUT_TYPE_LANGUAGE],
-     ['date_issued', INPUT_TYPE_DATE],
+     [METADATA_DATE_ISSUED, INPUT_TYPE_DATE],
      ['date_created', INPUT_TYPE_RANGE],
     ) };
 
@@ -315,10 +315,11 @@ sub find_resource_metadata : Tests {
     };
 }
 
+
 sub statistics_by_year : Tests {
     truncate_db;
 
-    my $issued_metadata = create_metadata(name => 'date_issued');
+    my $issued_metadata = create_metadata(name => METADATA_DATE_ISSUED);
     my $language_area = create_metadata(
         name = METADATA_LANGUAGE_AREA, value_type => VALUE_TYPE_LANGUAGE_AREA
     );

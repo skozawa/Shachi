@@ -17,8 +17,8 @@ sub create_get : Tests {
 }
 
 sub create_post : Tests {
-    truncate_db;
-    my $english = create_language(code => ENGLISH_CODE);
+    truncate_db_with_setup;
+
     my $metadata_list = +{ map {
         $_->[0] => create_metadata(name => $_->[0], input_type => $_->[1])
     } (['title', INPUT_TYPE_TEXT],

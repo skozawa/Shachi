@@ -1,15 +1,13 @@
 package t::Shachi::Web::Resource;
 use t::test;
 use Shachi::Model::Metadata;
-use Shachi::Model::Language;
 
 sub _require : Test(startup => 1) {
     use_ok 'Shachi::Web::Resource';
 }
 
 sub find_by_id : Tests {
-    truncate_db;
-    my $english = create_language(code => ENGLISH_CODE);
+    setup;
 
     subtest 'found resource' => sub {
         my $resource = create_resource;
@@ -25,8 +23,7 @@ sub find_by_id : Tests {
 }
 
 sub find_by_id_asia : Tests {
-    truncate_db;
-    my $english = create_language(code => ENGLISH_CODE);
+    my $english = get_english;
 
     subtest 'found resource' => sub {
         my $resource = create_resource;
@@ -44,8 +41,7 @@ sub find_by_id_asia : Tests {
 }
 
 sub list : Tests {
-    truncate_db;
-    my $english = create_language(code => ENGLISH_CODE);
+    setup;
 
     subtest 'list' => sub {
         my $mech = create_mech;
@@ -54,8 +50,7 @@ sub list : Tests {
 }
 
 sub list_asia : Tests {
-    truncate_db;
-    my $english = create_language(code => ENGLISH_CODE);
+    setup;
 
     subtest 'list' => sub {
         my $mech = create_mech;
@@ -64,6 +59,8 @@ sub list_asia : Tests {
 }
 
 sub facet : Tests {
+    setup;
+
     subtest 'facet' => sub {
         my $mech = create_mech;
         $mech->get_ok('/resources/facet');
@@ -71,7 +68,8 @@ sub facet : Tests {
 }
 
 sub statistics : Tests {
-    truncate_db;
+    truncate_db_with_setup;
+    create_metadata(name => METADATA_DATE_ISSUED);
 
     subtest 'without target' => sub {
         my $mech = create_mech;
@@ -99,7 +97,8 @@ sub statistics : Tests {
 }
 
 sub statistics_asia : Tests {
-    truncate_db;
+    truncate_db_with_setup;
+    create_metadata(name => METADATA_DATE_ISSUED);
 
     subtest 'without target' => sub {
         my $mech = create_mech;

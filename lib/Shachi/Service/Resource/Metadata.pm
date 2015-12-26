@@ -236,7 +236,7 @@ sub statistics_by_year {
         })->to_a,
     )->hash_by('id');
 
-    my $issued_metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => 'date_issued');
+    my $issued_metadata = Shachi::Service::Metadata->find_by_name(db => $db, name => METADATA_DATE_ISSUED);
     my $issued_by_resource_id = $db->shachi->table('resource_metadata')->search({
         metadata_id => $issued_metadata->id,
         resource_id => { -in => $resource_metadata_list->map('resource_id')->to_a },

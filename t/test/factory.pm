@@ -8,6 +8,7 @@ use Exporter::Lite;
 use String::Random qw/random_regex/;
 use Hash::MultiValue;
 use Shachi::Database;
+use Shachi::Model::Language;
 use Shachi::Model::Metadata;
 use Shachi::Model::Metadata::Value;
 use Shachi::FacetSearchQuery;
@@ -29,8 +30,11 @@ our @EXPORT = qw/
     create_resource_metadata
     set_language_area
     set_asia
+    get_english
     create_facet_search_query
 
+    truncate_db_with_setup
+    setup
     truncate_db
 /;
 
@@ -156,10 +160,25 @@ sub set_asia {
     set_language_area($resource, LANGUAGE_AREA_ASIA, $language);
 }
 
+sub get_english {
+    Shachi::Service::Language->find_by_code(db => db, code => ENGLISH_CODE)
+            || create_language(code => ENGLISH_CODE);
+}
+
 sub create_facet_search_query {
     my $params = Hash::MultiValue->new;
     $params->add($_->[0], $_->[1]) for @_;
     Shachi::FacetSearchQuery->new(params => $params);
+}
+
+sub truncate_db_with_setup {
+    truncate_db();
+    setup();
+}
+
+# テストに必要なデータを用意しておく
+sub setup {
+    get_english();
 }
 
 sub truncate_db {

@@ -152,9 +152,9 @@ sub count_not_private : Tests {
 }
 
 sub embed_title : Tests {
-    truncate_db;
+    truncate_db_with_setup;
     my $title_metadata = create_metadata(name => METADATA_TITLE);
-    my $english = create_language(code => ENGLISH_CODE);
+    my $english = get_english;
 
     subtest 'embed title normally' => sub {
         my $db = Shachi::Database->new;
