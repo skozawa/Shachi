@@ -119,22 +119,18 @@ sub find_resource_detail {
 
 sub search_all {
     args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' };
+         my $db    => { isa => 'Shachi::Database' },
+         my $mode  => { isa => 'Str', default => 'default' };
 
-    return $db->shachi->table('resource')->search({
-        status => { '!=' => 'private' },
-    })->order_by('id asc')->list;
-}
+    my $resource_rs = do {
+        if ( $mode eq 'asia' ) {
+            Shachi::Service::Asia->resource_resultset(db => $db)->group_by('resource_id');
+        } else {
+            $db->shachi->table('resource');
+        }
+    } or return;
 
-sub search_asia_all {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' };
-
-    my $sub_query = Shachi::Service::Asia->resource_ids_subquery(db => $db);
-    return Shachi::Model::List->new(list => []) unless $sub_query && @$sub_query;
-
-    return $db->shachi->table('resource')->search({
-        id     => \$sub_query,
+    return $resource_rs->search({
         status => { '!=' => 'private' },
     })->order_by('id asc')->list;
 }

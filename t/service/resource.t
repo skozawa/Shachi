@@ -93,23 +93,23 @@ sub find_by_id : Tests {
     };
 }
 
-sub search_asia_all : Tests {
+sub search_all : Tests {
     truncate_db;
-    my $resources = [ map { create_resource } (1..5) ];
-    my $language_area = create_metadata(
-        name => METADATA_LANGUAGE_AREA, value_type => VALUE_TYPE_LANGUAGE_AREA,
-    );
-    my $asia = create_metadata_value(value_type => VALUE_TYPE_LANGUAGE_AREA, value => LANGUAGE_AREA_ASIA);
-    my $japan = create_metadata_value(value_type => VALUE_TYPE_LANGUAGE_AREA, value => LANGUAGE_AREA_JAPAN);
-
-    create_resource_metadata(resource => $resources->[1], metadata => $language_area,
-                             value_id => $asia->id);
-    create_resource_metadata(resource => $resources->[3], metadata => $language_area,
-                             value_id => $japan->id);
-
+    my $resources = [ map { create_resource } (1..10) ];
+    create_resource(status => 'private');
+    set_asia($resources->[$_]) for (0..4);
+    set_language_area($resources->[$_], LANGUAGE_AREA_JAPAN) for (0..2);
     my $db = Shachi::Database->new;
-    my $asia_resources = Shachi::Service::Resource->search_asia_all(db => $db);
-    is_deeply $asia_resources->map('id')->to_a, [$resources->[1]->id, $resources->[3]->id];
+
+    subtest 'search all' => sub {
+        my $resources = Shachi::Service::Resource->search_all(db => $db);
+        is_deeply $resources->map('id')->to_a, [ map { $_->id } @$resources ];
+    };
+
+    subtest 'search all (asia)' => sub {
+        my $resources = Shachi::Service::Resource->search_all(db => $db, mode => 'asia');
+        is_deeply $resources->map('id')->to_a, [ map { $resources->[$_]->id } (0..4) ];
+    };
 }
 
 sub search_titles : Tests {
@@ -140,6 +140,7 @@ sub count_not_private : Tests {
         create_resource(status => $_);
         my $r = create_resource(status => $_);
         set_asia($r);
+        set_language_area($r, LANGUAGE_AREA_JAPAN);
     }
 
     my $db = Shachi::Database->new;

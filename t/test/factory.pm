@@ -27,6 +27,7 @@ our @EXPORT = qw/
     create_metadata_value
     create_resource
     create_resource_metadata
+    set_language_area
     set_asia
     create_facet_search_query
 
@@ -134,21 +135,25 @@ sub create_resource_metadata {
     });
 }
 
-sub set_asia {
-    my ($resource, $language) = @_;
+sub set_language_area {
+    my ($resource, $language_area_value, $language) = @_;
     my $language_area = Shachi::Service::Metadata->find_by_name(
         db => db, name => METADATA_LANGUAGE_AREA
     ) || create_metadata(
         name => METADATA_LANGUAGE_AREA, value_type => VALUE_TYPE_LANGUAGE_AREA, input_type => INPUT_TYPE_SELECT
     );
-    my $asia = Shachi::Service::Metadata::Value->find_by_values_and_value_type(
-        db => db, value_type => VALUE_TYPE_LANGUAGE_AREA, values => [LANGUAGE_AREA_ASIA],
-    )->first || create_metadata_value(value_type => VALUE_TYPE_LANGUAGE_AREA, value => LANGUAGE_AREA_ASIA);
-
+    my $value = Shachi::Service::Metadata::Value->find_by_values_and_value_type(
+        db => db, value_type => VALUE_TYPE_LANGUAGE_AREA, values => [$language_area_value],
+    )->first || create_metadata_value(value_type => VALUE_TYPE_LANGUAGE_AREA, value => $language_area_value);
     create_resource_metadata(
-        resource => $resource, metadata => $language_area, value_id => $asia->id,
+        resource => $resource, metadata => $language_area, value_id => $value->id,
         $language ? (language => $language) : (),
     );
+}
+
+sub set_asia {
+    my ($resource, $language) = @_;
+    set_language_area($resource, LANGUAGE_AREA_ASIA, $language);
 }
 
 sub create_facet_search_query {
