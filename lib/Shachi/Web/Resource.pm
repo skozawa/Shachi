@@ -50,9 +50,11 @@ sub facet {
         if ( @$resources ) {
             Shachi::Service::Resource->embed_title(
                 db => $c->db, resources => $resources, language => $c->lang,
+                args => { fillin_english => 1 },
             );
             Shachi::Service::Resource->embed_description(
                 db => $c->db, resources => $resources, language => $c->lang,
+                args => { fillin_english => 1 },
             );
         }
     } else {
