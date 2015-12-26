@@ -9,7 +9,7 @@
   <select name="target" onchange="document.statistics-form.submit()">
     <option>-- Select metadata --</option>
     [%- FOREACH m IN metadata_list %]
-      <option value="[% m.name %]"[% ' selected' IF metadata && metadata.id == m.id %]>[% m.name %]</option>
+      <option value="[% m.name %]"[% ' selected' IF metadata && metadata.name == m.name %]>[% m.name %]</option>
     [%- END # FOREACH m IN metadata_list %]
   </select>
 </form>

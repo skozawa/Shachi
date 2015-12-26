@@ -94,7 +94,6 @@ sub migrate_scheme {
     foreach my $item ( @items ) {
         my $data = $item->{data};
         $dbix_new->table('metadata')->insert({
-            id => $data->{id},
             name => $data->{name},
             label => $data->{label},
             order_num => $data->{id} * 10, # あとから追加しやすいように10倍しておく
@@ -250,7 +249,7 @@ sub migrate_resources {
 
                 # 追加要素がない場合はスキップ
                 if ( !$value_id && !$content && !$desc ) {
-                    print $data->{id}, "\t", $meta->{data}->{id}, "\t", $item, "\n";
+                    print $data->{id}, "\t", $meta->{data}->{name}, "\t", $item, "\n";
                     next;
                 }
 

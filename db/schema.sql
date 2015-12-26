@@ -24,7 +24,6 @@ CREATE TABLE `language` (
 
 DROP TABLE IF EXISTS `metadata`;
 CREATE TABLE `metadata` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `label` varchar(100) NOT NULL,
   `order_num` int NOT NULL,
@@ -33,8 +32,7 @@ CREATE TABLE `metadata` (
   `input_type` enum('text', 'textarea', 'select', 'select_only', 'relation', 'language', 'date', 'range') NOT NULL DEFAULT 'text',
   `value_type` varchar(100) NOT NULL, -- metadata_value.value_type
   `color` varchar(20) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_name` (`name`),
+  PRIMARY KEY (`name`),
   KEY `idx_shown_order` (`shown`, `order_num`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

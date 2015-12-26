@@ -28,7 +28,6 @@ sub create : Tests {
         is $metadata->order_num, $values->{order_num}, 'equal order_num';
         is $metadata->input_type, $values->{input_type}, 'equal input_type';
         is $metadata->value_type, $values->{value_type}, 'equal value_type';
-        ok $metadata->id, 'has id';
     };
 
     subtest 'invalid input_type' => sub {
@@ -95,7 +94,7 @@ sub find_by_name : Tests {
         my $found_metadata = Shachi::Service::Metadata->find_by_name(
             db => $db, name => $name,
         );
-        is $metadata->id, $found_metadata->id;
+        is $metadata->name, $found_metadata->name;
     };
 }
 
@@ -111,7 +110,7 @@ sub find_by_names : Tests {
         );
 
         is $metadata_list->size, 2;
-        cmp_deeply $metadata_list->map('id')->to_a, [ $metadata1->id, $metadata2->id ];
+        cmp_deeply $metadata_list->map('name')->to_a, [ $metadata1->name, $metadata2->name ];
     };
 
     subtest 'find normaly sorted by names' => sub {
@@ -126,7 +125,7 @@ sub find_by_names : Tests {
         );
 
         is $metadata_list->size, 3;
-        cmp_deeply $metadata_list->map('id')->to_a, [ $metadata2->id, $metadata1->id, $metadata3->id];
+        cmp_deeply $metadata_list->map('name')->to_a, [ $metadata2->name, $metadata1->name, $metadata3->name];
     };
 }
 
@@ -181,6 +180,6 @@ sub find_by_input_types : Tests {
         );
 
         is $metadata_list->size, 1;
-        is $metadata_list->first->id, $metadata->id;
+        is $metadata_list->first->name, $metadata->name;
     };
 }

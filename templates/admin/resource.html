@@ -73,25 +73,25 @@
 
 
 [%- MACRO metadata_input_text(metadata) BLOCK %]
-  <input name="[% metadata.id %]" type="text" class="content">
+  <input name="[% metadata.name %]" type="text" class="content">
 [%- END # MACRO metadata_input_text %]
 
 [%- MACRO metadata_input_textarea(metadata) BLOCK %]
-  <textarea name="[% metadata.id %]" class="content"></textarea>
+  <textarea name="[% metadata.name %]" class="content"></textarea>
 [%- END # MACRO metadata_input_textarea %]
 
 [%- MACRO metadata_input_select(metadata) BLOCK %]
-  <select name="[% metadata.id %]">
+  <select name="[% metadata.name %]">
     <option value=""></option>
     [%- FOREACH value IN metadata.values %]
       <option value="[% value.id %]">[% value.value %]</option>
     [%- END # FOREACH value IN metadata.values %]
   </select>
-  <input name="[% metadata.id %]" type="text" class="description">
+  <input name="[% metadata.name %]" type="text" class="description">
 [%- END # MACRO metadata_input_select %]
 
 [%- MACRO metadata_input_select_only(metadata) BLOCK %]
-  <select name="[% metadata.id %]">
+  <select name="[% metadata.name %]">
     <option value=""></option>
     [%- FOREACH value IN metadata.values %]
       <option value="[% value.id %]">[% value.value %]</option>
@@ -100,35 +100,35 @@
 [%- END # MACRO metadata_input_select_only %]
 
 [%- MACRO metadata_input_relation(metadata) BLOCK %]
-  <select name="[% metadata.id %]">
+  <select name="[% metadata.name %]">
     <option value=""></option>
     [%- FOREACH value IN metadata.values %]
       <option value="[% value.id %]">[% value.value %]</option>
     [%- END # FOREACH value IN metadata.values %]
   </select>
-  <input name="[% metadata.id %]" type="text" class="description">
+  <input name="[% metadata.name %]" type="text" class="description">
 [%- END # MACRO metadata_input_relation %]
 
 [%- MACRO metadata_input_language(metadata) BLOCK %]
-  <input name="[% metadata.id %]" type="text" class="content">
-  <input name="[% metadata.id %]" type="text" class="description">
+  <input name="[% metadata.name %]" type="text" class="content">
+  <input name="[% metadata.name %]" type="text" class="description">
 [%- END # MACRO metadata_input_language %]
 
 [%- MACRO metadata_input_date(metadata) BLOCK %]
-  <input name="[% metadata.id %]" type="text" class="year">
-  <input name="[% metadata.id %]" type="text" class="month">
-  <input name="[% metadata.id %]" type="text" class="day">
-  <input name="[% metadata.id %]" type="text" class="description">
+  <input name="[% metadata.name %]" type="text" class="year">
+  <input name="[% metadata.name %]" type="text" class="month">
+  <input name="[% metadata.name %]" type="text" class="day">
+  <input name="[% metadata.name %]" type="text" class="description">
 [%- END # MACRO metadata_input_date %]
 
 [%- MACRO metadata_input_range(metadata) BLOCK %]
-  <input name="[% metadata.id %]" type="text" class="year from-year">
-  <input name="[% metadata.id %]" type="text" class="month from-month">
-  <input name="[% metadata.id %]" type="text" class="day from-day"> -
-  <input name="[% metadata.id %]" type="text" class="year to-year">
-  <input name="[% metadata.id %]" type="text" class="month to-month">
-  <input name="[% metadata.id %]" type="text" class="day to-day">
-  <input name="[% metadata.id %]" type="text" class="description">
+  <input name="[% metadata.name %]" type="text" class="year from-year">
+  <input name="[% metadata.name %]" type="text" class="month from-month">
+  <input name="[% metadata.name %]" type="text" class="day from-day"> -
+  <input name="[% metadata.name %]" type="text" class="year to-year">
+  <input name="[% metadata.name %]" type="text" class="month to-month">
+  <input name="[% metadata.name %]" type="text" class="day to-day">
+  <input name="[% metadata.name %]" type="text" class="description">
 [%- END # MACRO metadata_input_range %]
 
 <div>
