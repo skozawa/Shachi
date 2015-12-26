@@ -94,6 +94,7 @@ sub migrate_scheme {
     foreach my $item ( @items ) {
         my $data = $item->{data};
         $dbix_new->table('metadata')->insert({
+            id => $data->{id},
             name => $data->{name},
             label => $data->{label},
             order_num => $data->{id} * 10, # あとから追加しやすいように10倍しておく
