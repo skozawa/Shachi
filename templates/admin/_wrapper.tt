@@ -3,8 +3,11 @@
   <head>
     <meta charset="utf-8">
     <title>[% title || 'SHACHI' %] - SHACHI Admin</title>
+    <meta name="keywords" content="SHACHI, Language Resource, Metadata Database">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="/css/admin.css" type="text/css">
     <script type="text/javascript" src="/js/admin.js"></script>
+    <link rel="shortcut icon" href="/images/favicon.ico">
   </head>
 
   <body>
