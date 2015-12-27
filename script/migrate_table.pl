@@ -21,12 +21,20 @@ my $dbix_new = DBIx::Lite->connect(
     "root", "", { mysql_enable_utf8 => 1 },
 );
 
+truncate_db($dbix_new);
 migrate_annotators($dbix_old, $dbix_new);
 migrate_options($dbix_old, $dbix_new);
 migrate_languages($dbix_old, $dbix_new);
 migrate_scheme($dbix_old, $dbix_new);
 migrate_resources($dbix_old, $dbix_new);
 # migrate_title_list($dbix_old, $dbix_new);
+
+sub truncate_db {
+    my ($dbix_new) = @_;
+    warn "Truncate Tables";
+    my $tables = $dbix_new->dbh->table_info('', '', '%', 'TABLE')->fetchall_arrayref({});
+    $dbix_new->dbh->do("truncate table `$_`") for map { $_->{TABLE_NAME} } @$tables;
+}
 
 # 旧annotatorsテーブルの要素を新annotatorテーブルに移行
 sub migrate_annotators {
@@ -238,6 +246,39 @@ sub migrate_resources {
             } else {
                 $value =~ s/\|/|||QEUSNEIAN||/g;
             }
+            # date_issued が複数になっているのをまとめる
+            if ( $meta->{data}->{name} eq 'date_issued' ) {
+                my $content = '';
+                my @descriptions;
+                foreach my $item ( split /\|\|\|QEUSNEIAN\|\|/, $value ) {
+                    my ($val, @texts) = split /,/, $item;
+                    $content = $val unless $val eq '--'; # -- は削除
+                    push @descriptions, join ",", @texts;
+                }
+                my $description = join ", ", @descriptions;
+                # ., は . だけにする
+                $description =~ s/\.\, /. /;
+                $value = $content . "," . $description;
+            }
+            # date_createdで複数項目ある一部のリソースを修正
+            if ( $meta->{data}->{name} eq 'date_created' ) {
+                if ( $data->{id} == 803 ) {
+                    $value = '2001-00-00 2004-00-00,collected in 1977-1978, annotated in 2001-2004';
+                } elsif ( $data->{id} == 869 ) {
+                    $value = '1988-00-00 1990-00-00,1993-1995';
+                } elsif ( $data->{id} == 1592 ) {
+                    $value = '2001-00-00 0000-00-00,The corpus consists of two subcorpora, one collected in 2001, and the other at differenct times since 1997';
+                }
+            }
+            # 複数に分割されているdescriptionをまとめる
+            if ( $meta->{data}->{name} eq 'description' ) {
+                my @contents;
+                foreach my $item ( split /\|\|\|QEUSNEIAN\|\|/, $value ) {
+                    my ($val, @texts) = split /,/, $item;
+                    push @contents, join ",", @texts;
+                }
+                $value = "," . join("\n", @contents);
+            }
             foreach my $item ( split /\|\|\|QEUSNEIAN\|\|/, $value ) {
                 $item =~ s/\!\!BNSDLSIFNELS\!\!/|/g;
                 $item =~ s/\!\!AFELISNFELIS\!\!/"|/g;
@@ -247,6 +288,12 @@ sub migrate_resources {
                 $text =~ s/^\s+// if $text;
 
                 my ($value_id, $content, $desc) = _meta_value($dbix_new, $meta, $val, $text);
+                # date_modifiedの'--'とdate_createdの'-- --'は除去
+                if ( $meta->{data}->{name} eq 'date_modified' && $content eq '--' ) {
+                    $content = '';
+                } elsif ( $meta->{data}->{name} eq 'date_created' && $content eq '-- --' ) {
+                    $content = '';
+                }
 
                 # 追加要素がない場合はスキップ
                 if ( !$value_id && !$content && !$desc ) {
