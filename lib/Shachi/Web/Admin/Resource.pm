@@ -10,6 +10,7 @@ use Shachi::Service::Resource;
 use Shachi::Service::Resource::Metadata;
 use Shachi::Service::Metadata;
 use Shachi::Service::Metadata::Value;
+use Shachi::Util qw/format_content/;
 
 sub find_by_id {
     my ($class, $c) = @_;
@@ -192,7 +193,8 @@ sub update_metadata {
                     value    => $_->value->value,
                 ) : (),
                 content => $_->content,
-                description => $_->description
+                description => $_->description,
+                formatted_content => format_content($_->content),
             }
         } @resource_metadata_list ];
     }

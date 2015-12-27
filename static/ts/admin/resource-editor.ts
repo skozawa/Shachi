@@ -456,7 +456,7 @@ module Shachi {
             var elem = document.createElement('li');
             var content = document.createElement('span');
             content.setAttribute('class', 'content');
-            content.textContent = value.content;
+            content.innerHTML = value.formatted_content;
             elem.appendChild(content);
             return elem;
         }

@@ -11,7 +11,7 @@
 [%- MACRO metadata_list_textarea(resource_metadata_list) BLOCK %]
   [%- FOREACH resource_metadata IN resource_metadata_list %]
     <li>
-      <span class="content">[% resource_metadata.content %]</span>
+      <span class="content">[% format_content(resource_metadata.content) | raw %]</span>
     </li>
   [%- END # FOREACH resource_metadata IN resource_metadata_list %]
 [%- END # MACRO metadata_list_textarea %]
