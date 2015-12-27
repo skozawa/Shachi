@@ -944,7 +944,7 @@ var Shachi;
             var date = content.textContent.split('-');
             var description = elem.querySelector('.description');
             var descriptionValue = description ? description.textContent : '';
-            return { year: date[0], month: date[1], day: date[2], description: descriptionValue };
+            return { year: date[0], month: date[1] || '', day: date[2] || '', description: descriptionValue };
         };
         ResourceMetadataDateEditor.prototype.addItemWithValue = function (value) {
             var newItem = this.addItem();
