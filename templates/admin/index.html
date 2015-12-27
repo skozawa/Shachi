@@ -1,4 +1,4 @@
-[%- WRAPPER '/admin/_wrapper.tt' %]
+[%- WRAPPER '/admin/_wrapper.tt' title = 'Home' %]
 
 <div>
   <a href="/admin/resources/create[% '?annotator_id=' _ c.req.param('annotator_id') IF c.req.param('annotator_id') %]">

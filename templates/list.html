@@ -1,4 +1,6 @@
-[%- WRAPPER '_wrapper.tt' WITH current_navi = 'list' %]
+[%- WRAPPER '_wrapper.tt' WITH current_navi = 'list'
+    title = c.is_japanese ? '言語資源リスト' : 'Language Resource List'
+%]
 <div class="search-count-container">
   <span>[% resources.size %] [% c.is_japanese ? '件' : 'resources' %]</span>
 </div>

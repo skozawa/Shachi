@@ -20,6 +20,7 @@ sub find_by_id {
     return $c->html('detail.html', {
         resource => $resource,
         metadata_list => $metadata_list,
+        title => $resource->title,
     });
 }
 

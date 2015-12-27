@@ -1,4 +1,7 @@
-[%- WRAPPER '_wrapper.tt' WITH current_navi = 'statistics' %]
+[%- WRAPPER '_wrapper.tt' WITH current_navi = 'statistics',
+    title = c.is_japanese ? '言語資源の統計' : 'Language Resource Statistics',
+    subtitle = metadata ? metadata.name : ''
+%]
 
 <form name="statistics-form" class="statistics-form" method="get">
   [%- IF c.is_japanese %]

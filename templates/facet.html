@@ -1,4 +1,6 @@
-[%- WRAPPER '_wrapper.tt' WITH current_navi = 'search' %]
+[%- WRAPPER '_wrapper.tt' WITH current_navi = 'search'
+    title = c.is_japanese ? '言語資源検索' : 'Language Resource Search'
+%]
 
 <div class="search-result-count-container">
   [%- IF c.is_japanese %]

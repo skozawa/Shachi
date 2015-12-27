@@ -2,7 +2,7 @@
 <html class="lang-[% c.lang.code %] mode-[% c.mode %]">
   <head>
     <meta charset="utf-8">
-    <title>[% title || 'SHACHI' %]</title>
+    <title>[% title || 'SHACHI' %][% ' (' _ subtitle _ ')' IF subtitle %] - SHACHI[% c.mode == 'asia' ? ' for Asia' : '' %]: Language Resource Metadata Database</title>
     <link rel="stylesheet" href="/css/main.css" type="text/css">
     <link rel="shortcut icon" href="/images/favicon.ico">
   </head>
