@@ -707,6 +707,7 @@ module Shachi {
             var description = elem.querySelector('.description');
             var descriptionValue = description ? description.value : '';
             if (fromDate === '' && toDate === '' && descriptionValue === '') return undefined;
+            if (fromDate === '' && toDate === '') return { content: '', description: descriptionValue };
             var defaultDate = '0000-00-00';
             var date = (fromDate === '' ? defaultDate : fromDate) + ' ' +
                 (toDate === '' ? defaultDate : toDate);
@@ -715,13 +716,13 @@ module Shachi {
         toHashFromData(elem) {
             var content = elem.querySelector('.content');
             var range = content.textContent.split(' ');
-            var from = (range[0] || '').split('-');;
+            var from = (range[0] || '').split('-');
             var to = (range[1] || '').split('-');
             var description = elem.querySelector('.description');
             var descriptionValue = description ? description.textContent : '';
             return {
-                fromYear: from[0], fromMonth: from[1], fromDay: from[2],
-                toYear: to[0], toMonth: to[1], toDay: to[2],
+                fromYear: from[0], fromMonth: from[1] || '', fromDay: from[2] || '',
+                toYear: to[0], toMonth: to[1] || '', toDay: to[2] || '',
                 description: descriptionValue
             };
         }
