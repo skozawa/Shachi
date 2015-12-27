@@ -17,6 +17,7 @@ requires 'Hash::MultiValue';
 requires 'Smart::Args';
 requires 'Carp';
 requires 'Search::Query';
+requires 'HTML::Escape';
 
 # route
 requires 'Router::Simple';

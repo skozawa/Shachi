@@ -97,7 +97,7 @@
         <a class="title" href="[% resource.link %]">
           [% resource.shachi_id %]: [% resource.title %]
         </a>
-        <div class="description">[% resource.description %]</div>
+        <div class="description">[% format_content(resource.description, { linkify => 1 }) | raw %]</div>
       </li>
       [%- END # FOREACH resource IN resources %]
     </ul>
