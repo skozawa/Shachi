@@ -21,7 +21,7 @@ def start():
     with cd(home_dir):
         print('start server')
         # FIXME: stop by C-c
-        run("PIDFILE=%s scrimysql417.db.sakura.ne.jppt/run.sh >& /dev/null 2>&1" % pidfile, pty=False)
+        run("PIDFILE=%s script/run.sh >& /dev/null 2>&1" % pidfile, pty=False)
 
 def stop():
     with cd(home_dir):
