@@ -7,5 +7,5 @@ Require valid-user
 RewriteEngine On 
 
 RewriteCond %{HTTP_HOST} ^www3.shachi.org$ [NC]
-RewriteRule (.*) http://www3.shachi.org:5000/$1 [L,P]
+RewriteRule (.*) http://www3.shachi.org:5432/$1 [L,P]
 
