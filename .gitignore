@@ -1,2 +1,4 @@
 /local/
 /node_modules/
+config/db.production
+fabfile.pyc
