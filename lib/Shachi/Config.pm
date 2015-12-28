@@ -11,27 +11,21 @@ my $Rooter = Shachi::Config::Router->router;
 
 sub root { $Root }
 sub router { $Rooter }
+sub dbinfo {
+    my $data = root->subdir('config')->file('db.' . $ENV{PLACK_ENV})->slurp;
+    my $config = {};
+    foreach my $line ( split /\r?\n/, $data ) {
+        next unless $line;
+        my ($name, $user, $pass, $dsn) = split /,/, $line;
+        $config->{$name} = { user => $user, pass => $pass, dsn => $dsn };
+    }
+    $config;
+}
 
 common {
-    'db' => {
-        shachi => {
-            user     => 'root',
-            password => '',
-            dsn      => 'dbi:mysql:dbname=shachi;host=localhost',
-        }
-    },
+    'db' => dbinfo(),
 
     'static.root' => 'static',
-};
-
-config test => {
-    'db' => {
-        shachi => {
-            user     => 'root',
-            password => '',
-            dsn      => 'dbi:mysql:dbname=shachi_test;host=localhost',
-        }
-    },
 };
 
 1;
