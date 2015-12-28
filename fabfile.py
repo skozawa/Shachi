@@ -14,7 +14,8 @@ def update():
         run('git submodule update --init')
         run('plenv local 5.20.1')
         run('plenv rehash')
-        run('carton install')
+        run('carton install --deployment')
+        put('config/db.production', 'config/db.production')
 
 def start():
     with cd(home_dir):
