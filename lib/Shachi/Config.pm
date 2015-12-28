@@ -17,7 +17,7 @@ sub dbinfo {
     foreach my $line ( split /\r?\n/, $data ) {
         next unless $line;
         my ($name, $user, $pass, $dsn) = split /,/, $line;
-        $config->{$name} = { user => $user, pass => $pass, dsn => $dsn };
+        $config->{$name} = { user => $user, password => $pass, dsn => $dsn };
     }
     $config;
 }
