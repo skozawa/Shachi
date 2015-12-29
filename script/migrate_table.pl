@@ -103,11 +103,19 @@ sub migrate_scheme {
     my @items = $dbix_old->table('scheme')->all;
     foreach my $item ( @items ) {
         my $data = $item->{data};
+        $data->{order_num} = $data->{id} * 10; # あとから追加しやすいように10倍しておく
+        if ( $data->{name} eq 'identifier_doi' ) {
+            $data->{order_num} = 501;
+        } elsif ( $data->{name} eq 'identifier_islrn' ) {
+            $data->{order_num} = 502;
+        } elsif ( $data->{name} eq 'title_abbreviation' ) {
+            $data->{order_num} = 15;
+        }
         $dbix_new->table('metadata')->insert({
             id => $data->{id},
             name => $data->{name},
             label => $data->{label},
-            order_num => $data->{id} * 10, # あとから追加しやすいように10倍しておく
+            order_num => $data->{order_num},
             shown => 1,
             multi_value => $data->{multi_value} ? 1 : 0,
             input_type => $data->{type},
