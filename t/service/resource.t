@@ -442,4 +442,54 @@ sub delete_by_id : Tests {
         );
         is $metadata_list->size, 0;
     };
+
+    subtest 'delete with relation' => sub {
+        my $db = Shachi::Database->new;
+        my $language1 = create_language;
+        my $language2 = create_language;
+        my $resource = create_resource;
+        my $title1 = create_resource_metadata(
+            resource => $resource, language => $language1,
+            content => random_word, metadata_name => METADATA_TITLE,
+        );
+        my $title2 = create_resource_metadata(
+            resource => $resource, language => $language2,
+            content => random_word, metadata_name => METADATA_TITLE,
+        );
+
+        my $create_relation = sub {
+            my ($resource, $language) = @_;
+            create_resource_metadata(
+                language => $language, metadata_name => METADATA_RELATION,
+                description => $resource->relation_value
+            );
+        };
+        $resource->title($title1->content);
+        $create_relation->($resource, $language1) for (1..3);
+        $resource->title($title2->content);
+        $create_relation->($resource, $language2) for (1..2);
+        $create_relation->($resource, $language1);
+
+        Shachi::Service::Resource->delete_by_id(
+            db => $db, id => $resource->id,
+        );
+
+        ok ! Shachi::Service::Resource->find_by_id(db => $db, id => $resource->id), 'delete resource normally';
+        is $db->shachi->table('resource_metadata')->search({
+            resource_id => $resource->id
+        })->count, 0;
+
+        $resource->title($title1->content);
+        is $db->shachi->table('resource_metadata')->search({
+            metadata_name => METADATA_RELATION, description => $resource->relation_value,
+        })->count, 0;
+        $resource->title($title2->content);
+        is $db->shachi->table('resource_metadata')->search({
+            metadata_name => METADATA_RELATION, description => $resource->relation_value,
+        })->count, 1;
+        is $db->shachi->table('resource_metadata')->search({
+            metadata_name => METADATA_RELATION, description => $resource->relation_value,
+            language_id   => $language2->id,
+        })->count, 0;
+    };
 }

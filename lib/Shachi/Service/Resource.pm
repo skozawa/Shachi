@@ -325,12 +325,25 @@ sub delete_by_id {
          my $db    => { isa => 'Shachi::Database' },
          my $id;
 
+    my $resource = $class->find_by_id(db => $db, id => $id) or return;
+    my $titles = $db->shachi->table('resource_metadata')->search({
+        resource_id => $id, metadata_name => METADATA_TITLE,
+    })->list;
+
     $db->shachi->table('resource')->search({
         id => $id,
     })->delete;
     $db->shachi->table('resource_metadata')->search({
         resource_id => $id,
     })->delete;
+    foreach my $title ( @$titles ) {
+        $resource->title($title->content);
+        $db->shachi->table('resource_metadata')->search({
+            metadata_name => METADATA_RELATION,
+            language_id   => $title->language_id,
+            description   => $resource->relation_value,
+        })->delete;
+    }
 }
 
 1;
