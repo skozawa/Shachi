@@ -16,6 +16,7 @@ def update():
         run('plenv rehash')
         run('carton install --deployment')
         put('config/db.production', 'config/db.production')
+        put('.htpasswd', '.htpasswd')
 
 def start():
     with cd(home_dir):
