@@ -27,6 +27,8 @@ migrate_options($dbix_old, $dbix_new);
 migrate_languages($dbix_old, $dbix_new);
 migrate_scheme($dbix_old, $dbix_new);
 migrate_resources($dbix_old, $dbix_new);
+update_shachi_id($dbix_new);
+update_relation($dbix_new);
 # migrate_title_list($dbix_old, $dbix_new);
 
 sub truncate_db {
@@ -340,6 +342,131 @@ sub _meta_value {
         return ($val_id || 0, undef, $text);
     } elsif ( $input_type eq 'date' || $input_type eq 'range' ) {
         return (0, $val, $text);
+    }
+}
+
+# SHACHI ID を最新にする
+sub update_shachi_id {
+    my ($dbix_new) = @_;
+    warn "UPDATE SHACHI ID";
+
+    my $shachi_id_type = sub {
+        my ($resource_subjects) = @_;
+        return 'N' unless $resource_subjects && @$resource_subjects;
+        foreach my $resource_subject ( @$resource_subjects ) {
+            my $value = $dbix_new->table('metadata_value')->search({
+                id => $resource_subject->{data}->{value_id}
+            })->single or next;
+            return 'C' if $value->value eq 'corpus';
+            return 'D' if $value->value eq 'dictionary';
+            return 'G' if $value->value eq 'glossary';
+            return 'T' if $value->value eq 'thesaurus';
+        }
+        return 'O';
+    };
+
+    my @resources = $dbix_new->table('resource')->all;
+    foreach my $resource ( @resources ) {
+        my @resource_subjects = $dbix_new->table('resource_metadata')->search({
+            metadata_name => 'subject_resourceSubject', resource_id => $resource->{data}->{id},
+        })->all;
+        my $type = $shachi_id_type->(\@resource_subjects);
+        my $shachi_id = sprintf '%s-%06d', $type, $resource->{data}->{id};
+        if ( $resource->{data}->{shachi_id} ne $shachi_id ) {
+            # warn $resource->{data}->{shachi_id}, "\t", $shachi_id;
+            $dbix_new->table('resource')->search({
+                id => $resource->{data}->{id}
+            })->update({ shachi_id => $shachi_id });
+        }
+    }
+}
+
+# relationの形式を変更
+# SHACHI ID がついていないものにIDを付与
+sub update_relation {
+    my ($dbix_new) = @_;
+    warn "FIX AND ARRANGE RELATION";
+
+    my @relations = $dbix_new->table('resource_metadata')->search({
+        metadata_name => 'relation',
+    })->all;
+
+    my $get_resource = sub {
+        my ($id) = @_;
+        $dbix_new->table('resource')->search({ id => $id })->single;
+    };
+    my $get_title = sub {
+        my ($args) = @_;
+        $args ||= {};
+        return if !$args->{resource_id} && !$args->{content};
+        $dbix_new->table('resource_metadata')->search({
+            metadata_name => 'title',
+            $args->{resource_id} ? (resource_id => $args->{resource_id}) : (),
+            $args->{content} ? (content => $args->{content}) : (),
+        })->single;
+    };
+    my $get_identifier = sub {
+        my ($content) = @_;
+        $dbix_new->table('resource_metadata')->search({
+            metadata_name => 'identifier', content => { '-like' => '%' . $content . '%' },
+        })->single;
+    };
+    my $get_value = sub {
+        my ($id) = @_;
+        return unless $id;
+        $dbix_new->table('metadata_value')->search({ id => $id })->single;
+    };
+
+    foreach my $relation ( @relations ) {
+        my $value = $get_value->($relation->{data}->{value_id});
+        my ($tag, $resource, $title, $identifier);
+        next unless $relation->{data}->{description};
+        if ( $relation->{data}->{description} =~ /^[NCDGTOSWL]-(\d{6}),/ ) {
+            my $id = $1;
+            $tag = "[ID]";
+            $resource = $get_resource->($id);
+            $title = $get_title->({ resource_id => $id });
+        } elsif ( $title = $get_title->({ content => $relation->{data}->{description} }) ) {
+            $tag = "[TITLE]";
+            $resource = $get_resource->($title->{data}->{resource_id});
+        } elsif ( $relation->{data}->{description} =~ /(LDC\d+[A-Z]\d+(?:-\d)?)/ ) {
+            my $ldcid = $1;
+            $identifier = $get_identifier->($ldcid);
+            if ( $identifier ) {
+                $tag = "[LDC]";
+                $resource = $get_resource->($identifier->{data}->{resource_id});
+                $title = $get_title->({ resource_id => $resource->{data}->{id} });
+            } else {
+                $tag = "[NO:LDC]";
+            }
+        } elsif ( $relation->{data}->{description} =~ /([A-Z]\d{4}(?:-\d+)?)/ ) {
+            my $elra_id = $1;
+            $identifier = $get_identifier->($elra_id);
+            if ( $identifier ) {
+                $tag = "[ELRA]";
+                $resource = $get_resource->($identifier->{data}->{resource_id});
+                $title = $get_title->({ resource_id => $resource->{data}->{id} });
+            } else {
+                $tag = "[NO:ELRA]";
+            }
+        } else {
+            $tag = "[NO]";
+        }
+        # print $relation->{data}->{resource_id};
+        # print $tag;
+        # printf "[%s]", $value ? $value->{data}->{value} : '';
+        # print $relation->{data}->{description};
+        # print "\t", $resource->{data}->{shachi_id} if $resource;
+        # print ":", $title->{data}->{content} if $title;
+        # print "\t", $identifier->{data}->{content} if $identifier;
+        # print "\n";
+
+        if ( $resource && $title ) {
+            my $description = sprintf '%s: %s', $resource->{data}->{shachi_id}, $title->{data}->{content};
+            $dbix_new->table('resource_metadata')->search({
+                id => $relation->{data}->{id}
+            })->update({ description => $description });
+        }
     }
 }
 
