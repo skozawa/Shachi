@@ -182,18 +182,9 @@ sub find_resource_metadata {
         resource_metadata_list => $resource_metadata_list,
     ) if $args->{fillin_english};
 
-
-    if ( $args->{with_value} ) {
-        my $metadata_value_by_id = Shachi::Service::Metadata::Value->find_by_ids(
-            db => $db, ids => $resource_metadata_list->map(sub {
-                $_->value_id ? $_->value_id : ()
-            })->to_a,
-        )->hash_by('id');
-        foreach my $resource_metadata ( @$resource_metadata_list ) {
-            my $metadata_value = $metadata_value_by_id->{$resource_metadata->value_id};
-            $resource_metadata->value($metadata_value);
-        }
-    }
+    $class->embed_resource_metadata_value(
+        db => $db, resource_metadata_list => $resource_metadata_list
+    ) if $args->{with_value};
 
     return $resource_metadata_list;
 }
