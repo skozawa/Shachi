@@ -67,7 +67,7 @@ sub create_post {
 
 sub _resource_subject_from_contents {
     my ($db, $contents) = @_;
-    my $resource_subject = firstval { $_->{value_id} } @{$contents->{subject_resourceSubject} || []};
+    my $resource_subject = firstval { $_->{value_id} } @{$contents->{METADATA_SUBJECT_RESOURCE_SUBJECT()} || []};
     return unless $resource_subject;
     my $value = Shachi::Service::Metadata::Value->find_by_id(db => $db, id => $resource_subject->{value_id});
     $value->value;

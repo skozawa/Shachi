@@ -21,13 +21,13 @@ sub create_post : Tests {
 
     my $metadata_list = +{ map {
         $_->[0] => create_metadata(name => $_->[0], input_type => $_->[1])
-    } (['title', INPUT_TYPE_TEXT],
-     ['description', INPUT_TYPE_TEXTAREA],
-     ['subject_resourceSubject', INPUT_TYPE_SELECT],
+    } ([METADATA_TITLE, INPUT_TYPE_TEXT],
+     [METADATA_DESCRIPTION, INPUT_TYPE_TEXTAREA],
+     [METADATA_SUBJECT_RESOURCE_SUBJECT, INPUT_TYPE_SELECT],
      ['subject_monoMultilingual', INPUT_TYPE_SELECTONLY],
-     ['relation', INPUT_TYPE_RELATION],
+     [METADATA_RELATION, INPUT_TYPE_RELATION],
      ['language', INPUT_TYPE_LANGUAGE],
-     ['date_issued', INPUT_TYPE_DATE],
+     [METADATA_DATE_ISSUED, INPUT_TYPE_DATE],
      ['date_created', INPUT_TYPE_RANGE],
     ) };
 
@@ -41,22 +41,22 @@ sub create_post : Tests {
         my $json = {
             annotator_id => $annotator->id,
             status => 'public',
-            title => [ { content => 'test corpus' } ],
-            description => [ { content => 'test test' } ],
-            subject_resourceSubject => [
+            METADATA_TITLE() => [ { content => 'test corpus' } ],
+            METADATA_DESCRIPTION() => [ { content => 'test test' } ],
+            METADATA_SUBJECT_RESOURCE_SUBJECT() => [
                 { value_id => $resource_subject_value->id, description => '' },
                 { value_id => '', description => 'test' },
             ],
             subject_monoMultilingual => [
                 { value_id => $mono_multilingual_value->id },
             ],
-            relation => [
+            METADATA_RELATION() => [
                 { value_id => $relation_value->id, description => 'test relation' },
             ],
             language => [
                 { content => $language_value->name, description => 'test language' },
             ],
-            date_issued => [ { content => '2015-10-01' } ],
+            METADATA_DATE_ISSUED() => [ { content => '2015-10-01' } ],
             date_created => [
                 { content => '2014-01-01 2015-08-01', description => 'test created' }
             ],
@@ -168,7 +168,7 @@ sub update_metadata : Tests {
         $resource->title(random_word);
         create_resource_metadata(
             resource => $resource,
-            metadata => $metadata_list->{title},
+            metadata => $metadata_list->{METADATA_TITLE()},
             language => $language,
             content  => $resource->title,
         );
@@ -179,14 +179,14 @@ sub update_metadata : Tests {
         );
         # create relation
         create_resource_metadata(
-            language => $language, metadata => $metadata_list->{relation},
+            language => $language, metadata => $metadata_list->{METADATA_RELATION()},
             description => $resource->relation_value,
         ) for (1..3);
 
         my $language_value = create_language;
         my $new_title = random_word;
         my $json = {
-            title => [ { content => $new_title } ],
+            METADATA_TITLE() => [ { content => $new_title } ],
             language => [
                 { content => $language_value->name, description => 'test language' },
             ],
@@ -198,7 +198,7 @@ sub update_metadata : Tests {
 
         my $res_json = decode_json($mech->res->content);
         is $res_json->{resource_id}, $resource->id;
-        is $res_json->{title}->[0]->{content}, $new_title;
+        is $res_json->{METADATA_TITLE()}->[0]->{content}, $new_title;
         is $res_json->{language}->[0]->{value}, $language_value->name;
 
         $resource->title($new_title);
@@ -213,12 +213,12 @@ sub update_metadata : Tests {
         my $mech = create_mech;
         my $resource = create_resource;
         create_resource_metadata(
-            resource => $resource, metadata => $metadata_list->{relation},
+            resource => $resource, metadata => $metadata_list->{METADATA_RELATION()},
             language => $language, description => $resource->relation_value
         ) for (1..2);
         my $resource_subject_value = create_metadata_value(value => 'corpus');
         my $json = {
-            subject_resourceSubject => [
+            METADATA_SUBJECT_RESOURCE_SUBJECT() => [
                 { value_id => $resource_subject_value->id, description => '' },
                 { value_id => '', description => 'test' },
             ],
@@ -230,8 +230,8 @@ sub update_metadata : Tests {
 
         my $res_json = decode_json($mech->res->content);
         is $res_json->{resource_id}, $resource->id;
-        is $res_json->{subject_resourceSubject}->[0]->{value_id}, $resource_subject_value->id;
-        is $res_json->{subject_resourceSubject}->[1]->{description}, 'test';
+        is $res_json->{METADATA_SUBJECT_RESOURCE_SUBJECT()}->[0]->{value_id}, $resource_subject_value->id;
+        is $res_json->{METADATA_SUBJECT_RESOURCE_SUBJECT()}->[1]->{description}, 'test';
         my $db = Shachi::Database->new;
         my $resource = Shachi::Service::Resource->find_by_id(db => $db, id => $resource->id);
         ok $resource;

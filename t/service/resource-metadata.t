@@ -57,9 +57,9 @@ sub create_multi_from_json : Tests {
         $_->[0] => create_metadata(name => $_->[0], input_type => $_->[1])
     } ([METADATA_TITLE, INPUT_TYPE_TEXT],
      [METADATA_DESCRIPTION, INPUT_TYPE_TEXTAREA],
-     ['subject_resourceSubject', INPUT_TYPE_SELECT],
+     [METADATA_SUBJECT_RESOURCE_SUBJECT, INPUT_TYPE_SELECT],
      ['subject_monoMultilingual', INPUT_TYPE_SELECTONLY],
-     ['relation', INPUT_TYPE_RELATION],
+     [METADATA_RELATION, INPUT_TYPE_RELATION],
      ['language', INPUT_TYPE_LANGUAGE],
      [METADATA_DATE_ISSUED, INPUT_TYPE_DATE],
      ['date_created', INPUT_TYPE_RANGE],
@@ -74,22 +74,22 @@ sub create_multi_from_json : Tests {
         my $relation_value = create_metadata_value;
         my $language_value = create_language;
         my $json = {
-            title => [ { content => 'test corpus' } ],
-            description => [ { content => 'test test' } ],
-            subject_resourceSubject => [
+            METADATA_TITLE() => [ { content => 'test corpus' } ],
+            METADATA_DESCRIPTION() => [ { content => 'test test' } ],
+            METADATA_SUBJECT_RESOURCE_SUBJECT() => [
                 { value_id => $resource_subject_value->id, description => '' },
                 { value_id => '', description => 'test' },
             ],
             subject_monoMultilingual => [
                 { value_id => $mono_multilingual_value->id },
             ],
-            relation => [
+            METADATA_RELATION() => [
                 { value_id => $relation_value->id, description => 'test relation' },
             ],
             language => [
                 { content => $language_value->name, description => 'test language' },
             ],
-            date_issued => [ { content => '2015-10-01' } ],
+            METADATA_DATE_ISSUED() => [ { content => '2015-10-01' } ],
             date_created => [
                 { content => '2014-01-01 2015-08-01', description => 'test created' }
             ],
@@ -120,9 +120,9 @@ sub update_multi_from_json : Tests {
     my $language = create_language;
     my $metadata_list = +{ map {
         $_->[0] => create_metadata(name => $_->[0], input_type => $_->[1])
-    } (['title', INPUT_TYPE_TEXT],
-     ['description', INPUT_TYPE_TEXTAREA],
-     ['subject_resourceSubject', INPUT_TYPE_SELECT],
+    } ([METADATA_TITLE, INPUT_TYPE_TEXT],
+     [METADATA_DESCRIPTION, INPUT_TYPE_TEXTAREA],
+     [METADATA_SUBJECT_RESOURCE_SUBJECT, INPUT_TYPE_SELECT],
      ['subject_monoMultilingual', INPUT_TYPE_SELECTONLY],
      ['language', INPUT_TYPE_LANGUAGE],
     ) };
@@ -132,13 +132,13 @@ sub update_multi_from_json : Tests {
 
         my $resource = create_resource;
         my $old_metadata = create_resource_metadata(
-            resource_id => $resource->id,
-            metadata_name => $metadata_list->{title}->name,
-            language_id => $language->id
+            resource => $resource,
+            metadata => $metadata_list->{METADATA_TITLE()},
+            language => $language
         );
 
         my $json = {
-            title => [ { content => 'test corpus' } ],
+            METADATA_TITLE() => [ { content => 'test corpus' } ],
         };
 
         Shachi::Service::Resource::Metadata->update_multi_from_json(
@@ -160,14 +160,14 @@ sub update_multi_from_json : Tests {
 
         my $resource = create_resource;
         my $old_metadata = create_resource_metadata(
-            resource_id => $resource->id,
-            metadata_name => $metadata_list->{subject_resourceSubject}->name,
-            language_id => $language->id,
+            resource => $resource,
+            metadata => $metadata_list->{METADATA_SUBJECT_RESOURCE_SUBJECT()},
+            language => $language,
         );
         my $resource_subject_value = create_metadata_value;
 
         my $json = {
-            subject_resourceSubject => [
+            METADATA_SUBJECT_RESOURCE_SUBJECT() => [
                 { value_id => $resource_subject_value->id, description => '' },
                 { value_id => '', description => 'test' },
             ],
@@ -180,7 +180,7 @@ sub update_multi_from_json : Tests {
 
         my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
             db => $db, resource => $resource,
-            metadata_list => $metadata_list->{subject_resourceSubject}->as_list,
+            metadata_list => $metadata_list->{METADATA_SUBJECT_RESOURCE_SUBJECT()}->as_list,
             language => $language,
         );
         is $items->size, 2;
@@ -192,14 +192,14 @@ sub update_multi_from_json : Tests {
 
         my $resource = create_resource;
         create_resource_metadata(
-            resource_id => $resource->id,
-            metadata_name => $metadata_list->{subject_monoMultilingual}->name,
-            language_id => $language->id,
+            resource => $resource,
+            metadata => $metadata_list->{subject_monoMultilingual},
+            language => $language,
         );
         create_resource_metadata(
-            resource_id => $resource->id,
-            metadata_name => $metadata_list->{language}->name,
-            language_id => $language->id,
+            resource => $resource,
+            metadata => $metadata_list->{language},
+            language => $language,
         );
         my $mono_multilingual_value = create_metadata_value;
         my $language_value = create_language;
