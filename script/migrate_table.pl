@@ -419,6 +419,7 @@ sub update_relation {
 
     foreach my $relation ( @relations ) {
         my $value = $get_value->($relation->{data}->{value_id});
+        my $is_referenced_by = $value && $value->value eq 'isReferencedBy';
         my ($tag, $resource, $title, $identifier);
         next unless $relation->{data}->{description};
         if ( $relation->{data}->{description} =~ /^[NCDGTOSWL]-(\d{6}),/ ) {
@@ -432,7 +433,7 @@ sub update_relation {
         } elsif ( $relation->{data}->{description} =~ /(LDC\d+[A-Z]\d+(?:-\d)?)/ ) {
             my $ldcid = $1;
             $identifier = $get_identifier->($ldcid);
-            if ( $identifier ) {
+            if ( $identifier && !$is_referenced_by ) {
                 $tag = "[LDC]";
                 $resource = $get_resource->($identifier->{data}->{resource_id});
                 $title = $get_title->({ resource_id => $resource->{data}->{id} });
@@ -442,7 +443,7 @@ sub update_relation {
         } elsif ( $relation->{data}->{description} =~ /([A-Z]\d{4}(?:-\d+)?)/ ) {
             my $elra_id = $1;
             $identifier = $get_identifier->($elra_id);
-            if ( $identifier ) {
+            if ( $identifier && !$is_referenced_by ) {
                 $tag = "[ELRA]";
                 $resource = $get_resource->($identifier->{data}->{resource_id});
                 $title = $get_title->({ resource_id => $resource->{data}->{id} });
