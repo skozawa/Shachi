@@ -428,6 +428,26 @@ sub _exclude_multilang_values : Tests {
     is_deeply $excluded_list->map('id')->to_a, $resource_metadata_list->first(5)->map('id')->to_a;
 }
 
+sub embed_resource_metadata_value : Tests {
+    my $values = [ map { create_metadata_value } (0..3) ];
+    my $resource_metadata_list = Shachi::Model::List->new(list => [ map {
+        create_resource_metadata($values->[$_] ? (value_id => $values->[$_]->id) : ())
+    } (0..4) ]);
+
+    is $resource_metadata_list->grep(sub { $_->value })->size, 0;
+
+    my $db = Shachi::Database->new;
+    Shachi::Service::Resource::Metadata->embed_resource_metadata_value(
+        db => $db, resource_metadata_list => $resource_metadata_list
+    );
+
+    is $resource_metadata_list->grep(sub { $_->value })->size, 4;
+    for (0..3) {
+        is $resource_metadata_list->[$_]->value->id, $values->[$_]->id;
+    }
+    ok ! $resource_metadata_list->[4]->value;
+}
+
 sub statistics_by_year : Tests {
     truncate_db;
 

@@ -224,6 +224,22 @@ sub _exclude_multilang_values {
     $resource_metadata_list->grep(sub { $remain_ids->{$_->id} });
 }
 
+sub embed_resource_metadata_value {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $resource_metadata_list => { isa => 'Shachi::Model::List' };
+
+    my $metadata_value_by_id = Shachi::Service::Metadata::Value->find_by_ids(
+        db => $db, ids => $resource_metadata_list->map(sub {
+            $_->value_id ? $_->value_id : ()
+        })->to_a,
+    )->hash_by('id');
+    foreach my $resource_metadata ( @$resource_metadata_list ) {
+        my $metadata_value = $metadata_value_by_id->{$resource_metadata->value_id};
+        $resource_metadata->value($metadata_value);
+    }
+}
+
 sub statistics_by_year {
     args my $class    => 'ClassName',
          my $db       => { isa => 'Shachi::Database' },
