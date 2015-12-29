@@ -57,6 +57,10 @@ sub facet {
                 db => $c->db, resources => $resources, language => $c->lang,
                 args => { fillin_english => 1, only_public => 1 },
             );
+            Shachi::Service::Resource->embed_relations(
+                db => $c->db, resources => $resources, language => $c->lang,
+                args => { fillin_english => 1, only_public => 1 },
+            );
         }
     } else {
         Shachi::Service::FacetSearch->embed_metadata_counts(

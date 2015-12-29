@@ -317,6 +317,88 @@ sub embed_title : Tests {
     };
 }
 
+sub embed_relations : Tests {
+    truncate_db_with_setup;
+    my $relation_metadata = create_metadata(name => METADATA_RELATION);
+    my $english = get_english;
+
+    subtest 'embed relation' => sub {
+        my $values = [ map { create_metadata_value } (0..5) ];
+        my $resources = Shachi::Model::List->new(list => [ map { create_resource } (1..3) ]);
+        my $language = create_language;
+        for ( [0, 0], [1, 1], [1, 2], [1, 3], [2, 4], [2, 5] ) {
+            create_resource_metadata(
+                resource => $resources->[$_->[0]], language => $language,
+                metadata => $relation_metadata, value_id => $values->[$_->[1]]->id,
+            );
+        }
+
+        my $db = Shachi::Database->new;
+        Shachi::Service::Resource->embed_relations(
+            db => $db, resources => $resources, language => $language,
+        );
+
+        is scalar @{$resources->[0]->relations || []}, 1;
+        is $resources->[0]->relations->[0]->value->id, $values->[0]->id;
+        is scalar @{$resources->[1]->relations || []}, 3;
+        is scalar @{$resources->[2]->relations || []}, 2;
+    };
+
+    subtest 'embed_relation with fillin_english' => sub {
+        my $values = [ map { create_metadata_value } (0..5) ];
+        my $resources = Shachi::Model::List->new(list => [ map { create_resource } (1..3) ]);
+        my $language = create_language;
+        create_resource_metadata(
+            resource => $resources->[$_->[0]], language => $language,
+            metadata => $relation_metadata, value_id => $values->[$_->[1]]->id,
+        ) for ( [0, 0], [2, 4] );
+        create_resource_metadata(
+            resource => $resources->[$_->[0]], language => $english,
+            metadata => $relation_metadata, value_id => $values->[$_->[1]]->id,
+        ) for ( [1, 1], [1, 2], [1, 3], [2, 5] );
+
+        my $db = Shachi::Database->new;
+        Shachi::Service::Resource->embed_relations(
+            db => $db, resources => $resources, language => $language,
+            args => { fillin_english => 1 },
+        );
+
+        is scalar @{$resources->[0]->relations || []}, 1;
+        is $resources->[0]->relations->[0]->value->id, $values->[0]->id;
+        is scalar @{$resources->[1]->relations || []}, 3;
+        is $resources->[1]->relations->[0]->language_id, $english->id;
+        is scalar @{$resources->[2]->relations || []}, 1;
+        is $resources->[2]->relations->[0]->language_id, $language->id;
+    };
+
+    subtest 'embed with only_public' => sub {
+        my $values = [ map { create_metadata_value } (0..5) ];
+        my $resources = Shachi::Model::List->new(list => [
+            create_resource(status => STATUS_PUBLIC),
+            create_resource(status => STATUS_LIMITED_BY_LDC),
+            create_resource(status => STATUS_PRIVATE),
+        ]);
+        my $language = create_language;
+        for ( [0, 0], [1, 1], [1, 2], [1, 3], [2, 4], [2, 5] ) {
+            create_resource_metadata(
+                resource => $resources->[$_->[0]], language => $language,
+                metadata => $relation_metadata, value_id => $values->[$_->[1]]->id,
+            );
+        }
+
+        my $db = Shachi::Database->new;
+        Shachi::Service::Resource->embed_relations(
+            db => $db, resources => $resources, language => $language,
+            args => { only_public => 1 },
+        );
+
+        is scalar @{$resources->[0]->relations || []}, 1;
+        is $resources->[0]->relations->[0]->value->id, $values->[0]->id;
+        is scalar @{$resources->[1]->relations || []}, 0;
+        is scalar @{$resources->[2]->relations || []}, 0;
+    };
+}
+
 sub update_annotator : Tests {
     subtest 'update normally' => sub {
         my $db = Shachi::Database->new;

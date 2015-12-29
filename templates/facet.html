@@ -100,6 +100,17 @@
           [% resource.shachi_id %]: [% resource.title %]
         </a>
         <div class="description">[% format_content(resource.description, { linkify => 1 }) | raw %]</div>
+        <ul class="relations">
+          [%- FOREACH relation IN resource.relations %]
+            <li>
+              [%- IF relation.relation_link %]
+                [%- relation.value.value %]: <a href="[% relation.relation_link %]">[% relation.description %]</a>
+              [%- ELSE %]
+                [%- relation.value.value %]: [% relation.description %]
+              [% END # IF relation.relation_link %]
+            </li>
+          [%- END # FOREACH relation IN resource.relations %]
+        </ul>
       </li>
       [%- END # FOREACH resource IN resources %]
     </ul>

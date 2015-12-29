@@ -202,6 +202,19 @@ sub embed_description {
     );
 }
 
+sub embed_relations {
+    args my $class     => 'ClassName',
+         my $db        => { isa => 'Shachi::Database' },
+         my $resources => { isa => 'Shachi::Model::List' },
+         my $language  => { isa => 'Shachi::Model::Language' },
+         my $args      => { isa => 'HashRef', default => {} };
+
+    $class->embed_resource_metadata(
+        db => $db, resources => $resources, language => $language,
+        name => METADATA_RELATION, args => { %$args, with_value => 1 },
+    );
+}
+
 sub embed_resource_metadata {
     args my $class     => 'ClassName',
          my $db        => { isa => 'Shachi::Database' },
@@ -223,14 +236,20 @@ sub embed_resource_metadata {
         db => $db, name => $name, resource_ids => $resources->map('id')->to_a,
         language_ids => $language_ids,
     );
+    if ( $args->{with_value} ) {
+        Shachi::Service::Resource::Metadata->embed_resource_metadata_value(
+            db => $db, resource_metadata_list => $metadata_list,
+        );
+    }
     if ( $args->{fillin_english} ) {
         # Hash::MultiValueは複数ある場合、最後を返すので、指定した言語が最後になるようにソートする
         # ref. https://metacpan.org/pod/Hash::MultiValue#get
         $metadata_list = $metadata_list->sort_by(sub { $_->language_id == $language->id });
     }
-    my $metadata_by_resource_id = $metadata_list->hash_by('resource_id');
 
+    my $metadata_by_resource_id = $metadata_list->hash_by('resource_id');
     foreach my $resource ( @$resources ) {
+        next if $args->{only_public} && !$resource->is_public;
         my @list = $metadata_by_resource_id->get_all($resource->id);
         next unless @list;
         my $target_list = [ grep { $_->language_id == $list[-1]->language_id } @list ];
