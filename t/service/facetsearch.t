@@ -461,6 +461,7 @@ sub _no_information_conditions : Tests {
 sub search_by_keyword : Tests {
     truncate_db;
     my $title = create_metadata(name => METADATA_TITLE);
+    my $title_abbreviation = create_metadata(name => METADATA_TITLE_ABBREVIATION);
     my $title_alternative = create_metadata(name => METADATA_TITLE_ALTERNATIVE);
     my $description = create_metadata(name => METADATA_DESCRIPTION);
     my $type_purpose = create_metadata(name => METADATA_TYPE_PURPOSE);
@@ -469,6 +470,20 @@ sub search_by_keyword : Tests {
         my $keyword = random_word;
         my $resource = create_resource;
         create_resource_metadata(resource => $resource, metadata => $title, content => $keyword);
+        my $db = Shachi::Database->new;
+        my $query = create_facet_search_query(['keyword', $keyword]);
+
+        my $ids = Shachi::Service::FacetSearch->search_by_keyword(
+            db => $db, query => $query, resource_ids => [$resource->id],
+        );
+        is scalar @$ids, 1;
+        is_deeply $ids, [ $resource->id ];
+    };
+
+    subtest 'contains title_abbreviation' => sub {
+        my $keyword = random_word;
+        my $resource = create_resource;
+        create_resource_metadata(resource => $resource, metadata => $title_abbreviation, content => $keyword);
         my $db = Shachi::Database->new;
         my $query = create_facet_search_query(['keyword', $keyword]);
 
