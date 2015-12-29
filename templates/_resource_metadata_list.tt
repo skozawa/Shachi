@@ -26,7 +26,13 @@
     [%- FOREACH resource_metadata IN resource_metadata_list %]
       <li>
         <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
-        <span class="description">[% resource_metadata.description %]</span>
+        <span class="description">
+          [%- IF resource_metadata.relation_link %]
+          <a href="[% resource_metadata.relation_link %]">[% resource_metadata.description %]</a>
+          [%- ELSE %]
+            [% resource_metadata.description %]
+          [%- END # IF resource_metadata.relation_link %]
+        </span>
       </li>
     [%- END # FOREACH resource_metadata IN resource_metadata_list %]
   [%- ELSIF metadata.input_type == 'language' %]
