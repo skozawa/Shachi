@@ -183,9 +183,9 @@ sub embed_title {
          my $language  => { isa => 'Shachi::Model::Language' },
          my $args      => { isa => 'HashRef', default => {} };
 
-    $class->embed_resource_metadata_content(
+    $class->embed_resource_metadata(
         db => $db, resources => $resources, language => $language,
-        name => METADATA_TITLE, args => $args,
+        name => METADATA_TITLE, args => { %$args, content => 1 },
     );
 }
 
@@ -196,13 +196,13 @@ sub embed_description {
          my $language  => { isa => 'Shachi::Model::Language' },
          my $args      => { isa => 'HashRef', default => {} };
 
-    $class->embed_resource_metadata_content(
+    $class->embed_resource_metadata(
         db => $db, resources => $resources, language => $language,
-        name => METADATA_DESCRIPTION, args => $args,
+        name => METADATA_DESCRIPTION, args => { %$args, content => 1 },
     );
 }
 
-sub embed_resource_metadata_content {
+sub embed_resource_metadata {
     args my $class     => 'ClassName',
          my $db        => { isa => 'Shachi::Database' },
          my $resources => { isa => 'Shachi::Model::List' },
@@ -231,9 +231,15 @@ sub embed_resource_metadata_content {
     my $metadata_by_resource_id = $metadata_list->hash_by('resource_id');
 
     foreach my $resource ( @$resources ) {
-        my $metadata = $metadata_by_resource_id->{$resource->id} or next;
-        next if $args->{only_public} && !$resource->is_public;;
-        $resource->$name($metadata->content);
+        my @list = $metadata_by_resource_id->get_all($resource->id);
+        next unless @list;
+        my $target_list = [ grep { $_->language_id == $list[-1]->language_id } @list ];
+        if ( $args->{content} ) {
+            $resource->$name($target_list->[0] ? $target_list->[0]->content : '');
+        } else {
+            my $method = $name . 's';
+            $resource->$method($target_list);
+        }
     }
 
     return $resources;
