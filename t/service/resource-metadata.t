@@ -236,6 +236,45 @@ sub update_multi_from_json : Tests {
     };
 }
 
+sub update_resource_relation : Tests {
+    truncate_db_with_setup;
+    my $title    = create_metadata(name => METADATA_TITLE);
+    my $relation = create_metadata(name => METADATA_RELATION);
+
+    subtest 'update relations' => sub {
+        my $resource = create_resource;
+        my $resource_title = random_word;
+        create_resource_metadata(resource => $resource, metadata => $title, content  => $resource_title);
+        my $related_resource1 = create_resource;
+        create_resource_metadata(resource => $related_resource1, metadata => $relation,
+                                 description => $resource->relation_value);
+        my $related_resource2 = create_resource;
+        create_resource_metadata(resource => $related_resource2, metadata => $relation,
+                                 description => $resource->relation_value);
+
+        my $db = Shachi::Database->new;
+
+        is $db->shachi->table('resource_metadata')->search({
+            metadata_name => METADATA_RELATION, description => $resource->relation_value
+        })->count, 2;
+
+        my $old_value = $resource->relation_value;
+        $resource->title(random_word);
+        my $new_value = $resource->relation_value;
+
+        Shachi::Service::Resource::Metadata->update_resource_relation(
+            db => $db, old => $old_value, new => $new_value,
+        );
+
+        is $db->shachi->table('resource_metadata')->search({
+            metadata_name => METADATA_RELATION, description => $old_value
+        })->count, 0;
+        is $db->shachi->table('resource_metadata')->search({
+            metadata_name => METADATA_RELATION, description => $new_value
+        })->count, 2;
+    };
+}
+
 sub find_resource_metadata_by_name : Tests {
     truncate_db;
     my $title_metadata = create_metadata(name => METADATA_TITLE);

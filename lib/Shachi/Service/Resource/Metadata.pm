@@ -116,6 +116,19 @@ sub _create_insert_data_from_json {
     return $data;
 }
 
+sub update_resource_relation {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $old   => { isa => 'Str' },
+         my $new   => { isa => 'Str' };
+
+    return if $old eq $new;
+    $db->shachi->table('resource_metadata')->search({
+        metadata_name => METADATA_RELATION,
+        description   => $old,
+    })->update({ description => $new });
+}
+
 sub find_by_ids {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },

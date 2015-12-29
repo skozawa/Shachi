@@ -74,6 +74,11 @@ sub is_asia_resource {
     } @{$self->language_areas};
 }
 
+sub relation_value {
+    my $self = shift;
+    sprintf '%s: %s', $self->shachi_id, $self->title || '';
+}
+
 sub link {
     my ($self) = @_;
     '/resources/' . $self->id;

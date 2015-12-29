@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use JSON::Types;
 use List::MoreUtils qw/firstval/;
+use Shachi::Model::Metadata;
 use Shachi::Model::Language;
 use Shachi::Service::Annotator;
 use Shachi::Service::Language;
@@ -157,6 +158,16 @@ sub update_metadata {
     return $c->throw_not_found unless $resource;
 
     my $contents = $c->req->json;
+    my $language = Shachi::Service::Language->find_by_code(
+        db => $c->db, code => $contents->{metadata_language} || ENGLISH_CODE,
+    );
+
+    my $require_update_relation = $contents->{METADATA_SUBJECT_RESOURCE_SUBJECT()} || $contents->{METADATA_TITLE()};
+    # relationの更新に使うのでタイトルを更新する前に現在のタイトル埋める
+    Shachi::Service::Resource->embed_title(
+        db => $c->db, resources => $resource->as_list, language => $language,
+    ) if $require_update_relation;
+
     my $metadata_list = Shachi::Service::Metadata->find_by_names(
         db => $c->db, names => [ keys %$contents ],
     );
@@ -169,20 +180,29 @@ sub update_metadata {
     );
 
     # resource_subject を更新する場合はshachi_idも更新する
-    if ( $contents->{subject_resourceSubject} ) {
+    if ( $contents->{METADATA_SUBJECT_RESOURCE_SUBJECT()} ) {
         my $resource_subject = _resource_subject_from_contents($c->db, $contents);
         Shachi::Service::Resource->update_shachi_id(
             db => $c->db, id => $resource->id, resource_subject => $resource_subject,
         );
     }
 
-    my $language = Shachi::Service::Language->find_by_code(
-        db => $c->db, code => $contents->{metadata_language} || ENGLISH_CODE,
-    );
     my $resource_metadata_by_metadata_name = Shachi::Service::Resource::Metadata->find_resource_metadata(
         db => $c->db, resource => $resource, metadata_list => $metadata_list,
         language => $language, args => { with_value => 1 },
     )->hash_by('metadata_name');
+
+    # title, shachi_id が変更される場合はrelationの値も更新する
+    if ( $require_update_relation ) {
+        my $updated_resource = Shachi::Service::Resource->find_by_id(db => $c->db, id => $resource_id);
+        Shachi::Service::Resource->embed_title(
+            db => $c->db, resources => $updated_resource->as_list, language => $language,
+        );
+        Shachi::Service::Resource::Metadata->update_resource_relation(
+            db => $c->db, old => $resource->relation_value, new => $updated_resource->relation_value,
+        );
+    }
+
     my $res = {};
     foreach my $metadata ( @$metadata_list ) {
         my @resource_metadata_list = $resource_metadata_by_metadata_name->get_all($metadata->name);

@@ -156,27 +156,37 @@ sub update_metadata : Tests {
     my $language = create_language;
     my $metadata_list = +{ map {
         $_->[0] => create_metadata(name => $_->[0], input_type => $_->[1])
-    } (['title', INPUT_TYPE_TEXT],
-     ['subject_resourceSubject', INPUT_TYPE_SELECT],
+    } ([METADATA_TITLE, INPUT_TYPE_TEXT],
+     [METADATA_SUBJECT_RESOURCE_SUBJECT, INPUT_TYPE_SELECT],
      ['language', INPUT_TYPE_LANGUAGE],
+     [METADATA_RELATION, INPUT_TYPE_RELATION],
     ) };
 
     subtest 'update title and language' => sub {
         my $mech = create_mech;
         my $resource = create_resource;
+        $resource->title(random_word);
         create_resource_metadata(
-            resource_id => $resource->id,
-            metadata_name => $metadata_list->{title}->name,
-            language_id => $language->id,
+            resource => $resource,
+            metadata => $metadata_list->{title},
+            language => $language,
+            content  => $resource->title,
         );
         create_resource_metadata(
-            resource_id => $resource->id,
-            metadata_name => $metadata_list->{language}->name,
-            language_id => $language->id,
+            resource => $resource,
+            metadata => $metadata_list->{language},
+            language => $language,
         );
+        # create relation
+        create_resource_metadata(
+            language => $language, metadata => $metadata_list->{relation},
+            description => $resource->relation_value,
+        ) for (1..3);
+
         my $language_value = create_language;
+        my $new_title = random_word;
         my $json = {
-            title => [ { content => 'test corpus' } ],
+            title => [ { content => $new_title } ],
             language => [
                 { content => $language_value->name, description => 'test language' },
             ],
@@ -188,13 +198,24 @@ sub update_metadata : Tests {
 
         my $res_json = decode_json($mech->res->content);
         is $res_json->{resource_id}, $resource->id;
-        is $res_json->{title}->[0]->{content}, 'test corpus';
+        is $res_json->{title}->[0]->{content}, $new_title;
         is $res_json->{language}->[0]->{value}, $language_value->name;
+
+        $resource->title($new_title);
+        my $db = Shachi::Database->new;
+        is $db->shachi->table('resource_metadata')->search({
+            metadata_name => METADATA_RELATION, language_id => $language->id,
+            description => $resource->relation_value
+        })->count, 3;
     };
 
     subtest 'update resource subject' => sub {
         my $mech = create_mech;
         my $resource = create_resource;
+        create_resource_metadata(
+            resource => $resource, metadata => $metadata_list->{relation},
+            language => $language, description => $resource->relation_value
+        ) for (1..2);
         my $resource_subject_value = create_metadata_value(value => 'corpus');
         my $json = {
             subject_resourceSubject => [
@@ -215,5 +236,10 @@ sub update_metadata : Tests {
         my $resource = Shachi::Service::Resource->find_by_id(db => $db, id => $resource->id);
         ok $resource;
         is $resource->shachi_id, sprintf('C-%06d', $resource->id);
+
+        is $db->shachi->table('resource_metadata')->search({
+            metadata_name => METADATA_RELATION, language_id => $language->id,
+            description => $resource->relation_value,
+        })->count, 2;
     };
 }
