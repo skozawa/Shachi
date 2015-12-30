@@ -3,3 +3,4 @@
 config/db.production
 fabfile.pyc
 .htpasswd
+/log/

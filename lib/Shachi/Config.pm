@@ -26,6 +26,9 @@ common {
     'db' => dbinfo(),
 
     'static.root' => 'static',
+
+    'log.access' => 'log/access_log',
+    'log.error'  => 'log/error_log',
 };
 
 1;
