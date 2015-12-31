@@ -53,6 +53,9 @@
       </ul>
     </div>
   [%- END # IF annotator.resources && annotator.resources.size %]
+
+  [%- INCLUDE '/admin/resource/edit-status-popup-editor.tt' %]
+  [%- INCLUDE '/admin/resource/status-popup-editor.tt' %]
 [%- END # FOREACH annotator IN annotators %]
 
 [%- END # WRAPPER '/admin/_wrapper.tt' %]
