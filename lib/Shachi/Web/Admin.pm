@@ -1,6 +1,7 @@
 package Shachi::Web::Admin;
 use strict;
 use warnings;
+use List::Util qw/sum/;
 use Shachi::Service::Annotator;
 
 sub default {
@@ -11,23 +12,17 @@ sub default {
         db => $c->db, annotators => $annotators,
     );
 
-    my $annotator = do {
-        if ( my $annotator_id = $c->req->param('annotator_id') ) {
-            my $annotator = Shachi::Service::Annotator->find_by_id(
-                db => $c->db, id => $annotator_id,
-            );
-            if ( $annotator ) {
-                Shachi::Service::Annotator->embed_resources(
-                    db => $c->db, annotators => $annotator->as_list, language => $c->admin_lang,
-                    args => { with_resource_title => 1 },
-                );
-                $annotator;
-            }
-        }
-    };
+    my $annotator_id = $c->req->param('annotator_id');
+    if ( defined $annotator_id ) {
+        Shachi::Service::Annotator->embed_resources(
+            db => $c->db, language => $c->admin_lang,
+            annotators => $annotator_id ? $annotators->grep(sub { $_->id == $annotator_id }) : $annotators,
+            args => { with_resource_title => 1 },
+        );
+    }
 
     return $c->html('admin/index.html', {
-        annotator  => $annotator,
+        total_count => sum($annotators->map(sub { $_->resource_count })->deref),
         annotators => $annotators,
     });
 }

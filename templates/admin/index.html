@@ -13,46 +13,46 @@
           <option value="[% annotator.id %]"[% ' selected' IF annotator.id == c.req.param('annotator_id') %]>[% annotator.name %] ([% annotator.resource_count %])</option>
         [%- END # IF annotator.resource_count %]
       [%- END # FOREACH annotator IN annotators %]
+      <option value="0"[% ' selected' IF c.req.param('annotator_id') == 0 %]>all ([% total_count %])</option>
     </select>
   </form>
 </div>
 
-[%- IF annotator %]
-  <div>
-    <h3>[% annotator.name %]</h3>
-    <ul class="annotator-resource-list">
-      <li class="annotator-resource header">
-        <ul>
-          <li class="shachi-id">ID</li>
-          <li class="edit-status"></li>
-          <li class="status">Status</li>
-          <li class="title">Title</li>
-          <li class="delete"></li>
-          <li class="modified">Last updated</li>
-        </ul>
-      </li>
-      [%- FOREACH resource IN annotator.resources %]
-        <li class="annotator-resource" data-resource-id="[% resource.id %]">
+[%- FOREACH annotator IN annotators %]
+  [%- IF annotator.resources && annotator.resources.size %]
+    <div class="annotator-resource-list-container">
+      <h3>[% annotator.name %] ([% annotator.resource_count %])</h3>
+      <ul class="annotator-resource-list">
+        <li class="annotator-resource header">
           <ul>
-            <li class="shachi-id"><a href="[% resource.admin_link %]">[% resource.shachi_id %]</a></li>
-            <li class="edit-status [% resource.edit_status%]" data-edit-status="[% resource.edit_status %]">
-              <img src="/images/admin/[% resource.edit_status %].png">
-            </li>
-            [%- SET status = resource.status == 'private' ? 'private' : 'public' %]
-            <li class="status [% status %]" data-status="[% status %]"><span class="label">[% status %]</span></li>
-            <li class="title"><a href="[% resource.admin_link %]">[% resource.title %]</a></li>
-            <li class="delete">
-              <img src="/images/admin/del.png">
-            </li>
-            <li class="modified">[% resource.modified.strftime('%Y/%m/%d %T') %]</li>
+            <li class="shachi-id">ID</li>
+            <li class="edit-status"></li>
+            <li class="status">Status</li>
+            <li class="title">Title</li>
+            <li class="delete"></li>
+            <li class="modified">Last updated</li>
           </ul>
         </li>
-      [%- END # FOREACH resource IN resources %]
-    </ul>
-  </div>
-
-  [%- INCLUDE '/admin/resource/edit-status-popup-editor.tt' %]
-  [%- INCLUDE '/admin/resource/status-popup-editor.tt' %]
-[%- END # IF annotator %]
+        [%- FOREACH resource IN annotator.resources %]
+          <li class="annotator-resource" data-resource-id="[% resource.id %]">
+            <ul>
+              <li class="shachi-id"><a href="[% resource.admin_link %]">[% resource.shachi_id %]</a></li>
+              <li class="edit-status [% resource.edit_status%]" data-edit-status="[% resource.edit_status %]">
+                <img src="/images/admin/[% resource.edit_status %].png">
+              </li>
+              [%- SET status = resource.status == 'private' ? 'private' : 'public' %]
+              <li class="status [% status %]" data-status="[% status %]"><span class="label">[% status %]</span></li>
+              <li class="title"><a href="[% resource.admin_link %]">[% resource.title %]</a></li>
+              <li class="delete">
+                <img src="/images/admin/del.png">
+              </li>
+              <li class="modified">[% resource.modified.strftime('%Y/%m/%d %T') %]</li>
+            </ul>
+          </li>
+        [%- END # FOREACH resource IN resources %]
+      </ul>
+    </div>
+  [%- END # IF annotator.resources && annotator.resources.size %]
+[%- END # FOREACH annotator IN annotators %]
 
 [%- END # WRAPPER '/admin/_wrapper.tt' %]
