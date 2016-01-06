@@ -28,6 +28,7 @@ migrate_languages($dbix_old, $dbix_new);
 migrate_scheme($dbix_old, $dbix_new);
 migrate_resources($dbix_old, $dbix_new);
 update_shachi_id($dbix_new);
+update_identifier($dbix_new);
 update_relation($dbix_new);
 # migrate_title_list($dbix_old, $dbix_new);
 
@@ -385,6 +386,42 @@ sub update_shachi_id {
             $dbix_new->table('resource')->search({
                 id => $resource->{data}->{id}
             })->update({ shachi_id => $shachi_id });
+        }
+    }
+}
+
+# identifierの形式を整える
+sub update_identifier {
+    my ($dbix_new) = @_;
+    warn "UPDATE IDENTIFIER";
+
+    my @identifiers = $dbix_new->table('resource_metadata')->search({
+        metadata_name => 'identifier',
+    })->all;
+
+    foreach my $identifier ( @identifiers ) {
+        my $content = $identifier->{data}->{content} or next;
+        my $new_content;
+        if ( $content =~ /http/ ) {
+        } elsif ( $content =~ /ELRA ?[:-] ?([A-Z0-9-]+)/ ) {
+            $new_content = 'ELRA-' . $1;
+            $new_content =~ s/ELRA-ELRA/ELRA/;
+        } elsif ( $content =~ /ELRA Catalog Reference ?: ?([A-Z0-9-]+)/ ) {
+            $new_content = 'ELRA-' . $1;
+        } elsif ( $content =~ /CLDC[:-]([A-Z0-9-]+)/ ) {
+            $new_content = 'CLDC-' . $1;
+        } elsif ( $content =~ /LDC[:]?([A-Z0-9-]+)/ ) {
+            $new_content = 'LDC' . $1;
+        } elsif ( $content =~ /ISBN[:：]?(?:ISBN)?(?: +)?([A-Za-z0-9-]+)/ ) {
+            $new_content = 'ISBN:' . $1;
+            $new_content = $content if $content =~ /\(.+\)/;
+        } elsif ( $content =~ /NIST/ ) {
+        }
+        if ( $new_content && $new_content ne $content ) {
+            # print $content, "\t", $new_content, "\n";
+            $dbix_new->table('resource_metadata')->search({
+                id => $identifier->{data}->{id},
+            })->update({ content => $new_content });
         }
     }
 }
