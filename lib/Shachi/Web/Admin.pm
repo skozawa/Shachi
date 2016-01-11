@@ -12,8 +12,8 @@ sub default {
         db => $c->db, annotators => $annotators,
     );
 
-    my $annotator_id = $c->req->param('annotator_id');
-    if ( defined $annotator_id ) {
+    my $annotator_id = $c->req->param('annotator_id') || '';
+    if ( length $annotator_id ) {
         Shachi::Service::Annotator->embed_resources(
             db => $c->db, language => $c->admin_lang,
             annotators => $annotator_id ? $annotators->grep(sub { $_->id == $annotator_id }) : $annotators,
