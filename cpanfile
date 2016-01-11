@@ -18,6 +18,7 @@ requires 'Smart::Args';
 requires 'Carp';
 requires 'Search::Query';
 requires 'HTML::Escape';
+requires 'XML::LibXML';
 
 # route
 requires 'Router::Simple';
