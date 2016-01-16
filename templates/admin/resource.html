@@ -38,7 +38,9 @@
 [%- MACRO metadata_list_relation(resource_metadata_list) BLOCK %]
   [%- FOREACH resource_metadata IN resource_metadata_list %]
     <li>
-      <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
+      [%- IF resource_metadata.value_id %]
+        <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
+      [%- END # IF resource_metadata.value_id %]
       <span class="description">[% resource_metadata.description %]</span>
     </li>
   [%- END # FOREACH resource_metadata IN resource_metadata_list %]
@@ -47,7 +49,9 @@
 [%- MACRO metadata_list_language(resource_metadata_list) BLOCK %]
   [%- FOREACH resource_metadata IN resource_metadata_list %]
     <li>
-      <span class="label content">[% resource_metadata.value.value %]</span>
+      [%- IF resource_metadata.value_id %]
+        <span class="label content">[% resource_metadata.value.value %]</span>
+      [%- END # IF resource_metadata.value_id %]
       <span class="description">[% resource_metadata.description %]</span>
     </li>
   [%- END # FOREACH resource_metadata IN resource_metadata_list %]
