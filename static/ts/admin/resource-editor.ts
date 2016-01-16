@@ -493,7 +493,8 @@ module Shachi {
         toDataFromHash(value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
-            content.setAttribute('class', 'label value');
+            var className = value.value ? 'label value' : 'value';
+            content.setAttribute('class', className);
             content.setAttribute('data-value-id', value.value_id);
             content.textContent = value.value;
             elem.appendChild(content);
@@ -530,7 +531,8 @@ module Shachi {
         toDataFromHash(value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
-            content.setAttribute('class', 'label value');
+            var className = value.value ? 'label value' : 'value';
+            content.setAttribute('class', className);
             content.setAttribute('data-value-id', value.value_id);
             content.textContent = value.value;
             elem.appendChild(content);
@@ -593,7 +595,8 @@ module Shachi {
         toDataFromHash(value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
-            content.setAttribute('class', 'label value');
+            var className = value.value ? 'label value' : 'value';
+            content.setAttribute('class', className);
             content.setAttribute('data-value-id', value.value_id);
             content.textContent = value.value;
             elem.appendChild(content);
@@ -653,7 +656,8 @@ module Shachi {
         toDataFromHash(value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
-            content.setAttribute('class', 'label content');
+            var className = value.value ? 'label content' : 'content';
+            content.setAttribute('class', className);
             content.textContent = value.value;
             elem.appendChild(content);
             var description = document.createElement('span');
