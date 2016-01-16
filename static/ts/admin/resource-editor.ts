@@ -653,8 +653,7 @@ module Shachi {
         toDataFromHash(value) {
             var elem = document.createElement('li');
             var content = document.createElement('span');
-            content.setAttribute('class', 'label value');
-            content.setAttribute('data-value-id', value.value_id);
+            content.setAttribute('class', 'label content');
             content.textContent = value.value;
             elem.appendChild(content);
             var description = document.createElement('span');

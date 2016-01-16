@@ -47,7 +47,7 @@
 [%- MACRO metadata_list_language(resource_metadata_list) BLOCK %]
   [%- FOREACH resource_metadata IN resource_metadata_list %]
     <li>
-      <span class="label value" data-value-id="[% resource_metadata.value.id %]">[% resource_metadata.value.value %]</span>
+      <span class="label content">[% resource_metadata.value.value %]</span>
       <span class="description">[% resource_metadata.description %]</span>
     </li>
   [%- END # FOREACH resource_metadata IN resource_metadata_list %]
