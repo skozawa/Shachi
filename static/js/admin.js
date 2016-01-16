@@ -720,7 +720,7 @@ var Shachi;
         ResourceMetadataSelectEditor.prototype.toHashFromData = function (elem) {
             var value = elem.querySelector('.value');
             var description = elem.querySelector('.description');
-            var valueId = value.getAttribute('data-value-id');
+            var valueId = value ? value.getAttribute('data-value-id') : '';
             var descriptionValue = description ? description.textContent : '';
             return { value_id: valueId, description: descriptionValue };
         };
@@ -765,7 +765,7 @@ var Shachi;
         };
         ResourceMetadataSelectOnlyEditor.prototype.toHashFromData = function (elem) {
             var value = elem.querySelector('.value');
-            var valueId = value.getAttribute('data-value-id');
+            var valueId = value ? value.getAttribute('data-value-id') : '';
             return { value_id: valueId };
         };
         ResourceMetadataSelectOnlyEditor.prototype.addItemWithValue = function (value) {
@@ -830,7 +830,7 @@ var Shachi;
         ResourceMetadataRelationEditor.prototype.toHashFromData = function (elem) {
             var value = elem.querySelector('.value');
             var description = elem.querySelector('.description');
-            var valueId = value.getAttribute('data-value-id');
+            var valueId = value ? value.getAttribute('data-value-id') : '';
             var descriptionValue = description ? description.textContent : '';
             return { value_id: valueId, description: descriptionValue };
         };
