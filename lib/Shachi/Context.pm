@@ -90,14 +90,25 @@ sub change_lang_link {
     my ($self, $lang) = @_;
     my $uri = $self->req->uri->clone;
     $uri->query_param(ln => $lang);
-    $uri;
+    $self->_to_relative_url($uri);
 }
 
 sub pager_link {
     my ($self, $offset) = @_;
     my $uri = $self->req->uri->clone;
     $uri->query_param(offset => $offset);
-    $uri;
+    $self->_to_relative_url($uri);
+}
+
+# portが引き継がれないように相対パスにする
+sub _to_relative_url {
+    my ($self, $uri) = @_;
+    $uri->scheme(undef);
+    $uri->host(undef);
+    $uri->port(undef);
+    my $url = $uri->as_string;
+    $url =~ s!^///!/!;
+    $url;
 }
 
 ## response
