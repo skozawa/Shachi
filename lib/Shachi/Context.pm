@@ -166,13 +166,13 @@ sub redirect {
 sub throw_bad_request {
     my $self = shift;
     $self->res->code(400);
-    $self->res->body('Bad Request');
+    $self->html('400.html');
 }
 
 sub throw_not_found {
     my $self = shift;
     $self->res->code(404);
-    $self->res->body('Not Found');
+    $self->html('404.html');
 }
 
 1;
