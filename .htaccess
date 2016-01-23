@@ -4,8 +4,75 @@ AuthUserFile /home/sidb/www/Shachi/.htpasswd
 Require valid-user
 
 
-RewriteEngine On 
+RewriteEngine On
 
+# ?action=List -> /resources
+RewriteCond %{QUERY_STRING} (^|&)action=List($|&)
+RewriteRule .* /resources [R=301,L]
+
+# ?action=Statistics -> /resources/statistics
+RewriteCond %{QUERY_STRING} (^|&)action=Statistics($|&)
+RewriteRule .* /resources/statistics? [R=301,L]
+
+# ?action=Detail&ln=ja&id=1 -> /resources/{id}?ln=(jpn|eng)
+RewriteCond %{QUERY_STRING} (?:^|&)action=Detail(?:$|&)
+RewriteCond %{QUERY_STRING} (?:^|&)ln=ja(?:$|&)
+RewriteCond %{QUERY_STRING} (?:^|&)id=(\d+)(?:$|&)
+RewriteRule .* /resources/%1?ln=jpn [R=301,L]
+
+# ?action=Detail&id=1&ln=en -> /resources/{id}
+RewriteCond %{QUERY_STRING} (?:^|&)action=Detail(?:$|&)
+RewriteCond %{QUERY_STRING} (?:^|&)ln=en(?:$|&)
+RewriteCond %{QUERY_STRING} (?:^|&)id=(\d+)(?:$|&)
+RewriteRule .* /resources/%1?ln=eng [R=301,L]
+
+# ?action=Detail&id=1 -> /resources/{id}
+RewriteCond %{QUERY_STRING} (?:^|&)action=Detail(?:$|&)
+RewriteCond %{QUERY_STRING} (?:^|&)id=(\d+)(?:$|&)
+RewriteRule .* /resources/%1? [R=301,L]
+
+# www2.shachi.org -> shachi.org
+RewriteCond %{HTTP_HOST} ^www2.shachi.org$ [NC]
+RewriteRule .* http://shachi.org/ [R=301,L]
+
+# list.shachi.org -> shachi.org/resources
+RewriteCond %{HTTP_HOST} ^list.shachi.org$ [NC]
+RewriteRule .* http://shachi.org/resources [R=301,L]
+
+# statistics.shachi.org -> shachi.org/resources/statistics
+RewriteCond %{HTTP_HOST} ^statistics.shachi.org$ [NC]
+RewriteRule .* http://shachi.org/resources/statistics [R=301,L]
+
+# edit.shachi.org -> shachi.org/admin/
+RewriteCond %{HTTP_HOST} ^edit.shachi.org$ [NC]
+RewriteRule .* http://shachi.org/admin/ [R=301,L]
+
+# facet.shachi.org -> shachi.org/resources/facet
+RewriteCond %{HTTP_HOST} ^facet.shachi.org$ [NC]
+RewriteCond %{REQUEST_URI} !^/$
+RewriteRule (.*) http://shachi.org/$1 [R=301,L]
+
+# facet.shachi.org -> shachi.org/resources/facet
+RewriteCond %{HTTP_HOST} ^facet.shachi.org$ [NC]
+RewriteRule .* http://shachi.org/resources/facet [R=301,L]
+
+# www3.shachi.org -> shachi.org
+# RewriteCond %{HTTP_HOST} ^www3.shachi.org$ [NC]
+# RewriteRule (.*) http://shachi.org/$1 [R=301,L]
+
+# www.shachi.org -> shachi.org
+# RewriteCond %{HTTP_HOST} ^www.shachi.org$ [NC]
+# RewriteRule (.*) http://shachi.org/$1 [R=301,L]
+
+# asia.shachi.org
+RewriteCond %{HTTP_HOST} ^asia.shachi.org$ [NC]
+RewriteRule (.*) http://shachi.org:5432/asia/$1 [L,P]
+
+# shachi.org
+# RewriteCond %{HTTP_HOST} ^shachi.org$ [NC]
+# RewriteRule (.*) http://shachi.org:5432/$1 [L,P]
+
+# shachi.org
 RewriteCond %{HTTP_HOST} ^www3.shachi.org$ [NC]
 RewriteRule (.*) http://www3.shachi.org:5432/$1 [L,P]
 
