@@ -131,4 +131,10 @@ sub page_offset {
     ($page - 1) * $self->limit;
 }
 
+sub current_search_last_index {
+    my $self = shift;
+    $self->search_count > $self->offset + $self->limit ?
+        $self->offset + $self->limit : $self->search_count;
+}
+
 1;

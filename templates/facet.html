@@ -7,14 +7,14 @@
     <span class="total">言語資源の登録件数: [% query.total_count %]件</span>
     [% IF query.search_count %]
       <span class="result-count">
-        [% query.search_count %] 件中 [% query.offset + 1 %] - [% query.offset + query.limit %] 件目
+        [% query.search_count %] 件中 [% query.offset + 1 %] - [% query.current_search_last_index %] 件目
       </span>
     [% END # IF query.search_count %]
   [%- ELSE %]
     <span class="total">Language resource #: [% query.total_count %]</span>
     [% IF query.search_count %]
       <span class="result-count">
-        Results [% query.offset + 1 %] - [% query.offset + query.limit %] of [% query.search_count %]
+        Results [% query.offset + 1 %] - [% query.current_search_last_index %] of [% query.search_count %]
       </span>
     [% END # IF query.search_count %]
   [%- END # IF c.is_japanese %]
