@@ -1,0 +1,10 @@
+#!/bin/sh
+
+PATH="/home/sidb/www/Shachi"
+
+CARTON_EXEC="RIDGE_ENV=production carton exec -- "
+
+cd $PATH
+plenv local 5.20.1
+plenv rehash
+$CARTON_EXEC "$@"
