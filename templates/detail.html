@@ -11,7 +11,14 @@
   <table class="resource-metadata-list">
     [%- FOREACH metadata IN metadata_list %]
       <tr>
-        <td class="metadata">[% metadata.label %]</td>
+        <td class="metadata">
+          [% metadata.label %]
+          [%- IF metadata.name == 'relation_utilization' %]
+            <span class="metadata-complement">*This metadata is automatically extracted</span>
+          [%- ELSIF metadata.name == 'description_price' %]
+            <span class="metadata-complement">*This metadata is only as a guide</span>
+          [%- END %]
+        </td>
         <td class="metadata-value">
           [%- SET resource_metadata_list = resource.metadata_list_by_name(metadata.name) %]
           [%- INCLUDE '_resource_metadata_list.tt' WITH
