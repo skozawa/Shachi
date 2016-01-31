@@ -80,6 +80,10 @@ RewriteRule (.*) http://shachi.org/$1 [R=301,L]
 
 # asia.shachi.org
 RewriteCond %{HTTP_HOST} ^asia.shachi.org$ [NC]
+RewriteRule ^/(css|images)/(.*) http://shachi.org/$1/$2 [L,P]
+
+# asia.shachi.org
+RewriteCond %{HTTP_HOST} ^asia.shachi.org$ [NC]
 RewriteRule (.*) http://shachi.org:5432/asia/$1 [L,P]
 
 # shachi.org
