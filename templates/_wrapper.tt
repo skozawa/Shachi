@@ -64,7 +64,7 @@
         Copyright © 2007 NICT, Matsubara Lab., Anchor co., inc. All Rights Reserved.
       </div>
 
-
+      [%- INCLUDE '_google_analytics.tt' %]
     </div>
   </body>
 </html>
