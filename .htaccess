@@ -22,7 +22,7 @@ RewriteEngine On
 
 # ?action=List -> /resources
 RewriteCond %{QUERY_STRING} (^|&)action=List($|&)
-RewriteRule .* /resources [R=301,L]
+RewriteRule .* /resources? [R=301,L]
 
 # ?action=Statistics -> /resources/statistics
 RewriteCond %{QUERY_STRING} (^|&)action=Statistics($|&)
