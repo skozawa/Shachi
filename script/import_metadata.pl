@@ -5,6 +5,7 @@ use Data::Dumper;
 use XML::LibXML;
 use Getopt::Long;
 use List::MoreUtils qw/any/;
+use Furl;
 use Shachi::Database;
 use Shachi::Model::Metadata;
 use Shachi::Service::Annotator;
@@ -75,7 +76,17 @@ my $type_map = {
 
 my $config = $target_config->{$target} or die 'target: ELRA or LDC';
 
-my $doc = XML::LibXML->load_xml(location => $config->{xml});
+my $doc = do {
+    if ( -f $config->{xml} ) {
+        XML::LibXML->load_xml(location => $config->{xml});
+    } else {
+        my $furl = Furl->new(timeout => 600);
+        my $res = $furl->get($config->{url});
+        die 'http request error:', $res->status_line, "\t", $config->{url} unless $res->is_success;
+        XML::LibXML->load_xml(string => $res->content);
+    }
+};
+
 my @records = $doc->getElementsByTagName('oai:record');
 
 my $db = Shachi::Database->new;
@@ -118,7 +129,7 @@ sub update {
 
     unless ( $debug ) {
         # LDCからインポートした古いrightsに関するデータを削除
-        delete_old_ldc_rights($res->{resource_id});
+        # delete_old_ldc_rights($res->{resource_id});
     }
 
     my ($resource, $metadata_list) = Shachi::Service::Resource->find_resource_detail(

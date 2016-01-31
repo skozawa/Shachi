@@ -19,6 +19,8 @@ requires 'Carp';
 requires 'Search::Query';
 requires 'HTML::Escape';
 requires 'XML::LibXML';
+requires 'Furl';
+requires 'IO::Socket::SSL';
 
 # route
 requires 'Router::Simple';
