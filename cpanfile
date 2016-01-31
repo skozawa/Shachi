@@ -21,6 +21,7 @@ requires 'HTML::Escape';
 requires 'XML::LibXML';
 requires 'Furl';
 requires 'IO::Socket::SSL';
+requires 'DateTime::Format::W3CDTF';
 
 # route
 requires 'Router::Simple';
