@@ -75,16 +75,16 @@ RewriteRule .* /resources/%1? [R=301,L]
 # RewriteRule (.*) http://shachi.org/$1 [R=301,L]
 
 # www.shachi.org -> shachi.org
-# RewriteCond %{HTTP_HOST} ^www.shachi.org$ [NC]
-# RewriteRule (.*) http://shachi.org/$1 [R=301,L]
+RewriteCond %{HTTP_HOST} ^www.shachi.org$ [NC]
+RewriteRule (.*) http://shachi.org/$1 [R=301,L]
 
 # asia.shachi.org
 # RewriteCond %{HTTP_HOST} ^asia.shachi.org$ [NC]
 # RewriteRule (.*) http://shachi.org:5432/asia/$1 [L,P]
 
 # shachi.org
-# RewriteCond %{HTTP_HOST} ^shachi.org$ [NC]
-# RewriteRule (.*) http://shachi.org:5432/$1 [L,P]
+RewriteCond %{HTTP_HOST} ^shachi.org$ [NC]
+RewriteRule (.*) http://shachi.org:5432/$1 [L,P]
 
 # shachi.org
 RewriteCond %{HTTP_HOST} ^www3.shachi.org$ [NC]
