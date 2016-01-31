@@ -2,7 +2,8 @@
 
 APPPATH="/home/sidb/www/Shachi"
 
-CARTON_EXEC="PLACK_ENV=production carton exec -- "
+export PLACK_ENV=production
+CARTON_EXEC="carton exec -- "
 
 cd $APPPATH
 plenv local 5.20.1
