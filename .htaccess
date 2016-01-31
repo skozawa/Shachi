@@ -46,8 +46,8 @@ RewriteCond %{QUERY_STRING} (?:^|&)id=(\d+)(?:$|&)
 RewriteRule .* /resources/%1? [R=301,L]
 
 # www2.shachi.org -> shachi.org
-# RewriteCond %{HTTP_HOST} ^www2.shachi.org$ [NC]
-# RewriteRule .* http://shachi.org/ [R=301,L]
+RewriteCond %{HTTP_HOST} ^www2.shachi.org$ [NC]
+RewriteRule .* http://shachi.org/ [R=301,L]
 
 # list.shachi.org -> shachi.org/resources
 # RewriteCond %{HTTP_HOST} ^list.shachi.org$ [NC]
