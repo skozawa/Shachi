@@ -87,6 +87,6 @@ RewriteRule .* /resources/%1? [R=301,L]
 # RewriteRule (.*) http://shachi.org:5432/$1 [L,P]
 
 # shachi.org
-# RewriteCond %{HTTP_HOST} ^www3.shachi.org$ [NC]
-# RewriteRule (.*) http://www3.shachi.org:5432/$1 [L,P]
+RewriteCond %{HTTP_HOST} ^www3.shachi.org$ [NC]
+RewriteRule (.*) http://www3.shachi.org:5432/$1 [L,P]
 
