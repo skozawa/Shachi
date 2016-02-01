@@ -8,8 +8,7 @@ sub _require : Test(startup => 1) {
 }
 
 sub identify : Tests {
-    my $db = Shachi::Database->new;
-    my $doc = Shachi::Service::OAI->identify(db => $db);
+    my $doc = Shachi::Service::OAI->identify;
 
     ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
@@ -63,5 +62,26 @@ sub identify : Tests {
         ['access', 'Every resource described by the SHACHI metadata repository is a public Web page that may be accessed without restriction.']
     ) ) {
         is $olac_archive->getElementsByTagName($_->[0])->[0]->textContent, $_->[1], $_->[0];
+    }
+}
+
+sub list_metadata_formats : Tests {
+    my $doc = Shachi::Service::OAI->list_metadata_formats;
+
+    ok $doc->getElementsByTagName('SCRIPT');
+    ok $doc->getElementsByTagName('responseDate');
+    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+
+    ok $doc->getElementsByTagName('ListMetadataFormats');
+
+    my $format = $doc->getElementsByTagName('metadataFormat')->[0];
+    ok $format;
+
+    for ( (
+        ['metadataPrefix', 'olac' ],
+        ['schema', 'http://www.language-archives.org/OLAC/1.0/olac.xsd' ],
+        ['metadataNamespace', 'http://www.language-archives.org/OLAC/1.0/' ],
+    ) ) {
+        is $format->getElementsByTagName($_->[0])->[0]->textContent, $_->[1], $_->[0];
     }
 }

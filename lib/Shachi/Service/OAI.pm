@@ -47,8 +47,7 @@ sub _addChildren {
 }
 
 sub identify {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' };
+    args my $class => 'ClassName';
 
     my ($doc, $oai) = _create_xml_base('Identify');
 
@@ -92,6 +91,22 @@ sub identify {
         ['shortLocation', { value => 'Kyoto, Japan; Nagoya, Japan' }],
         ['synopsis', { value => 'The purpose of the database is to investigate languages, tag sets, and formats compiled in language resources throughout the world, to systematically store language resource metadata, to create a search function for this information, and to ultimately utilize all this for a more efficient development of language resources.' }],
         ['access', { value => 'Every resource described by the SHACHI metadata repository is a public Web page that may be accessed without restriction.' }]
+    ]);
+
+    return $doc;
+}
+
+sub list_metadata_formats {
+    args my $class => 'ClassName';
+
+    my ($doc, $oai) = _create_xml_base('ListMetadataFormats');
+
+    my $list_metadata_formats = _addChild($doc, $oai, 'ListMetadataFormats');
+    my $metadata_format = _addChild($doc, $list_metadata_formats, 'metadataFormat');
+    _addChildren($doc, $metadata_format, [
+        ['metadataPrefix', { value => 'olac' }],
+        ['schema', { value => 'http://www.language-archives.org/OLAC/1.0/olac.xsd' }],
+        ['metadataNamespace', { value => 'http://www.language-archives.org/OLAC/1.0/' }],
     ]);
 
     return $doc;
