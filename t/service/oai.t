@@ -85,3 +85,13 @@ sub list_metadata_formats : Tests {
         is $format->getElementsByTagName($_->[0])->[0]->textContent, $_->[1], $_->[0];
     }
 }
+
+sub list_sets : Tests {
+    my $doc = Shachi::Service::OAI->list_sets;
+
+    ok $doc->getElementsByTagName('SCRIPT');
+    ok $doc->getElementsByTagName('responseDate');
+    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+
+    ok $doc->getElementsByTagName('ListSets');
+}

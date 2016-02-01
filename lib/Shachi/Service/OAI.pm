@@ -112,5 +112,13 @@ sub list_metadata_formats {
     return $doc;
 }
 
+sub list_sets {
+    args my $class => 'ClassName';
+
+    my ($doc, $oai) = _create_xml_base('ListSets');
+    _addChild($doc, $oai, 'ListSets');
+
+    return $doc;
+}
 
 1;
