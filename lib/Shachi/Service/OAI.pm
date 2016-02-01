@@ -4,7 +4,29 @@ use warnings;
 use utf8;
 use Smart::Args;
 use XML::LibXML;
+use DateTime;
 use DateTime::Format::W3CDTF;
+
+sub _create_xml_base {
+    my ($verb) = @_;
+
+    my $now = DateTime->now;
+    my $w3c = DateTime::Format::W3CDTF->new;
+
+    my $doc = XML::LibXML::Document->new('1.0', 'utf-8');
+    my $oai = _addChild($doc, $doc, 'OAI-PMH', { attributes => {
+        'xmlns' => 'http://www.openarchives.org/OAI/2.0/',
+        'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
+        'xsi:schemaLocation' => 'http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd',
+    } });
+    _addChildren($doc, $oai, [
+        ['SCRIPT'],
+        ['responseDate', { value => $w3c->format_datetime($now) }],
+        ['request', { value => 'http://shachi.org/oai2', attributes => { verb => $verb } } ]
+    ]);
+
+    return ($doc, $oai);
+}
 
 sub _addChild {
     my ($doc, $parent, $name, $args) = @_;
@@ -28,20 +50,7 @@ sub identify {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' };
 
-    my $now = DateTime->now;
-    my $w3c = DateTime::Format::W3CDTF->new;
-
-    my $doc = XML::LibXML::Document->new('1.0', 'utf-8');
-    my $oai = _addChild($doc, $doc, 'OAI-PMH', { attributes => {
-        'xmlns' => 'http://www.openarchives.org/OAI/2.0/',
-        'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
-        'xsi:schemaLocation' => 'http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd',
-    } });
-    _addChildren($doc, $oai, [
-        ['SCRIPT'],
-        ['responseDate', { value => $w3c->format_datetime($now) }],
-        ['request', { value => 'http://shachi.org/oai2', attributes => { verb => 'Identify' } } ]
-    ]);
+    my ($doc, $oai) = _create_xml_base('Identify');
 
     my $identify = _addChild($doc, $oai, 'Identify');
     _addChildren($doc, $identify, [
