@@ -92,14 +92,15 @@ sub create_metadata {
     my $input_type = delete $args{input_type} || INPUT_TYPE_TEXT;
     my $value_type = delete $args{value_type} || '';
 
-    return Shachi::Service::Metadata->create(db => db, args => {
-        name       => $name,
-        label      => $label,
-        order_num  => $order_num,
-        input_type => $input_type,
-        value_type => $value_type,
-        %args,
-    });
+    return Shachi::Service::Metadata->find_by_name(db => db, name => $name) ||
+        Shachi::Service::Metadata->create(db => db, args => {
+            name       => $name,
+            label      => $label,
+            order_num  => $order_num,
+            input_type => $input_type,
+            value_type => $value_type,
+            %args,
+        });
 }
 
 sub create_metadata_value {

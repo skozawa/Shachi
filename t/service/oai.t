@@ -39,6 +39,19 @@ sub get_record : Tests {
             { name => 'format_extent', content => '40K' },
             { name => 'format_medium', content => 'DVD' },
             { name => 'coverage_spacial', content => 'sp' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'isVersionOf')->id, description => 'T-000003: test corpus' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'hasVersion')->id, description => 'T-000007: test corpus 2' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'isReplacedBy')->id, description => 'T-000002: old test corpus' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'replaces')->id, description => 'corpus for replace' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'isRequiredBy')->id, description => 'D-000009: dictionary' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'requires')->id, description => 'D-000011: dic' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'isPartOf')->id, description => 'part thesaurus' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'hasPart')->id, description => 'D-000012: dictionary version2' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'isReferencedBy')->id, description => 'http://example.com/' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'references')->id, description => 'refer' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'isFormatOf')->id, description => 'dic format' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'hasFormat')->id, description => 'format' },
+            { name => 'relation', value_id => create_metadata_value(value_type => 'conformsTo')->id, description => 'conforms' },
         ) ]);
 
         my $db = Shachi::Database->new;
@@ -85,6 +98,19 @@ sub get_record : Tests {
             ['dcterm:extent', 0, undef, '40K'],
             ['dcterm:medium', 0, undef, 'DVD'],
             ['dcterm:spatial', 0, undef, 'sp'],
+            ['dcterm:isVersionOf', 0, undef, 'oai:shachi.org:T-000003'],
+            ['dcterm:hasVersion', 0, undef, 'oai:shachi.org:T-000007'],
+            ['dcterm:isReplacedBy', 0, undef, 'oai:shachi.org:T-000002'],
+            ['dcterm:replaces', 0, undef, 'corpus for replace'],
+            ['dcterm:isRequiredBy', 0, undef, 'oai:shachi.org:D-000009'],
+            ['dcterm:requires', 0, undef, 'oai:shachi.org:D-000011'],
+            ['dcterm:isPartOf', 0, undef, 'part thesaurus'],
+            ['dcterm:hasPart', 0, undef, 'oai:shachi.org:D-000012'],
+            ['dcterm:isReferencedBy', 0, undef, 'http://example.com/'],
+            ['dcterm:references', 0, undef, 'refer'],
+            ['dcterm:isFormatOf', 0, undef, 'dic format'],
+            ['dcterm:hasFormat', 0, undef, 'format'],
+            ['dcterm:conformsTo', 0, undef, 'conforms'],
         ) {
             my $element = $olac->getElementsByTagName($_->[0])->[$_->[1]];
             my $value = $_->[2] ? $element->getAttribute($_->[2]) : $element->textContent;

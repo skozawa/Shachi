@@ -79,7 +79,14 @@ sub _resource_metadata {
     foreach my $metadata_map ( @{resource_metadata_map()} ) {
         my $metadata_list = $resource->metadata_list_by_name($metadata_map->{name}) or next;
         foreach my $resource_metadata ( @$metadata_list ) {
-            if ( $metadata_map->{type} ) {
+            if ( $metadata_map->{value_type} ) {
+                my $name = $metadata_map->{value_type} . ':' . $resource_metadata->value->value_type;
+                my $content = $resource_metadata->description;
+                if ( $content =~ /^([CTGDON]-(?:\d{6})): / ) {
+                    $content = 'oai:shachi.org:' . $1;
+                }
+                _addChild($doc, $olac, $name, { value => $content });
+            } elsif ( $metadata_map->{type} ) {
                 _addChild($doc, $olac, $metadata_map->{tag}, { attributes => {
                     'xsi:type' => $metadata_map->{type},
                     $metadata_map->{code} => $resource_metadata->value->value,
@@ -114,23 +121,12 @@ sub resource_metadata_map {
         { name => 'date_created', tag => 'dcterm:created' },
         { name => 'date_issued', tag => 'dcterm:issued' },
         { name => 'date_modified', tag => 'dcterm:modified' },
-        # <xs:element name="extent" substitutionGroup="format"/>
         { name => 'format_extent', tag => 'dcterm:extent' },
-        # <xs:element name="medium" substitutionGroup="format"/>
         { name => 'format_medium', tag => 'dcterm:medium' },
-        # <xs:element name="isVersionOf" substitutionGroup="relation"/>
-        # <xs:element name="hasVersion" substitutionGroup="relation"/>
-        # <xs:element name="isReplacedBy" substitutionGroup="relation"/>
-        # <xs:element name="replaces" substitutionGroup="relation"/>
-        # <xs:element name="isRequiredBy" substitutionGroup="relation"/>
-        # <xs:element name="requires" substitutionGroup="relation"/>
-        # <xs:element name="isPartOf" substitutionGroup="relation"/>
-        # <xs:element name="hasPart" substitutionGroup="relation"/>
-        # <xs:element name="isReferencedBy" substitutionGroup="relation"/>
-        # <xs:element name="references" substitutionGroup="relation"/>
-        # <xs:element name="isFormatOf" substitutionGroup="relation"/>
-        # <xs:element name="hasFormat" substitutionGroup="relation"/>
-        # <xs:element name="conformsTo" substitutionGroup="relation"/>
+        # isVersionOf, hasVersion, isReplacedBy, replaces, isRequiredBy
+        # requires, isPartOf, hasPart, isReferencedBy, references
+        # isFormatOf, hasFormat, conformsTo
+        { name => 'relation', value_type => 'dcterm' },
         { name => 'coverage_spacial', tag => 'dcterm:spatial' },
     ];
 }
