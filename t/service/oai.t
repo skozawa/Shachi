@@ -65,6 +65,49 @@ sub identify : Tests {
     }
 }
 
+sub list_identifiers : Tests {
+    truncate_db;
+
+    subtest 'no resources' => sub {
+        my $db = Shachi::Database->new;
+        my $doc = Shachi::Service::OAI->list_identifiers(db => $db);
+
+        ok $doc->getElementsByTagName('SCRIPT');
+        ok $doc->getElementsByTagName('responseDate');
+        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+
+        my $list_identifiers = $doc->getElementsByTagName('ListIdentifiers')->[0];
+        ok $list_identifiers;
+
+        my $headers = $list_identifiers->getElementsByTagName('header');
+        is $headers->size, 0;
+    };
+
+    subtest 'resource identifiers' => sub {
+        create_resource(resource_subject => $_)
+            for qw/corpus dictionary glossary thesaurus test/;
+
+        my $db = Shachi::Database->new;
+        my $doc = Shachi::Service::OAI->list_identifiers(db => $db);
+
+        ok $doc->getElementsByTagName('SCRIPT');
+        ok $doc->getElementsByTagName('responseDate');
+        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+
+        my $list_identifiers = $doc->getElementsByTagName('ListIdentifiers')->[0];
+        ok $list_identifiers;
+
+        my $headers = $list_identifiers->getElementsByTagName('header');
+        is $headers->size, 5;
+
+        $headers->[0]->getElementsByTagName('identifier')->[0]->textContent, 'C-000001';
+        $headers->[1]->getElementsByTagName('identifier')->[0]->textContent, 'D-000002';
+        $headers->[2]->getElementsByTagName('identifier')->[0]->textContent, 'G-000003';
+        $headers->[3]->getElementsByTagName('identifier')->[0]->textContent, 'T-000004';
+        $headers->[4]->getElementsByTagName('identifier')->[0]->textContent, 'O-000005';
+    };
+}
+
 sub list_metadata_formats : Tests {
     my $doc = Shachi::Service::OAI->list_metadata_formats;
 

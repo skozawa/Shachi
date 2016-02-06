@@ -7,11 +7,16 @@ use XML::LibXML;
 use DateTime;
 use DateTime::Format::W3CDTF;
 
+my $w3c = DateTime::Format::W3CDTF->new;
+sub _format_datetime {
+    my ($dt) = @_;
+    $w3c->format_datetime($dt);
+}
+
 sub _create_xml_base {
     my ($verb) = @_;
 
     my $now = DateTime->now;
-    my $w3c = DateTime::Format::W3CDTF->new;
 
     my $doc = XML::LibXML::Document->new('1.0', 'utf-8');
     my $oai = _addChild($doc, $doc, 'OAI-PMH', { attributes => {
@@ -21,7 +26,7 @@ sub _create_xml_base {
     } });
     _addChildren($doc, $oai, [
         ['SCRIPT'],
-        ['responseDate', { value => $w3c->format_datetime($now) }],
+        ['responseDate', { value => _format_datetime($now) }],
         ['request', { value => 'http://shachi.org/oai2', attributes => { verb => $verb } } ]
     ]);
 
@@ -44,6 +49,14 @@ sub _addChild {
 sub _addChildren {
     my ($doc, $parent, $children) = @_;
     _addChild($doc, $parent, @$_) for @$children;
+}
+
+sub _resource_header {
+    my ($doc, $resource) = @_;
+    my $header = $doc->createElement('header');
+    _addChild($doc, $header, 'identifier', { value => sprintf 'oai:shachi.org:%s', $resource->shachi_id });
+    _addChild($doc, $header, 'datestamp', { value => _format_datetime($resource->modified) });
+    return $header;
 }
 
 sub identify {
@@ -92,6 +105,22 @@ sub identify {
         ['synopsis', { value => 'The purpose of the database is to investigate languages, tag sets, and formats compiled in language resources throughout the world, to systematically store language resource metadata, to create a search function for this information, and to ultimately utilize all this for a more efficient development of language resources.' }],
         ['access', { value => 'Every resource described by the SHACHI metadata repository is a public Web page that may be accessed without restriction.' }]
     ]);
+
+    return $doc;
+}
+
+sub list_identifiers {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $args  => { isa => 'HashRef', default => {} };
+
+    my ($doc, $oai) = _create_xml_base('ListIdentifiers');
+
+    my $resources = $db->shachi->table('resource')->order_by('id asc')
+        ->offset($args->{offset} || 0)->limit($args->{limit} || 200)->list;
+
+    my $list_identifiers = _addChild($doc, $oai, 'ListIdentifiers');
+    $list_identifiers->addChild(_resource_header($doc, $_)) for @$resources;
 
     return $doc;
 }
