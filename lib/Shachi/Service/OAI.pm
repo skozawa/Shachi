@@ -59,6 +59,65 @@ sub _resource_header {
     return $header;
 }
 
+sub _resource_metadata {
+    my ($doc, $resource) = @_;
+    my $metadata = $doc->createElement('metadata');
+    my $olac = _addChild($doc, $metadata, 'olac:olac', { attributes => {
+        'xmlns:olac'    => 'http://www.language-archives.org/OLAC/1.1/',
+        'xmlns:dc'      => 'http://purl.org/dc/elements/1.1/',
+        'xmlns:dcterms' => 'http://purl.org/dc/terms/',
+        # 'xmlns:shachi'  => 'http://shachi.org/olac/',
+        'xmlns:xsi'     => 'http://www.w3.org/2001/XMLSchema-instance',
+        'xsi:schemaLocation' => join(
+            '',
+            'http://www.language-archives.org/OLAC/1.1/',
+            'http://www.language-archives.org/OLAC/1.1/olac.xsd',
+            # 'http://www.shachi.org/olac/',
+            # 'http://www.shachi.org/olac/shachi.xsd',
+        )
+    } });
+    foreach my $metadata_map ( @{resource_metadata_map()} ) {
+        my $metadata_list = $resource->metadata_list_by_name($metadata_map->{name}) or next;
+        foreach my $resource_metadata ( @$metadata_list ) {
+            if ( $metadata_map->{type} ) {
+                _addChild($doc, $olac, $metadata_map->{tag}, { attributes => {
+                    'xsi:type' => $metadata_map->{type},
+                    $metadata_map->{code} => $resource_metadata->value->value,
+                } });
+            } else {
+                _addChild($doc, $olac, $metadata_map->{tag}, { value => $resource_metadata->content });
+            }
+        }
+    }
+    return $metadata;
+}
+
+sub resource_metadata_map {
+    return [
+        { name => 'title', tag => 'dc:title' },
+        { name => 'creator', tag => 'dc:creator' },
+        { name => 'subject', tag => 'dc:subject' },
+        { name => 'subject_linguisticField', tag => 'dc:subject',
+          type => 'olac:linguistic-field', code => 'olac:code' },
+        { name => 'description', tag => 'dc:description' },
+        { name => 'publisher', tag => 'dc:publisher' },
+    ];
+}
+
+sub get_record {
+    args my $class    => 'ClassName',
+         my $resource => { isa => 'Shachi::Model::Resource' };
+
+    my ($doc, $oai) = _create_xml_base('GetRecord');
+
+    my $getrecord = _addChild($doc, $oai, 'GetRecord');
+    my $record = _addChild($doc, $getrecord, 'record');
+    $record->addChild(_resource_header($doc, $resource));
+    $record->addChild(_resource_metadata($doc, $resource));
+
+    return $doc;
+}
+
 sub identify {
     args my $class => 'ClassName';
 

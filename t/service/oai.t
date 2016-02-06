@@ -2,9 +2,97 @@ package t::Shachi::Service::OAI;
 use t::test;
 use utf8;
 use Shachi::Database;
+use Shachi::Model::List;
+use Shachi::Service::Resource;
 
 sub _require : Test(startup => 1) {
     use_ok 'Shachi::Service::OAI';
+}
+
+sub get_record : Tests {
+    truncate_db_with_setup;
+
+    subtest 'get record' => sub {
+        my $english = get_english;
+        my $resource = create_resource;
+        my $metadata_list = Shachi::Model::List->new(list => [ map {
+            my $name = delete $_->{name};
+            my $metadata = create_metadata(name => $name);
+            create_resource_metadata(resource => $resource, metadata => $metadata, language => $english, %$_);
+            $metadata;
+        } (
+            { name => 'title', content => 'test corpus' },
+            { name => 'creator', content => 'Test Univ.' },
+            { name => 'subject', content => 'Speech Synthesis' },
+            { name => 'subject_linguisticField', value_id => create_metadata_value(value => 'phonetics')->id },
+            { name => 'description', content => 'corpus description' },
+            { name => 'publisher', content => 'Test Univ.' },
+        ) ]);
+
+        my $db = Shachi::Database->new;
+        my ($resource_detail) = Shachi::Service::Resource->find_resource_detail(
+            db => $db, id => $resource->id, language => $english,
+            args => { metadata_list => $metadata_list },
+        );
+
+        my $doc = Shachi::Service::OAI->get_record(resource => $resource_detail);
+
+        ok $doc->getElementsByTagName('SCRIPT');
+        ok $doc->getElementsByTagName('responseDate');
+        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+        ok $doc->getElementsByTagName('GetRecord');
+
+        my $record = $doc->getElementsByTagName('record')->[0];
+        ok $record;
+
+        my $header = $record->getElementsByTagName('header')->[0];
+        ok $header;
+        is $header->getElementsByTagName('identifier')->[0]->textContent, 'oai:shachi.org:' . $resource->shachi_id;
+
+        my $metadata = $record->getElementsByTagName('metadata')->[0];
+        ok $metadata;
+        my $olac = $metadata->getElementsByTagName('olac:olac')->[0];
+        ok $olac;
+
+        for (
+            ['dc:title', 0, undef, 'test corpus'],
+            ['dc:creator', 0, undef, 'Test Univ.'],
+            ['dc:subject', 0, undef, 'Speech Synthesis'],
+            ['dc:subject', 1, 'olac:code', 'phonetics'],
+            ['dc:description', 0, undef, 'corpus description'],
+            ['dc:publisher', 0, undef, 'Test Univ.'],
+        ) {
+            my $element = $olac->getElementsByTagName($_->[0])->[$_->[1]];
+            my $value = $_->[2] ? $element->getAttribute($_->[2]) : $element->textContent;
+            is $value , $_->[3], $_->[0];
+        }
+    };
+
+    subtest 'no metadata resource' => sub {
+        my $resource = create_resource;
+        my $doc = Shachi::Service::OAI->get_record(resource => $resource);
+
+        ok $doc->getElementsByTagName('SCRIPT');
+        ok $doc->getElementsByTagName('responseDate');
+        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+
+        ok $doc->getElementsByTagName('GetRecord');
+
+        my $record = $doc->getElementsByTagName('record')->[0];
+        ok $record;
+
+        my $header = $record->getElementsByTagName('header')->[0];
+        ok $header;
+        is $header->getElementsByTagName('identifier')->[0]->textContent, 'oai:shachi.org:' . $resource->shachi_id;
+
+        my $metadata = $record->getElementsByTagName('metadata')->[0];
+        ok $metadata;
+        my $olac = $metadata->getElementsByTagName('olac:olac')->[0];
+        ok $olac;
+        is $olac->getAttribute('xmlns:olac'), 'http://www.language-archives.org/OLAC/1.1/';
+        is $olac->getAttribute('xmlns:dc'), 'http://purl.org/dc/elements/1.1/';
+        is $olac->getAttribute('xmlns:dcterms'), 'http://purl.org/dc/terms/';
+    };
 }
 
 sub identify : Tests {
