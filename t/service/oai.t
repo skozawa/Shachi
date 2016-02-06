@@ -26,8 +26,11 @@ sub get_record : Tests {
             { name => 'subject', content => 'Speech Synthesis' },
             { name => 'subject_linguisticField', value_id => create_metadata_value(value => 'phonetics')->id },
             { name => 'description', content => 'corpus description' },
+            { name => 'description_language', value_id => create_language(code => 'ita')->value_id },
             { name => 'publisher', content => 'Test Univ.' },
             { name => 'type', value_id => create_metadata_value(value => 'Sound')->id },
+            { name => 'type_discourseType', value_id => create_metadata_value(value => 'narrative')->id },
+            { name => 'type_linguisticType', value_id => create_metadata_value(value => 'primary_text')->id },
             { name => 'identifier', content => 'corpus id' },
             { name => 'source', content => 'corpus source' },
             { name => 'coverage_temporal', content => 'coverage' },
@@ -57,7 +60,7 @@ sub get_record : Tests {
         my $db = Shachi::Database->new;
         my ($resource_detail) = Shachi::Service::Resource->find_resource_detail(
             db => $db, id => $resource->id, language => $english,
-            args => { metadata_list => $metadata_list },
+            args => { metadata_list => $metadata_list, with_language => 1 },
         );
 
         my $doc = Shachi::Service::OAI->get_record(resource => $resource_detail);
@@ -85,8 +88,11 @@ sub get_record : Tests {
             ['dc:subject', 0, undef, 'Speech Synthesis'],
             ['dc:subject', 1, 'olac:code', 'phonetics'],
             ['dc:description', 0, undef, 'corpus description'],
+            ['dc:description', 1, 'olac:code', 'it'],
             ['dc:publisher', 0, undef, 'Test Univ.'],
             ['dc:type', 0, undef, 'Sound'],
+            ['dc:type', 1, 'olac:code', 'narrative'],
+            ['dc:type', 2, 'olac:code', 'primary_text'],
             ['dc:identifier', 0, undef, 'corpus id'],
             ['dc:source', 0, undef, 'corpus source'],
             ['dc:coverage', 0, undef, 'coverage'],
