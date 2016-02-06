@@ -27,6 +27,18 @@ sub get_record : Tests {
             { name => 'subject_linguisticField', value_id => create_metadata_value(value => 'phonetics')->id },
             { name => 'description', content => 'corpus description' },
             { name => 'publisher', content => 'Test Univ.' },
+            { name => 'type', value_id => create_metadata_value(value => 'Sound')->id },
+            { name => 'identifier', content => 'corpus id' },
+            { name => 'source', content => 'corpus source' },
+            { name => 'coverage_temporal', content => 'coverage' },
+            { name => 'rights', content => 'all right reserved' },
+            { name => 'title_alternative', content => 'tco' },
+            { name => 'date_created', content => '2001-01-01 2001-03-01' },
+            { name => 'date_issued', content => '2001-04-01' },
+            { name => 'date_modified', content => '2001-05-01' },
+            { name => 'format_extent', content => '40K' },
+            { name => 'format_medium', content => 'DVD' },
+            { name => 'coverage_spacial', content => 'sp' },
         ) ]);
 
         my $db = Shachi::Database->new;
@@ -61,6 +73,18 @@ sub get_record : Tests {
             ['dc:subject', 1, 'olac:code', 'phonetics'],
             ['dc:description', 0, undef, 'corpus description'],
             ['dc:publisher', 0, undef, 'Test Univ.'],
+            ['dc:type', 0, undef, 'Sound'],
+            ['dc:identifier', 0, undef, 'corpus id'],
+            ['dc:source', 0, undef, 'corpus source'],
+            ['dc:coverage', 0, undef, 'coverage'],
+            ['dc:rights', 0, undef, 'all right reserved'],
+            ['dcterm:alternative', 0, undef, 'tco'],
+            ['dcterm:created', 0, undef, '2001-01-01 2001-03-01'],
+            ['dcterm:issued', 0, undef, '2001-04-01'],
+            ['dcterm:modified', 0, undef, '2001-05-01'],
+            ['dcterm:extent', 0, undef, '40K'],
+            ['dcterm:medium', 0, undef, 'DVD'],
+            ['dcterm:spatial', 0, undef, 'sp'],
         ) {
             my $element = $olac->getElementsByTagName($_->[0])->[$_->[1]];
             my $value = $_->[2] ? $element->getAttribute($_->[2]) : $element->textContent;

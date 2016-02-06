@@ -85,7 +85,9 @@ sub _resource_metadata {
                     $metadata_map->{code} => $resource_metadata->value->value,
                 } });
             } else {
-                _addChild($doc, $olac, $metadata_map->{tag}, { value => $resource_metadata->content });
+                my $value = $metadata_map->{value} ?
+                    $resource_metadata->value->value : $resource_metadata->content;
+                _addChild($doc, $olac, $metadata_map->{tag}, { value => $value });
             }
         }
     }
@@ -101,8 +103,38 @@ sub resource_metadata_map {
           type => 'olac:linguistic-field', code => 'olac:code' },
         { name => 'description', tag => 'dc:description' },
         { name => 'publisher', tag => 'dc:publisher' },
+        { name => 'type', tag => 'dc:type', value => 1 },
+        { name => 'identifier', tag => 'dc:identifier' },
+        { name => 'source', tag => 'dc:source' },
+        # <xs:element name="language" substitutionGroup="dc:language"/>
+        # <xs:element name="relation" substitutionGroup="dc:relation"/>
+        { name => 'coverage_temporal', tag => 'dc:coverage' },
+        { name => 'rights', tag => 'dc:rights' },
+        { name => 'title_alternative', tag => 'dcterm:alternative' },
+        { name => 'date_created', tag => 'dcterm:created' },
+        { name => 'date_issued', tag => 'dcterm:issued' },
+        { name => 'date_modified', tag => 'dcterm:modified' },
+        # <xs:element name="extent" substitutionGroup="format"/>
+        { name => 'format_extent', tag => 'dcterm:extent' },
+        # <xs:element name="medium" substitutionGroup="format"/>
+        { name => 'format_medium', tag => 'dcterm:medium' },
+        # <xs:element name="isVersionOf" substitutionGroup="relation"/>
+        # <xs:element name="hasVersion" substitutionGroup="relation"/>
+        # <xs:element name="isReplacedBy" substitutionGroup="relation"/>
+        # <xs:element name="replaces" substitutionGroup="relation"/>
+        # <xs:element name="isRequiredBy" substitutionGroup="relation"/>
+        # <xs:element name="requires" substitutionGroup="relation"/>
+        # <xs:element name="isPartOf" substitutionGroup="relation"/>
+        # <xs:element name="hasPart" substitutionGroup="relation"/>
+        # <xs:element name="isReferencedBy" substitutionGroup="relation"/>
+        # <xs:element name="references" substitutionGroup="relation"/>
+        # <xs:element name="isFormatOf" substitutionGroup="relation"/>
+        # <xs:element name="hasFormat" substitutionGroup="relation"/>
+        # <xs:element name="conformsTo" substitutionGroup="relation"/>
+        { name => 'coverage_spacial', tag => 'dcterm:spatial' },
     ];
 }
+
 
 sub get_record {
     args my $class    => 'ClassName',
