@@ -185,6 +185,9 @@ sub find_resource_metadata {
     $class->embed_resource_metadata_value(
         db => $db, resource_metadata_list => $resource_metadata_list
     ) if $args->{with_value};
+    $class->embed_resource_language(
+        db => $db, resource_metadata_list => $resource_metadata_list
+    ) if $args->{with_language};
 
     return $resource_metadata_list;
 }
@@ -228,6 +231,22 @@ sub embed_resource_metadata_value {
     foreach my $resource_metadata ( @$resource_metadata_list ) {
         my $metadata_value = $metadata_value_by_id->{$resource_metadata->value_id};
         $resource_metadata->value($metadata_value);
+    }
+}
+
+sub embed_resource_language {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $resource_metadata_list => { isa => 'Shachi::Model::List' };
+
+    my $language_by_value_id = Shachi::Service::Language->search_by_value_ids(
+        db => $db, value_ids => $resource_metadata_list->map(sub {
+            $_->value_id ? $_->value_id : ()
+        })->to_a,
+    )->hash_by('value_id');
+    foreach my $resource_metadata ( @$resource_metadata_list ) {
+        my $language = $language_by_value_id->{$resource_metadata->value_id} or next;
+        $resource_metadata->language($language);
     }
 }
 

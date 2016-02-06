@@ -52,6 +52,16 @@ sub search_by_names {
     })->list;
 }
 
+sub search_by_value_ids {
+    args my $class     => 'ClassName',
+         my $db        => { isa => 'Shachi::Database' },
+         my $value_ids => { isa => 'ArrayRef' };
+
+    $db->shachi->table('language')->search({
+        value_id => { -in => $value_ids }
+    })->list;
+}
+
 sub search_by_query {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },

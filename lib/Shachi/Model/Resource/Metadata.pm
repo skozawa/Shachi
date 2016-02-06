@@ -7,7 +7,7 @@ use Shachi::Model::Metadata;
 use Class::Accessor::Lite::Lazy (
     new => 1,
     ro  => [qw/id resource_id metadata_name language_id value_id content description/],
-    rw  => [qw/value/],
+    rw  => [qw/value language/],
 );
 
 sub relation_link {
