@@ -237,38 +237,50 @@ sub _resource_metadata {
             'http://shachi.org/olac/shachi.xsd',
         )
     } });
+    my $parents = {};
     foreach my $metadata_map ( @{resource_metadata_map()} ) {
         my $metadata_list = $resource->metadata_list_by_name($metadata_map->{name}) or next;
+        my $parent = !$metadata_map->{parent} ? $olac :
+            ($parents->{$metadata_map->{parent}} ||= _addChild($doc, $olac, $metadata_map->{parent}));
         foreach my $resource_metadata ( @$metadata_list ) {
-            if ( $metadata_map->{value_type} ) {
-                my $name = $metadata_map->{value_type} . ':' . $resource_metadata->value->value_type;
-                my $content = $resource_metadata->description;
-                if ( $content =~ /^([CTGDON]-(?:\d{6})): / ) {
-                    $content = 'oai:shachi.org:' . $1;
-                }
-                _addChild($doc, $olac, $name, { value => $content });
-            } elsif ( $metadata_map->{type} ) {
-                my $code = do {
-                    if ( $metadata_map->{type} eq 'olac:language' ) {
-                        $lang_code_map->{$resource_metadata->language->code};
-                    } elsif ( $metadata_map->{type} eq 'olac:ISO639-3' ) {
-                        $resource_metadata->language->code;
-                    } else {
-                        $resource_metadata->value->value;
-                    }
-                } or next;
-                _addChild($doc, $olac, $metadata_map->{tag}, { attributes => {
-                    'xsi:type' => $metadata_map->{type},
-                    $metadata_map->{code} => $code,
-                } });
-            } else {
-                my $value = $metadata_map->{value} ?
-                    $resource_metadata->value->value : $resource_metadata->content;
-                _addChild($doc, $olac, $metadata_map->{tag}, { value => $value });
-            }
+            _add_resource_metadata($doc, $parent, $resource_metadata, $metadata_map);
         }
     }
     return $metadata;
+}
+
+sub _add_resource_metadata {
+    my ($doc, $parent, $metadata, $opts) = @_;
+
+    if ( $opts->{value_type} ) {
+        my $name = $opts->{value_type} . ':' . $metadata->value->value_type;
+        my $content = $metadata->description;
+        if ( $content =~ /^([CTGDON]-(?:\d{6})): / ) {
+            $content = 'oai:shachi.org:' . $1;
+        }
+        _addChild($doc, $parent, $name, { value => $content });
+    } elsif ( $opts->{type} ) {
+        my $code = $opts->{code};
+        my $value = do {
+            if ( !$code ) {
+                $metadata->content;
+            } elsif ( $opts->{type} eq 'olac:language' ) {
+                $lang_code_map->{$metadata->language->code};
+            } elsif ( $opts->{type} eq 'olac:ISO639-3' ) {
+                $metadata->language->code;
+            } else {
+                $metadata->value->value;
+            }
+        } or next;
+        my $args = { attributes => { 'xsi:type' => $opts->{type} } };
+        $args->{value} = $value unless $code;
+        $args->{attributes}->{$code} = $value if $code;
+        _addChild($doc, $parent, $opts->{tag}, $args);
+    } else {
+        my $value = $opts->{value} ?
+            $metadata->value->value : $metadata->content;
+        _addChild($doc, $parent, $opts->{tag}, { value => $value });
+    }
 }
 
 sub resource_metadata_map {
@@ -278,17 +290,57 @@ sub resource_metadata_map {
         { name => 'subject', tag => 'dc:subject' },
         { name => 'subject_linguisticField', tag => 'dc:subject',
           type => 'olac:linguistic-field', code => 'olac:code' },
+        { name => 'subject_monoMultilingual', tag => 'dc:subject',
+          type => 'shachi:mono-multi-lingual', code => 'shachi:code' },
+        { name => 'subject_resourceSubject', tag => 'dc:subject',
+          type => 'shachi:resource-subject', code => 'shachi:code' },
         { name => 'description', tag => 'dc:description' },
         { name => 'description_language', tag => 'dc:description',
           type => 'olac:ISO639-3', code => 'olac:code' },
         { name => 'description_language', tag => 'dc:description',
           type => 'olac:language', code => 'olac:code' },
+        { name => 'description_price', tag => 'dc:description',
+          type => 'shachi:price' },
         { name => 'publisher', tag => 'dc:publisher' },
+        { name => 'contributor_author_motherTongue', tag => 'dc:author',
+          parent => 'dc:contributor', type => 'shachi:mother-tongue', code => 'shachi:code' },
+        { name => 'contributor_author_dialect', tag => 'dc:author',
+          parent => 'dc:contributor', type => 'shachi:dialect', code => 'shachi:code' },
+        { name => 'contributor_author_level', tag => 'dc:author',
+          parent => 'dc:contributor', type => 'shachi:level', code => 'shachi:code' },
+        { name => 'contributor_author_age', tag => 'dc:author',
+          parent => 'dc:contributor', type => 'shachi:age', code => 'shachi:code' },
+        { name => 'contributor_author_gender', tag => 'dc:author',
+          parent => 'dc:contributor', type => 'shachi:gender', code => 'shachi:code' },
+        { name => 'contributor_speaker_motherTongue', tag => 'dc:speaker',
+          parent => 'dc:contributor', type => 'shachi:mother-tongue', code => 'shachi:code' },
+        { name => 'contributor_speaker_dialect', tag => 'dc:speaker',
+          parent => 'dc:contributor', type => 'shachi:dialect', code => 'shachi:code' },
+        { name => 'contributor_speaker_level', tag => 'dc:speaker',
+          parent => 'dc:contributor', type => 'shachi:level', code => 'shachi:code' },
+        { name => 'contributor_speaker_age', tag => 'dc:speaker',
+          parent => 'dc:contributor', type => 'shachi:age', code => 'shachi:code' },
+        { name => 'contributor_speaker_gender', tag => 'dc:speaker',
+          parent => 'dc:contributor', type => 'shachi:gender', code => 'shachi:code' },
         { name => 'type', tag => 'dc:type', value => 1 },
         { name => 'type_discourseType', tag => 'dc:type',
           type => 'olac:discourse-type', code => 'olac:code' },
         { name => 'type_linguisticType', tag => 'dc:type',
           type => 'olac:linguistic-type', code => 'olac:code' },
+        { name => 'type_purpose', tag => 'dc:type',
+          type => 'shachi:purpose', code => 'shachi:code' },
+        { name => 'type_style', tag => 'dc:type',
+          type => 'shachi:style', code => 'shachi:code' },
+        { name => 'type_form', tag => 'dc:type',
+          type => 'shachi:form', code => 'shachi:code' },
+        { name => 'type_sentence', tag => 'dc:type',
+          type => 'shachi:sentence', code => 'shachi:code' },
+        { name => 'type_annotation', tag => 'dc:type',
+          type => 'shachi:has-annotation', code => 'shachi:code' },
+        { name => 'type_annotationSample', tag => 'dc:type',
+          type => 'shachi:annotation-sample' },
+        { name => 'type_sample', tag => 'dc:type',
+          type => 'shachi:data-sample' },
         { name => 'identifier', tag => 'dc:identifier' },
         { name => 'source', tag => 'dc:source' },
         # <xs:element name="language" substitutionGroup="dc:language"/>
@@ -301,10 +353,18 @@ sub resource_metadata_map {
         { name => 'date_modified', tag => 'dcterm:modified' },
         { name => 'format_extent', tag => 'dcterm:extent' },
         { name => 'format_medium', tag => 'dcterm:medium' },
+        { name => 'format_encoding', tag => 'dc:format',
+          type => 'shachi:encoding' },
+        { name => 'format_markup', tag => 'dc:format',
+          type => 'shachi:markup' },
+        { name => 'format_functionality', tag => 'dc:format',
+          type => 'shachi:functionality' },
         # isVersionOf, hasVersion, isReplacedBy, replaces, isRequiredBy
         # requires, isPartOf, hasPart, isReferencedBy, references
         # isFormatOf, hasFormat, conformsTo
         { name => 'relation', value_type => 'dcterm' },
+        { name => 'relation_utilization', tag => 'dc:relation',
+          type => 'shachi:utilization' },
         { name => 'coverage_spacial', tag => 'dcterm:spatial' },
     ];
 }
