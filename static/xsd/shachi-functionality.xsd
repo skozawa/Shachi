@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           elementFormDefault="qualified"
+           attributeFormDefault="qualified">
+
+  <xs:import namespace="http://purl.org/dc/elements/1.1/"
+             schemaLocation="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+
+  <xs:annotation>
+    <xs:appinfo>
+      <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
+        <shortName>functionality</shortName>
+        <longName>Code for Functionalities</longName>
+        <versionDate>2016-02-07</versionDate>
+        <description></description>
+        <appliesTo>format</appliesTo>
+        <documentation></documentation>
+      </olac-extension>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:complexType name="functionality">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dc:SimpleLiteral"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+</xs:schema>

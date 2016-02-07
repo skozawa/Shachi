@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns="http://shachi.org/olac/"
+            targetNamespace="http://shachi.org/olac/"
+            elementFormDefault="qualified"
+            attributeFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      SHACHI extensions XML Schema
+      XML Schema for http://shachi.org/olac/ namespace
+      Shunsuke Kozawa, 2016-02-07
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- Import Dublin Core schema for the super complexTypes `dc:simpleLiteral' -->
+  <xs:import namespace="http://purl.org/dc/elements/1.1/"
+             schemaLocation="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+
+  <!-- SHACHI extensions -->
+  <xs:include schemaLocation="xsd/shachi-mono-multi-lingual.xsd" />
+  <xs:include schemaLocation="xsd/shachi-resource-subject.xsd" />
+  <xs:include schemaLocation="xsd/shachi-price.xsd" />
+  <xs:include schemaLocation="xsd/shachi-mother-tongue.xsd" />
+  <xs:include schemaLocation="xsd/shachi-dialect.xsd" />
+  <xs:include schemaLocation="xsd/shachi-level.xsd" />
+  <xs:include schemaLocation="xsd/shachi-age.xsd" />
+  <xs:include schemaLocation="xsd/shachi-gender.xsd" />
+  <xs:include schemaLocation="xsd/shachi-purpose.xsd" />
+  <xs:include schemaLocation="xsd/shachi-style.xsd" />
+  <xs:include schemaLocation="xsd/shachi-form.xsd" />
+  <xs:include schemaLocation="xsd/shachi-sentence.xsd" />
+  <xs:include schemaLocation="xsd/shachi-has-annotation.xsd" />
+  <xs:include schemaLocation="xsd/shachi-annotation-sample.xsd" />
+  <xs:include schemaLocation="xsd/shachi-data-sample.xsd" />
+  <xs:include schemaLocation="xsd/shachi-encoding.xsd" />
+  <xs:include schemaLocation="xsd/shachi-markup.xsd" />
+  <xs:include schemaLocation="xsd/shachi-functionality.xsd" />
+  <xs:include schemaLocation="xsd/shachi-utilization.xsd" />
+
+  <!-- Quick fix; olac does not have interactive_discourse in its scheme -->
+  <xs:include schemaLocation="xsd/shachi-discourse-type.xsd" />
+
+</xs:schema>

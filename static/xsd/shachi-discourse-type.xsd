@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           elementFormDefault="qualified"
+           attributeFormDefault="qualified">
+
+  <xs:import namespace="http://purl.org/dc/elements/1.1/"
+             schemaLocation="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+
+  <xs:complexType name="discourse-type">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dc:SimpleLiteral">
+        <xs:attribute name="code" type="discourse-type-vocab" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="discourse-type-vocab">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="interactive_discourse"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

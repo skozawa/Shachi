@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           elementFormDefault="qualified"
+           attributeFormDefault="qualified">
+
+  <xs:import namespace="http://purl.org/dc/elements/1.1/"
+             schemaLocation="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+
+  <xs:annotation>
+    <xs:appinfo>
+      <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
+        <shortName>sentence</shortName>
+        <longName>Code for Sentences</longName>
+        <versionDate>2016-02-07</versionDate>
+        <description></description>
+        <appliesTo>type</appliesTo>
+        <documentation></documentation>
+      </olac-extension>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:complexType name="sentence">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dc:SimpleLiteral">
+        <xs:attribute name="code" type="sentence-vocab" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="sentence-vocab">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="short"/>
+      <xs:enumeration value="long"/>
+      <xs:enumeration value="isolated_words"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

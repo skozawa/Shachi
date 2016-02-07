@@ -227,14 +227,14 @@ sub _resource_metadata {
         'xmlns:olac'    => 'http://www.language-archives.org/OLAC/1.1/',
         'xmlns:dc'      => 'http://purl.org/dc/elements/1.1/',
         'xmlns:dcterms' => 'http://purl.org/dc/terms/',
-        # 'xmlns:shachi'  => 'http://shachi.org/olac/',
+        'xmlns:shachi'  => 'http://shachi.org/olac/',
         'xmlns:xsi'     => 'http://www.w3.org/2001/XMLSchema-instance',
         'xsi:schemaLocation' => join(
             '',
             'http://www.language-archives.org/OLAC/1.1/',
             'http://www.language-archives.org/OLAC/1.1/olac.xsd',
-            # 'http://www.shachi.org/olac/',
-            # 'http://www.shachi.org/olac/shachi.xsd',
+            'http://shachi.org/olac/',
+            'http://shachi.org/olac/shachi.xsd',
         )
     } });
     foreach my $metadata_map ( @{resource_metadata_map()} ) {

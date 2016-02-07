@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           elementFormDefault="qualified"
+           attributeFormDefault="qualified">
+
+  <xs:import namespace="http://purl.org/dc/elements/1.1/"
+             schemaLocation="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+
+  <xs:annotation>
+    <xs:appinfo>
+      <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
+        <shortName>resource-subject</shortName>
+        <longName>Code for Dictionary/Thesaurus/Glossary/Thesaurus</longName>
+        <versionDate>2016-02-07</versionDate>
+        <description>Describe whether the resource is a dictionary, a thesaurus, a glossary, or a thesaurus.</description>
+        <appliesTo>subject</appliesTo>
+        <documentation></documentation>
+      </olac-extension>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:complexType name="resource-subject">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dc:SimpleLiteral">
+        <xs:attribute name="code" type="resource-subject-vocab" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="resource-subject-vocab">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="dictionary"/>
+      <xs:enumeration value="thesaurus"/>
+      <xs:enumeration value="glossary"/>
+      <xs:enumeration value="thesaurus"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
