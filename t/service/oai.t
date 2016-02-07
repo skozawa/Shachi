@@ -67,7 +67,7 @@ sub get_record : Tests {
 
         ok $doc->getElementsByTagName('SCRIPT');
         ok $doc->getElementsByTagName('responseDate');
-        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
         ok $doc->getElementsByTagName('GetRecord');
 
         my $record = $doc->getElementsByTagName('record')->[0];
@@ -88,7 +88,8 @@ sub get_record : Tests {
             ['dc:subject', 0, undef, 'Speech Synthesis'],
             ['dc:subject', 1, 'olac:code', 'phonetics'],
             ['dc:description', 0, undef, 'corpus description'],
-            ['dc:description', 1, 'olac:code', 'it'],
+            ['dc:description', 1, 'olac:code', 'ita'],
+            ['dc:description', 2, 'olac:code', 'it'],
             ['dc:publisher', 0, undef, 'Test Univ.'],
             ['dc:type', 0, undef, 'Sound'],
             ['dc:type', 1, 'olac:code', 'narrative'],
@@ -130,7 +131,7 @@ sub get_record : Tests {
 
         ok $doc->getElementsByTagName('SCRIPT');
         ok $doc->getElementsByTagName('responseDate');
-        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
 
         ok $doc->getElementsByTagName('GetRecord');
 
@@ -156,12 +157,12 @@ sub identify : Tests {
 
     ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
-    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
 
     ok $doc->getElementsByTagName('Identify');
     for ( (
         ['repository', 'SHACHI'],
-        ['baseURL', 'http://shachi.org/oai2'],
+        ['baseURL', 'http://shachi.org/olac/oai2'],
         ['protocolVersion', '2.0'],
         ['adminEmail', 'mailto:admin@shachi.org'],
         ['earliestDatestamp', '2000-01-01T00:00:00Z'],
@@ -218,7 +219,7 @@ sub list_identifiers : Tests {
 
         ok $doc->getElementsByTagName('SCRIPT');
         ok $doc->getElementsByTagName('responseDate');
-        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
 
         my $list_identifiers = $doc->getElementsByTagName('ListIdentifiers')->[0];
         ok $list_identifiers;
@@ -236,7 +237,7 @@ sub list_identifiers : Tests {
 
         ok $doc->getElementsByTagName('SCRIPT');
         ok $doc->getElementsByTagName('responseDate');
-        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
 
         my $list_identifiers = $doc->getElementsByTagName('ListIdentifiers')->[0];
         ok $list_identifiers;
@@ -257,7 +258,7 @@ sub list_metadata_formats : Tests {
 
     ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
-    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
 
     ok $doc->getElementsByTagName('ListMetadataFormats');
 
@@ -278,7 +279,7 @@ sub list_sets : Tests {
 
     ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
-    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/oai2';
+    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
 
     ok $doc->getElementsByTagName('ListSets');
 }

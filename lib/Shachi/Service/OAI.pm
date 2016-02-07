@@ -188,7 +188,7 @@ sub _create_xml_base {
     _addChildren($doc, $oai, [
         ['SCRIPT'],
         ['responseDate', { value => _format_datetime($now) }],
-        ['request', { value => 'http://shachi.org/oai2', attributes => { verb => $verb } } ]
+        ['request', { value => 'http://shachi.org/olac/oai2', attributes => { verb => $verb } } ]
     ]);
 
     return ($doc, $oai);
@@ -248,10 +248,15 @@ sub _resource_metadata {
                 }
                 _addChild($doc, $olac, $name, { value => $content });
             } elsif ( $metadata_map->{type} ) {
-                my $code = $resource_metadata->language ?
-                    $lang_code_map->{$resource_metadata->language->code} :
+                my $code = do {
+                    if ( $metadata_map->{type} eq 'olac:language' ) {
+                        $lang_code_map->{$resource_metadata->language->code};
+                    } elsif ( $metadata_map->{type} eq 'olac:ISO639-3' ) {
+                        $resource_metadata->language->code;
+                    } else {
                         $resource_metadata->value->value;
-                next unless $code;
+                    }
+                } or next;
                 _addChild($doc, $olac, $metadata_map->{tag}, { attributes => {
                     'xsi:type' => $metadata_map->{type},
                     $metadata_map->{code} => $code,
@@ -274,6 +279,8 @@ sub resource_metadata_map {
         { name => 'subject_linguisticField', tag => 'dc:subject',
           type => 'olac:linguistic-field', code => 'olac:code' },
         { name => 'description', tag => 'dc:description' },
+        { name => 'description_language', tag => 'dc:description',
+          type => 'olac:ISO639-3', code => 'olac:code' },
         { name => 'description_language', tag => 'dc:description',
           type => 'olac:language', code => 'olac:code' },
         { name => 'publisher', tag => 'dc:publisher' },
@@ -325,7 +332,7 @@ sub identify {
     my $identify = _addChild($doc, $oai, 'Identify');
     _addChildren($doc, $identify, [
         ['repository', { value => 'SHACHI' }],
-        ['baseURL', { value => 'http://shachi.org/oai2' }],
+        ['baseURL', { value => 'http://shachi.org/olac/oai2' }],
         ['protocolVersion', { value => '2.0' }],
         ['adminEmail', { value => 'mailto:admin@shachi.org' }],
         ['earliestDatestamp', { value => '2000-01-01T00:00:00Z' }],
