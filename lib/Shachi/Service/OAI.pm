@@ -457,8 +457,7 @@ sub identify {
 
 sub list_identifiers {
     args my $class     => 'ClassName',
-         my $resources => { isa => 'Shachi::Model::List' },
-         my $args      => { isa => 'HashRef', default => {} };
+         my $resources => { isa => 'Shachi::Model::List' };
 
     my ($doc, $oai) = _create_xml_base('ListIdentifiers');
 
@@ -480,6 +479,22 @@ sub list_metadata_formats {
         ['schema', { value => 'http://www.language-archives.org/OLAC/1.0/olac.xsd' }],
         ['metadataNamespace', { value => 'http://www.language-archives.org/OLAC/1.0/' }],
     ]);
+
+    return $doc;
+}
+
+sub list_records {
+    args my $class     => 'ClassName',
+         my $resources => { isa => 'Shachi::Model::List' };
+
+    my ($doc, $oai) = _create_xml_base('ListRecords');
+    my $list_records = _addChild($doc, $oai, 'ListRecords');
+
+    foreach my $resource ( @$resources ) {
+        my $record = _addChild($doc, $list_records, 'record');
+        $record->addChild(_resource_header($doc, $resource));
+        $record->addChild(_resource_metadata($doc, $resource));
+    }
 
     return $doc;
 }

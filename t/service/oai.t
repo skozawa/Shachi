@@ -326,6 +326,29 @@ sub list_metadata_formats : Tests {
     }
 }
 
+sub list_records : Tests {
+    my $resources = Shachi::Model::List->new(list => [ map {
+        create_resource(resource_subject => $_)
+    } qw/corpus dictionary glossary thesaurus test/ ]);
+
+    my $doc = Shachi::Service::OAI->list_records(resources => $resources);
+
+    ok $doc->getElementsByTagName('SCRIPT');
+    ok $doc->getElementsByTagName('responseDate');
+    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
+
+    my $list_records = $doc->getElementsByTagName('ListRecords')->[0];
+    ok $list_records;
+
+    my $records = $list_records->getElementsByTagName('record');
+    is $records->size, 5;
+    foreach my $record ( @$records ) {
+        ok $record->getElementsByTagName('header');
+        ok $record->getElementsByTagName('identifier');
+        ok $record->getElementsByTagName('metadata');
+    }
+}
+
 sub list_sets : Tests {
     my $doc = Shachi::Service::OAI->list_sets;
 
