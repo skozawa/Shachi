@@ -101,7 +101,7 @@ sub create_multi_from_json : Tests {
 
         foreach my $key ( keys %$json ) {
             my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
-                db => $db, resource => $resource,
+                db => $db, resources => $resource->as_list,
                 metadata_list => $metadata_list->{$key}->as_list,
                 language => $language,
                 args => { with_value => 1 },
@@ -147,7 +147,7 @@ sub update_multi_from_json : Tests {
         );
 
         my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
-            db => $db, resource => $resource,
+            db => $db, resources => $resource->as_list,
             metadata_list => $metadata_list->{title}->as_list,
             language => $language,
         );
@@ -179,7 +179,7 @@ sub update_multi_from_json : Tests {
         );
 
         my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
-            db => $db, resource => $resource,
+            db => $db, resources => $resource->as_list,
             metadata_list => $metadata_list->{METADATA_SUBJECT_RESOURCE_SUBJECT()}->as_list,
             language => $language,
         );
@@ -219,7 +219,7 @@ sub update_multi_from_json : Tests {
         );
 
         my $items = Shachi::Service::Resource::Metadata->find_resource_metadata(
-            db => $db, resource => $resource,
+            db => $db, resources => $resource->as_list,
             metadata_list => $metadata_list->{subject_monoMultilingual}->as_list,
             language => $language,
         );
@@ -227,7 +227,7 @@ sub update_multi_from_json : Tests {
         is $items->first->value_id, $mono_multilingual_value->id;
 
         my $lang_items = Shachi::Service::Resource::Metadata->find_resource_metadata(
-            db => $db, resource => $resource,
+            db => $db, resources => $resource->as_list,
             metadata_list => $metadata_list->{language}->as_list,
             language => $language,
         );
@@ -343,7 +343,7 @@ sub find_resource_metadata : Tests {
         my ($resource, $language, $metadata_list) = $setup_resource->();
 
         my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
-            db => $db, resource => $resource, metadata_list => $metadata_list, language => $language,
+            db => $db, resources => $resource->as_list, metadata_list => $metadata_list, language => $language,
         );
 
         is $resource_metadata_list->size, 4;
@@ -356,7 +356,7 @@ sub find_resource_metadata : Tests {
         my ($resource, $language, $metadata_list) = $setup_resource->();
 
         my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
-            db => $db, resource => $resource, metadata_list => $metadata_list,
+            db => $db, resources => $resource->as_list, metadata_list => $metadata_list,
             language => $language, args => { with_value => 1 },
         );
 
@@ -370,7 +370,7 @@ sub find_resource_metadata : Tests {
         my ($resource, $language, $metadata_list) = $setup_resource->();
 
         my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
-            db => $db, resource => $resource, metadata_list => $metadata_list,
+            db => $db, resources => $resource->as_list, metadata_list => $metadata_list,
             language => $language, args => { fillin_english => 1 },
         );
 
@@ -383,7 +383,7 @@ sub find_resource_metadata : Tests {
         my ($resource, $language, $metadata_list) = $setup_resource->();
 
         my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
-            db => $db, resource => $resource, metadata_list => $metadata_list,
+            db => $db, resources => $resource->as_list, metadata_list => $metadata_list,
             language => $language, args => { fillin_english => 1, with_value => 1 },
         );
 
@@ -397,7 +397,7 @@ sub find_resource_metadata : Tests {
         my ($resource, $language, $metadata_list) = $setup_resource->();
 
         my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
-            db => $db, resource => $resource, metadata_list => $metadata_list,
+            db => $db, resources => $resource->as_list, metadata_list => $metadata_list,
             language => $language, args => { with_language => 1 },
         );
 

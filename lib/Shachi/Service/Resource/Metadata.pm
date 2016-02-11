@@ -156,7 +156,7 @@ sub find_resource_metadata_by_name {
 sub find_resource_metadata {
     args my $class         => 'ClassName',
          my $db            => { isa => 'Shachi::Database' },
-         my $resource      => { isa => 'Shachi::Model::Resource' },
+         my $resources     => { isa => 'Shachi::Model::List' },
          my $metadata_list => { isa => 'Shachi::Model::List' },
          my $language      => { isa => 'Shachi::Model::Language' },
          my $args          => { isa => 'HashRef', default => {} };
@@ -172,7 +172,7 @@ sub find_resource_metadata {
     };
 
     my $resource_metadata_list = $db->shachi->table('resource_metadata')->search({
-        resource_id   => $resource->id,
+        resource_id   => { -in => $resources->map('id')->to_a },
         metadata_name => { -in => $metadata_list->map('name')->to_a },
         language_id   => { -in => $language_ids },
     })->order_by('id asc')->list;

@@ -104,7 +104,7 @@ sub find_resource_detail {
     $metadata_list ||= Shachi::Service::Metadata->find_shown_metadata(db => $db);
 
     my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
-        db => $db, resource => $resource, metadata_list => $metadata_list,
+        db => $db, resources => $resource->as_list, metadata_list => $metadata_list,
         language => $language, args => { with_value => 1, %$args },
     );
     # ELRA, LDCからの自動取得データは取得しないように

@@ -77,6 +77,8 @@ sub identify : Tests {
 }
 
 sub getrecord : Tests {
+    truncate_db_with_setup;
+
     subtest 'normal request' => sub {
         my $resource = create_resource;
         my $mech = create_mech;

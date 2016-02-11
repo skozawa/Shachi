@@ -188,7 +188,7 @@ sub update_metadata {
     }
 
     my $resource_metadata_by_metadata_name = Shachi::Service::Resource::Metadata->find_resource_metadata(
-        db => $c->db, resource => $resource, metadata_list => $metadata_list,
+        db => $c->db, resources => $resource->as_list, metadata_list => $metadata_list,
         language => $language, args => { with_value => 1 },
     )->hash_by('metadata_name');
 
