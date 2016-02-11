@@ -3,7 +3,9 @@ use strict;
 use warnings;
 use parent qw/Test::WWW::Mechanize::PSGI/;
 use Test::More ();
+use XML::LibXML;
 use Shachi::Web;
+
 
 BEGIN {
     $ENV{PLACK_ENV} = 'test';
@@ -28,6 +30,14 @@ sub new {
     );
 
     return $self;
+}
+
+sub xml_doc {
+    my $self = shift;
+    my $content = $self->response->content;
+    my $doc;
+    eval { $doc = XML::LibXML->load_xml(string => $content); };
+    return $doc;
 }
 
 1;

@@ -89,6 +89,12 @@ my $router = Router::Simple::Declare::router {
         mode     => 'asia',
     };
 
+    # OAI
+    connect '/olac/oai2' => {
+        dispatch => 'Shachi::Web::OAI',
+        action   => 'oai2',
+    };
+
     # Admin
     connect '/admin/' => {
         dispatch => 'Shachi::Web::Admin',

@@ -126,6 +126,13 @@ sub json {
     $self->res->content(encode_json($res));
 }
 
+sub xml {
+    my ($self, $xml) = @_;
+    $self->res->code(200);
+    $self->res->content_type('application/xml; charset=utf-8');
+    $self->res->content($xml);
+}
+
 sub html {
     my ($self, $file, $args) = @_;
 
