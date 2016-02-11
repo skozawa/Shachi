@@ -10,8 +10,8 @@ sub oai2 {
     unless ( $class->_validate_verb($verb) ) {
         return $c->xml(Shachi::Service::OAI->bad_verb(verb => $verb)->toString);
     }
-    my $doc = Shachi::Service::OAI->identify;
-    return $c->xml($doc->toString);
+    my $method = lc $verb;
+    $class->$method($c);
 }
 
 sub _validate_verb {
@@ -20,5 +20,19 @@ sub _validate_verb {
     return any { $verb eq $_ }
         qw/GetRecord Identify ListIdentifiers ListMetadataFormats ListRecords ListSets/;
 }
+
+sub identify {
+    my ($class, $c) = @_;
+    my $params = $c->req->parameters->as_hashref;
+    delete $params->{verb};
+
+    if ( %$params ) {
+        return $c->xml(Shachi::Service::OAI->bad_argument(args => $params)->toString);
+    }
+
+    my $doc = Shachi::Service::OAI->identify;
+    return $c->xml($doc->toString);
+}
+
 
 1;

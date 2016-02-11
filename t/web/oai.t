@@ -30,3 +30,22 @@ sub _validate_verb : Tests {
     }
     ok ! Shachi::Web::OAI->_validate_verb('aaaa');
 }
+
+sub identify : Tests {
+    subtest 'normal' => sub {
+        my $mech = create_mech;
+        $mech->get_ok('/olac/oai2?verb=Identify');
+        my $doc = $mech->xml_doc;
+        ok $doc->getElementsByTagName('Identify');
+    };
+
+    subtest 'bad argument' => sub {
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=Identify&metadataPrefix=olac');
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('Identify');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'badArgument';
+    };
+}
