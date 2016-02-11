@@ -456,14 +456,11 @@ sub identify {
 }
 
 sub list_identifiers {
-    args my $class => 'ClassName',
-         my $db    => { isa => 'Shachi::Database' },
-         my $args  => { isa => 'HashRef', default => {} };
+    args my $class     => 'ClassName',
+         my $resources => { isa => 'Shachi::Model::List' },
+         my $args      => { isa => 'HashRef', default => {} };
 
     my ($doc, $oai) = _create_xml_base('ListIdentifiers');
-
-    my $resources = $db->shachi->table('resource')->order_by('id asc')
-        ->offset($args->{offset} || 0)->limit($args->{limit} || 200)->list;
 
     my $list_identifiers = _addChild($doc, $oai, 'ListIdentifiers');
     $list_identifiers->addChild(_resource_header($doc, $_)) for @$resources;
