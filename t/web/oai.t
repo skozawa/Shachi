@@ -182,7 +182,7 @@ sub getrecord : Tests {
 
 sub listidentifiers : Tests {
     subtest 'normal request' => sub {
-        create_resource;
+        create_resource(modified => DateTime->now->clone->subtract(days => 1));
         my $mech = create_mech;
         $mech->get_ok('/olac/oai2?verb=ListIdentifiers&metadataPrefix=olac');
         my $doc = $mech->xml_doc;
@@ -190,7 +190,7 @@ sub listidentifiers : Tests {
     };
 
     subtest 'invalid argument' => sub {
-        my $resource = create_resource;
+        my $resource = create_resource(modified => DateTime->now->clone->subtract(days => 1));
         my $mech = create_mech;
         $mech->get('/olac/oai2?verb=ListIdentifiers&metadataPrefix=olac&identifier=AA');
         my $doc = $mech->xml_doc;
@@ -305,7 +305,7 @@ sub listmetadataformats : Tests {
 
 sub listrecords : Tests {
     subtest 'normal request' => sub {
-        create_resource;
+        create_resource(modified => DateTime->now->clone->subtract(days => 1));
         my $mech = create_mech;
         $mech->get_ok('/olac/oai2?verb=ListRecords&metadataPrefix=olac');
         my $doc = $mech->xml_doc;
