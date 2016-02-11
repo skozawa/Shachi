@@ -76,7 +76,60 @@ sub identify : Tests {
     };
 }
 
-sub ListMetadataFormats : Tests {
+sub getrecord : Tests {
+    subtest 'normal request' => sub {
+        my $resource = create_resource;
+        my $mech = create_mech;
+        $mech->get_ok('/olac/oai2?verb=GetRecord&metadataPrefix=olac&identifier=' . $resource->oai_identifier);
+        my $doc = $mech->xml_doc;
+        ok $doc->getElementsByTagName('GetRecord');
+    };
+
+    subtest 'invalid argument' => sub {
+        my $resource = create_resource;
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=GetRecord&metadataPrefix=olac&from=2&identifier=' . $resource->oai_identifier);
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('GetRecord');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'badArgument';
+    };
+
+    subtest 'lack required argument' => sub {
+        my $resource = create_resource;
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=GetRecord&identifier=' . $resource->oai_identifier);
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('GetRecord');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'badArgument';
+    };
+
+    subtest 'invalid metadataPrefix' => sub {
+        my $resource = create_resource;
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=GetRecord&metadataPrefix=oc&identifier=' . $resource->oai_identifier);
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('GetRecord');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'cannotDisseminateFormat';
+    };
+
+    subtest 'no resource' => sub {
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=GetRecord&metadataPrefix=olac&identifier=N-0001');
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('GetRecord');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'idDoesNotExist';
+    };
+}
+
+sub listmetadataformats : Tests {
     subtest 'normal request' => sub {
         my $mech = create_mech;
         $mech->get_ok('/olac/oai2?verb=ListMetadataFormats');

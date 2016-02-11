@@ -51,6 +51,48 @@ sub _validate_identifier {
     return 0;
 }
 
+sub _validate_metadata_prefix {
+    my ($class, $metadata_prefix) = @_;
+    return $metadata_prefix eq 'olac';
+}
+
+# required: identifier, metadataPrefix
+# error: badArgument, cannotDisseminateFormat idDoesNotExist
+sub getrecord {
+    my ($class, $c) = @_;
+    my $params = $c->req->parameters->as_hashref;
+
+    my ($required, $invalid) = $class->_validate_arguments(
+        $params, [qw/verb identifier metadataPrefix/], []
+    );
+    return $c->xml(Shachi::Service::OAI->bad_argument(
+        required => $required, invalid => $invalid,
+    )->toString) if @$required || %$invalid;
+
+    unless ( $class->_validate_metadata_prefix($params->{metadataPrefix}) ) {
+        return $c->xml(Shachi::Service::OAI->cannot_disseminate_format(
+            verb => $params->{verb}, metadata_prefix => $params->{metadataPrefix},
+            opts => { identifier => $params->{identifier} }
+        )->toString);
+    }
+
+    my $shachi_id = $class->_validate_identifier($params->{identifier});
+    my $resource = $shachi_id ? Shachi::Service::Resource->find_by_shachi_id(
+        db => $c->db, shachi_id => $shachi_id
+    ) : undef;
+    return $c->xml(Shachi::Service::OAI->id_does_not_exist(
+        verb => $params->{verb}, identifier => $params->{identifier},
+        opts => { metadataPrefix => $params->{metadataPrefix} },
+    )->toString) unless $resource;
+
+    my $resource_detail = Shachi::Service::Resource->find_resource_detail(
+        db => $c->db, id => $resource->id, language => $c->english,
+        args => { with_language => 1 },
+    );
+    my $doc = Shachi::Service::OAI->get_record(resource => $resource);
+    return $c->xml($doc->toString);
+}
+
 # error: badArgument
 sub identify {
     my ($class, $c) = @_;
@@ -86,12 +128,11 @@ sub listmetadataformats {
             ) : undef;
         return $c->xml(Shachi::Service::OAI->id_does_not_exist(
             verb => $params->{verb}, identifier => $params->{identifier}
-        )->toString) unless $shachi_id && $resource;
+        )->toString) unless $resource;
     }
 
     my $doc = Shachi::Service::OAI->list_metadata_formats;
     return $c->xml($doc->toString);
 }
-
 
 1;

@@ -17,7 +17,7 @@ use Class::Accessor::Lite::Lazy (
     new => 1,
     ro  => [qw/env/],
     ro_lazy => [qw/
-        req res route db lang admin_lang mode
+        req res route db lang admin_lang english mode
     /],
     rw_lazy => [qw/page_id/],
 );
@@ -78,6 +78,11 @@ sub _build_admin_lang {
     my $self = shift;
     my $code = $self->req->param('ln') || ENGLISH_CODE;
     Shachi::Service::Language->find_by_code(db => $self->db, code => $code);
+}
+
+sub _build_english {
+    my $self = shift;
+    Shachi::Service::Language->find_by_code(db => $self->db, code => ENGLISH_CODE);
 }
 
 sub config {
