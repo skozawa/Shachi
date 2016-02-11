@@ -128,21 +128,28 @@ sub listidentifiers {
     my ($class, $c) = @_;
     my $params = $c->req->parameters->as_hashref;
 
-    my ($required, $invalid) = $class->_validate_arguments($params, [qw/verb metadataPrefix/], [qw/from until set/]);
-    return $c->xml(Shachi::Service::OAI->bad_argument(
-        required => $required, invalid => $invalid,
-    )->toString) if @$required || %$invalid;
+    if ( my $token = $params->{resumptionToken} ) {
+        # verb, resumptionToken 以外のArgumentがある
+        return $c->xml(
+            Shachi::Service::OAI->bad_argument(required => [], invalid => {})->toString
+        ) if scalar keys %$params > 2;
+    } else {
+        my ($required, $invalid) = $class->_validate_arguments($params, [qw/verb metadataPrefix/], [qw/from until set/]);
+        return $c->xml(Shachi::Service::OAI->bad_argument(
+            required => $required, invalid => $invalid,
+        )->toString) if @$required || %$invalid;
 
-    unless ( $class->_validate_metadata_prefix($params->{metadataPrefix}) ) {
-        return $c->xml(Shachi::Service::OAI->cannot_disseminate_format(
-            verb => $params->{verb}, metadata_prefix => $params->{metadataPrefix},
-            opts => { identifier => $params->{identifier} }
-        )->toString);
+        unless ( $class->_validate_metadata_prefix($params->{metadataPrefix}) ) {
+            return $c->xml(Shachi::Service::OAI->cannot_disseminate_format(
+                verb => $params->{verb}, metadata_prefix => $params->{metadataPrefix},
+                opts => { identifier => $params->{identifier} }
+            )->toString);
+        }
+
+        return $c->xml(
+            Shachi::Service::OAI->no_set_hierarchy(verb => $params->{verb})->toString
+            ) if $params->{set};
     }
-
-    return $c->xml(
-        Shachi::Service::OAI->no_set_hierarchy(verb => $params->{verb})->toString
-    ) if $params->{set};
 
     my $conditions = $params->{from} || $params->{until} ? {
         modified => {
@@ -193,21 +200,28 @@ sub listrecords {
     my ($class, $c) = @_;
     my $params = $c->req->parameters->as_hashref;
 
-    my ($required, $invalid) = $class->_validate_arguments($params, [qw/verb metadataPrefix/], [qw/from until set/]);
-    return $c->xml(Shachi::Service::OAI->bad_argument(
-        required => $required, invalid => $invalid,
-    )->toString) if @$required || %$invalid;
+    if ( my $token = $params->{resumptionToken} ) {
+        # verb, resumptionToken 以外のArgumentがある
+        return $c->xml(
+            Shachi::Service::OAI->bad_argument(required => [], invalid => {})->toString
+        ) if scalar keys %$params > 2;
+    } else {
+        my ($required, $invalid) = $class->_validate_arguments($params, [qw/verb metadataPrefix/], [qw/from until set/]);
+        return $c->xml(Shachi::Service::OAI->bad_argument(
+            required => $required, invalid => $invalid,
+        )->toString) if @$required || %$invalid;
 
-    unless ( $class->_validate_metadata_prefix($params->{metadataPrefix}) ) {
-        return $c->xml(Shachi::Service::OAI->cannot_disseminate_format(
-            verb => $params->{verb}, metadata_prefix => $params->{metadataPrefix},
-            opts => { identifier => $params->{identifier} }
-        )->toString);
+        unless ( $class->_validate_metadata_prefix($params->{metadataPrefix}) ) {
+            return $c->xml(Shachi::Service::OAI->cannot_disseminate_format(
+                verb => $params->{verb}, metadata_prefix => $params->{metadataPrefix},
+                opts => { identifier => $params->{identifier} }
+            )->toString);
+        }
+
+        return $c->xml(
+            Shachi::Service::OAI->no_set_hierarchy(verb => $params->{verb})->toString
+            ) if $params->{set};
     }
-
-    return $c->xml(
-        Shachi::Service::OAI->no_set_hierarchy(verb => $params->{verb})->toString
-    ) if $params->{set};
 
     my $conditions = $params->{from} || $params->{until} ? {
         modified => {
