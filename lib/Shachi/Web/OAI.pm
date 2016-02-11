@@ -160,6 +160,12 @@ sub listidentifiers {
         return $c->xml(
             Shachi::Service::OAI->bad_argument(required => [], invalid => {})->toString
         ) if scalar keys %$params > 2;
+
+        return $c->xml(
+            Shachi::Service::OAI->bad_resumption_token(
+                token => $token, opts => { verb => $params->{verb} },
+            )
+        ) unless $class->_validate_resumption_token($token);
     } else {
         my ($required, $invalid) = $class->_validate_arguments($params, [qw/verb metadataPrefix/], [qw/from until set/]);
         return $c->xml(Shachi::Service::OAI->bad_argument(
@@ -232,6 +238,12 @@ sub listrecords {
         return $c->xml(
             Shachi::Service::OAI->bad_argument(required => [], invalid => {})->toString
         ) if scalar keys %$params > 2;
+
+        return $c->xml(
+            Shachi::Service::OAI->bad_resumption_token(
+                token => $token, opts => { verb => $params->{verb} },
+            )
+        ) unless $class->_validate_resumption_token($token);
     } else {
         my ($required, $invalid) = $class->_validate_arguments($params, [qw/verb metadataPrefix/], [qw/from until set/]);
         return $c->xml(Shachi::Service::OAI->bad_argument(

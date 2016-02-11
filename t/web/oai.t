@@ -221,6 +221,16 @@ sub listidentifiers : Tests {
         is $error->getAttribute('code'), 'badArgument';
     };
 
+    subtest 'invalid resumptionToken' => sub {
+        my $mech = create_mech;
+        $mech->get_ok('/olac/oai2?verb=ListIdentifiers&resumptionToken=aaa');
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('ListIdentifiers');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'badResumptionToken';
+    };
+
     subtest 'invalid metadataPrefix' => sub {
         my $resource = create_resource;
         my $mech = create_mech;
@@ -332,6 +342,16 @@ sub listrecords : Tests {
         my $error = $doc->getElementsByTagName('error')->[0];
         ok $error;
         is $error->getAttribute('code'), 'badArgument';
+    };
+
+    subtest 'invalid resumptionToken' => sub {
+        my $mech = create_mech;
+        $mech->get_ok('/olac/oai2?verb=ListRecords&resumptionToken=aaa');
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('ListRecords');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'badResumptionToken';
     };
 
     subtest 'invalid metadataPrefix' => sub {
