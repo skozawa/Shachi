@@ -51,6 +51,12 @@ sub _invalid_arguments : Tests {
     ), { metadataPrefix => 'olac' };
 }
 
+sub _validate_identifier : Tests {
+    ok Shachi::Web::OAI->_validate_identifier('oai:shachi.org:N-000011');
+    ok ! Shachi::Web::OAI->_validate_identifier('oai:shachi:N-000012');
+    ok ! Shachi::Web::OAI->_validate_identifier('N-000001');
+}
+
 sub identify : Tests {
     subtest 'normal' => sub {
         my $mech = create_mech;
@@ -64,6 +70,56 @@ sub identify : Tests {
         $mech->get('/olac/oai2?verb=Identify&metadataPrefix=olac');
         my $doc = $mech->xml_doc;
         ok ! $doc->getElementsByTagName('Identify');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'badArgument';
+    };
+}
+
+sub ListMetadataFormats : Tests {
+    subtest 'normal request' => sub {
+        my $mech = create_mech;
+        $mech->get_ok('/olac/oai2?verb=ListMetadataFormats');
+        my $doc = $mech->xml_doc;
+        ok $doc->getElementsByTagName('ListMetadataFormats');
+    };
+
+    subtest 'with identifier' => sub {
+        my $resource = create_resource;
+        my $mech = create_mech;
+        $mech->get_ok('/olac/oai2?verb=ListMetadataFormats&identifier=' . $resource->oai_identifier);
+        my $doc = $mech->xml_doc;
+        ok $doc->getElementsByTagName('ListMetadataFormats');
+    };
+
+    subtest 'invalid identifier' => sub {
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=ListMetadataFormats&identifier=N-000001');
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('ListMetadataFormats');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'idDoesNotExist';
+    };
+
+    subtest 'not found resource' => sub {
+        my $resource = create_resource;
+        my $identifier = $resource->oai_identifier;
+        $identifier =~ s/:N-/:S-/;
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=ListMetadataFormats&identifier=' . $identifier);
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('ListMetadataFormats');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'idDoesNotExist';
+    };
+
+    subtest 'bad argument' => sub {
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=ListMetadataFormats&metadataPrefix=olac');
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('ListMetadataFormats');
         my $error = $doc->getElementsByTagName('error')->[0];
         ok $error;
         is $error->getAttribute('code'), 'badArgument';

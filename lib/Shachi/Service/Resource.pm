@@ -84,6 +84,14 @@ sub find_by_ids {
     $db->shachi->table('resource')->search({ id => { -in => $ids } })->list;
 }
 
+sub find_by_shachi_id {
+    args my $class => 'ClassName',
+         my $db    => { isa => 'Shachi::Database' },
+         my $shachi_id;
+
+    $db->shachi->table('resource')->search({ shachi_id => $shachi_id })->single;
+}
+
 sub find_resource_detail {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },
