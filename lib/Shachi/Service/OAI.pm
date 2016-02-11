@@ -175,7 +175,7 @@ sub _format_datetime {
 }
 
 sub _create_xml_base {
-    my ($verb) = @_;
+    my ($attrs) = @_;
 
     my $now = DateTime->now;
 
@@ -188,7 +188,7 @@ sub _create_xml_base {
     _addChildren($doc, $oai, [
         ['SCRIPT'],
         ['responseDate', { value => _format_datetime($now) }],
-        ['request', { value => 'http://shachi.org/olac/oai2', attributes => { verb => $verb } } ]
+        ['request', { value => 'http://shachi.org/olac/oai2', attributes => $attrs } ]
     ]);
 
     return ($doc, $oai);
@@ -215,7 +215,7 @@ sub _addChildren {
 sub _resource_header {
     my ($doc, $resource) = @_;
     my $header = $doc->createElement('header');
-    _addChild($doc, $header, 'identifier', { value => sprintf 'oai:shachi.org:%s', $resource->shachi_id });
+    _addChild($doc, $header, 'identifier', { value => $resource->oai_identifier });
     _addChild($doc, $header, 'datestamp', { value => _format_datetime($resource->modified) });
     return $header;
 }
@@ -393,9 +393,14 @@ sub resource_metadata_map {
 
 sub get_record {
     args my $class    => 'ClassName',
-         my $resource => { isa => 'Shachi::Model::Resource' };
+         my $resource => { isa => 'Shachi::Model::Resource' },
+         my $metadata_prefix => { isa => 'Str', default => 'olac' };
 
-    my ($doc, $oai) = _create_xml_base('GetRecord');
+    my ($doc, $oai) = _create_xml_base({
+        verb => 'GetRecord',
+        identifier => $resource->oai_identifier,
+        metadataPrefix => $metadata_prefix,
+    });
 
     my $getrecord = _addChild($doc, $oai, 'GetRecord');
     my $record = _addChild($doc, $getrecord, 'record');
@@ -408,7 +413,7 @@ sub get_record {
 sub identify {
     args my $class => 'ClassName';
 
-    my ($doc, $oai) = _create_xml_base('Identify');
+    my ($doc, $oai) = _create_xml_base({ verb => 'Identify' });
 
     my $identify = _addChild($doc, $oai, 'Identify');
     _addChildren($doc, $identify, [
@@ -457,9 +462,13 @@ sub identify {
 
 sub list_identifiers {
     args my $class     => 'ClassName',
-         my $resources => { isa => 'Shachi::Model::List' };
+         my $resources => { isa => 'Shachi::Model::List' },
+         my $metadata_prefix => { isa => 'Str', default => 'olac' };
 
-    my ($doc, $oai) = _create_xml_base('ListIdentifiers');
+    my ($doc, $oai) = _create_xml_base({
+        verb => 'ListIdentifiers',
+        metadataPrefix => $metadata_prefix,
+    });
 
     my $list_identifiers = _addChild($doc, $oai, 'ListIdentifiers');
     $list_identifiers->addChild(_resource_header($doc, $_)) for @$resources;
@@ -470,7 +479,7 @@ sub list_identifiers {
 sub list_metadata_formats {
     args my $class => 'ClassName';
 
-    my ($doc, $oai) = _create_xml_base('ListMetadataFormats');
+    my ($doc, $oai) = _create_xml_base({ verb => 'ListMetadataFormats' });
 
     my $list_metadata_formats = _addChild($doc, $oai, 'ListMetadataFormats');
     my $metadata_format = _addChild($doc, $list_metadata_formats, 'metadataFormat');
@@ -485,9 +494,13 @@ sub list_metadata_formats {
 
 sub list_records {
     args my $class     => 'ClassName',
-         my $resources => { isa => 'Shachi::Model::List' };
+         my $resources => { isa => 'Shachi::Model::List' },
+         my $metadata_prefix => { isa => 'Str', default => 'olac' };
 
-    my ($doc, $oai) = _create_xml_base('ListRecords');
+    my ($doc, $oai) = _create_xml_base({
+        verb => 'ListRecords',
+        metadataPrefix => $metadata_prefix,
+    });
     my $list_records = _addChild($doc, $oai, 'ListRecords');
 
     foreach my $resource ( @$resources ) {
@@ -502,7 +515,7 @@ sub list_records {
 sub list_sets {
     args my $class => 'ClassName';
 
-    my ($doc, $oai) = _create_xml_base('ListSets');
+    my ($doc, $oai) = _create_xml_base({ verb => 'ListSets' });
     _addChild($doc, $oai, 'ListSets');
 
     return $doc;

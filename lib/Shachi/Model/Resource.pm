@@ -89,4 +89,9 @@ sub admin_link {
     '/admin/resources/' . $self->id . ($lang ? "?ln=$lang" : '');
 }
 
+sub oai_identifier {
+    my $self = shift;
+    sprintf 'oai:shachi.org:%s', $self->shachi_id;
+}
+
 1;

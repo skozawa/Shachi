@@ -100,7 +100,11 @@ sub get_record : Tests {
 
         ok $doc->getElementsByTagName('SCRIPT');
         ok $doc->getElementsByTagName('responseDate');
-        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
+        my $request = $doc->getElementsByTagName('request')->[0];
+        is $request->textContent, 'http://shachi.org/olac/oai2';
+        is $request->getAttribute('verb'), 'GetRecord';
+        is $request->getAttribute('identifier'), $resource_detail->oai_identifier;
+        is $request->getAttribute('metadataPrefix'), 'olac';
         ok $doc->getElementsByTagName('GetRecord');
 
         my $record = $doc->getElementsByTagName('record')->[0];
@@ -108,7 +112,7 @@ sub get_record : Tests {
 
         my $header = $record->getElementsByTagName('header')->[0];
         ok $header;
-        is $header->getElementsByTagName('identifier')->[0]->textContent, 'oai:shachi.org:' . $resource->shachi_id;
+        is $header->getElementsByTagName('identifier')->[0]->textContent, $resource->oai_identifier;
 
         my $metadata = $record->getElementsByTagName('metadata')->[0];
         ok $metadata;
@@ -208,7 +212,7 @@ sub get_record : Tests {
 
         my $header = $record->getElementsByTagName('header')->[0];
         ok $header;
-        is $header->getElementsByTagName('identifier')->[0]->textContent, 'oai:shachi.org:' . $resource->shachi_id;
+        is $header->getElementsByTagName('identifier')->[0]->textContent, $resource->oai_identifier;
 
         my $metadata = $record->getElementsByTagName('metadata')->[0];
         ok $metadata;
@@ -225,7 +229,9 @@ sub identify : Tests {
 
     ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
-    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
+    my $request = $doc->getElementsByTagName('request')->[0];
+    is $request->textContent, 'http://shachi.org/olac/oai2';
+    is $request->getAttribute('verb'), 'Identify';
 
     ok $doc->getElementsByTagName('Identify');
     for ( (
@@ -289,7 +295,10 @@ sub list_identifiers : Tests {
 
         ok $doc->getElementsByTagName('SCRIPT');
         ok $doc->getElementsByTagName('responseDate');
-        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
+        my $request = $doc->getElementsByTagName('request')->[0];
+        is $request->textContent, 'http://shachi.org/olac/oai2';
+        is $request->getAttribute('verb'), 'ListIdentifiers';
+        is $request->getAttribute('metadataPrefix'), 'olac';
 
         my $list_identifiers = $doc->getElementsByTagName('ListIdentifiers')->[0];
         ok $list_identifiers;
@@ -310,7 +319,9 @@ sub list_metadata_formats : Tests {
 
     ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
-    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
+    my $request = $doc->getElementsByTagName('request')->[0];
+    is $request->textContent, 'http://shachi.org/olac/oai2';
+    is $request->getAttribute('verb'), 'ListMetadataFormats';
 
     ok $doc->getElementsByTagName('ListMetadataFormats');
 
@@ -335,7 +346,10 @@ sub list_records : Tests {
 
     ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
-    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
+    my $request = $doc->getElementsByTagName('request')->[0];
+    is $request->textContent, 'http://shachi.org/olac/oai2';
+    is $request->getAttribute('verb'), 'ListRecords';
+    is $request->getAttribute('metadataPrefix'), 'olac';
 
     my $list_records = $doc->getElementsByTagName('ListRecords')->[0];
     ok $list_records;
@@ -354,7 +368,9 @@ sub list_sets : Tests {
 
     ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
-    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
+    my $request = $doc->getElementsByTagName('request')->[0];
+    is $request->textContent, 'http://shachi.org/olac/oai2';
+    is $request->getAttribute('verb'), 'ListSets';
 
     ok $doc->getElementsByTagName('ListSets');
 }
