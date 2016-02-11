@@ -4,6 +4,9 @@ use warnings;
 use List::MoreUtils qw/any/;
 use Shachi::Service::OAI;
 use Shachi::Service::Resource;
+use DateTime::Format::W3CDTF;
+
+my $w3c = DateTime::Format::W3CDTF->new;
 
 sub oai2 {
     my ($class, $c) = @_;
@@ -39,8 +42,16 @@ sub _invalid_arguments {
     my ($class, $params, $allow) = @_;
     my $allow_map = +{ map { $_ => 1 } @$allow };
     return +{ map {
-        $allow_map->{$_} ? () : ($_ => $params->{$_})
+        my $is_valid = ($allow_map->{$_} && ($_ eq 'from' || $_ eq 'until')) ?
+            $class->_validate_datetime($params->{$_}) : $allow_map->{$_};
+        $is_valid ? () : ($_ => $params->{$_})
     } keys %$params };
+}
+
+sub _validate_datetime {
+    my ($class, $datetime) = @_;
+    return unless $datetime;
+    eval { $w3c->parse_datetime($datetime) };
 }
 
 sub _validate_identifier {
@@ -129,7 +140,17 @@ sub listidentifiers {
         )->toString);
     }
 
-    my $resources = $c->db->shachi->table('resource')->offset(0)->limit(200)->list;
+    my $conditions = $params->{from} || $params->{until} ? {
+        modified => {
+            $params->{from}  ? ('>=' => $params->{from})  : (),
+            $params->{until} ? ('<'  => $params->{until}) : (),
+        },
+    } : {};
+    my $offset = 0;
+    my $limit = 200;
+
+    my $resources = $c->db->shachi->table('resource')->search($conditions)
+        ->order_by('id asc')->offset($offset)->limit($limit)->list;
     my $doc = Shachi::Service::OAI->list_identifiers(resources => $resources);
     $c->xml($doc->toString);
 }
@@ -180,7 +201,17 @@ sub listrecords {
         )->toString);
     }
 
-    my $resources = $c->db->shachi->table('resource')->offset(0)->limit(200)->list;
+    my $conditions = $params->{from} || $params->{until} ? {
+        modified => {
+            $params->{from}  ? ('>=' => $params->{from})  : (),
+            $params->{until} ? ('<'  => $params->{until}) : (),
+        },
+    } : {};
+    my $offset = 0;
+    my $limit = 200;
+
+    my $resources = $c->db->shachi->table('resource')->search($conditions)
+        ->order_by('id asc')->offset($offset)->limit($limit)->list;
     Shachi::Service::Resource->embed_resource_metadata_list(
         db => $c->db, resources => $resources, language => $c->english,
         args => { only_public => 1 },
