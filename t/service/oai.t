@@ -407,6 +407,21 @@ sub bad_argument : Tests {
     is $error2->textContent, "The argument 'ccc' (value='ddd') included in the request is not valid";
 }
 
+sub bad_resumption_token : Tests {
+    my $doc = Shachi::Service::OAI->bad_resumption_token(
+        token => 'aaa',
+    );
+
+    ok $doc->getElementsByTagName('responseDate');
+    my $request = $doc->getElementsByTagName('request')->[0];
+    is $request->getAttribute('resumptionToken'), 'aaa';
+
+    my $error = $doc->getElementsByTagName('error')->[0];
+    ok $error;
+    is $error->getAttribute('code'), 'badResumptionToken';
+    is $error->textContent, "The value of the resumptionToken argument is invalid or expired.";
+}
+
 sub cannot_disseminate_format : Tests {
     my $doc = Shachi::Service::OAI->cannot_disseminate_format(
         verb => 'GetRecord', metadata_prefix => 'olac_dl',
@@ -439,4 +454,34 @@ sub id_does_not_exist : Tests {
     ok $error;
     is $error->getAttribute('code'), 'idDoesNotExist';
     is $error->textContent, "The verb 'oai:shachi.org:A-000001' of the identifier is illegal for this repository";
+}
+
+sub no_records_match : Tests {
+    my $doc = Shachi::Service::OAI->no_records_match(
+        verb => 'ListRecords',
+        opts => { metadataPrefix => 'olac' },
+    );
+    ok $doc->getElementsByTagName('responseDate');
+    my $request = $doc->getElementsByTagName('request')->[0];
+    is $request->getAttribute('verb'), 'ListRecords';
+
+    my $error = $doc->getElementsByTagName('error')->[0];
+    ok $error;
+    is $error->getAttribute('code'), 'noRecordsMatch';
+    is $error->textContent, "The combination of the values of the from, until, set and metadataPrefix arguments results in an empty list.";
+}
+
+sub no_set_hierarchy : Tests {
+    my $doc = Shachi::Service::OAI->no_set_hierarchy(
+        verb => 'ListSets',
+    );
+    ok $doc->getElementsByTagName('responseDate');
+    my $request = $doc->getElementsByTagName('request')->[0];
+    is $request->getAttribute('verb'), 'ListSets';
+
+
+    my $error = $doc->getElementsByTagName('error')->[0];
+    ok $error;
+    is $error->getAttribute('code'), 'noSetHierarchy';
+    is $error->textContent, "The repository does not support sets.";
 }

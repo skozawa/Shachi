@@ -561,6 +561,20 @@ sub bad_argument {
     return $doc;
 }
 
+sub bad_resumption_token {
+    args my $class => 'ClassName',
+         my $token => { isa => 'Str' },
+         my $opts  => { isa => 'HashRef', default => {} };
+
+    my ($doc, $oai) = _create_xml_base({ resumptionToken => $token, %$opts });
+    _addChild($doc, $oai, 'error', {
+        value => "The value of the resumptionToken argument is invalid or expired.",
+        attributes => { code => 'badResumptionToken' },
+    });
+
+    return $doc;
+}
+
 sub cannot_disseminate_format {
     args my $class => 'ClassName',
          my $verb  => { isa => 'Str' },
@@ -594,6 +608,34 @@ sub id_does_not_exist {
     _addChild($doc, $oai, 'error', {
         value => "The verb '$identifier' of the identifier is illegal for this repository",
         attributes => { code  => 'idDoesNotExist' },
+    });
+
+    return $doc;
+}
+
+sub no_records_match {
+    args my $class => 'ClassName',
+         my $verb  => { isa => 'Str' },
+         my $opts  => { isa => 'HashRef', default => {} };
+
+    my ($doc, $oai) = _create_xml_base({ verb => $verb, %$opts });
+    _addChild($doc, $oai, 'error', {
+        value => "The combination of the values of the from, until, set and metadataPrefix arguments results in an empty list.",
+        attributes => { code => 'noRecordsMatch' },
+    });
+
+    return $doc;
+}
+
+sub no_set_hierarchy {
+    args my $class => 'ClassName',
+         my $verb  => { isa => 'Str' },
+         my $opts  => { isa => 'HashRef', default => {} };
+
+    my ($doc, $oai) = _create_xml_base({ verb => $verb, %$opts });
+    _addChild($doc, $oai, 'error', {
+        value => "The repository does not support sets.",
+        attributes => { code => 'noSetHierarchy' },
     });
 
     return $doc;
