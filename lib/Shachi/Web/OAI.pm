@@ -86,6 +86,14 @@ sub decode_resumption_token {
     eval { Data::MessagePack->unpack(decode_base64($token)) };
 }
 
+sub _validate_resumption_token {
+    my ($class, $token) = @_;
+    my $hash = $class->decode_resumption_token($token) or return;
+    return unless $hash->{e};
+    return if $hash->{e} < time;
+    return 1;
+}
+
 # required: identifier, metadataPrefix
 # error: badArgument, cannotDisseminateFormat idDoesNotExist
 sub getrecord {

@@ -79,6 +79,33 @@ sub encode_decode_resumption_token : Tests {
     };
 }
 
+sub _validate_resumption_token : Tests {
+    subtest 'valid token' => sub {
+        my $token = Shachi::Web::OAI->encode_resumption_token({
+            metadataPrefix => 'olac',
+            from   => DateTime->now,
+            until  => DateTime->now,
+            offset => 0,
+        });
+        ok Shachi::Web::OAI->_validate_resumption_token($token);
+    };
+
+    subtest 'invalid token' => sub {
+        ok ! Shachi::Web::OAI->_validate_resumption_token('agne;signf;sauefne;i&');
+    };
+
+    subtest 'expired token' => sub {
+        my $token = Shachi::Web::OAI->encode_resumption_token({
+            metadataPrefix => 'olac',
+            from   => DateTime->now,
+            until  => DateTime->now,
+            offset => 0,
+        });
+        sleep 60 * 60 * 31;
+        ok ! Shachi::Web::OAI->_validate_resumption_token($token);
+    };
+}
+
 sub identify : Tests {
     subtest 'normal' => sub {
         my $mech = create_mech;
