@@ -140,6 +140,10 @@ sub listidentifiers {
         )->toString);
     }
 
+    return $c->xml(
+        Shachi::Service::OAI->no_set_hierarchy(verb => $params->{verb})->toString
+    ) if $params->{set};
+
     my $conditions = $params->{from} || $params->{until} ? {
         modified => {
             $params->{from}  ? ('>=' => $params->{from})  : (),
@@ -201,6 +205,10 @@ sub listrecords {
         )->toString);
     }
 
+    return $c->xml(
+        Shachi::Service::OAI->no_set_hierarchy(verb => $params->{verb})->toString
+    ) if $params->{set};
+
     my $conditions = $params->{from} || $params->{until} ? {
         modified => {
             $params->{from}  ? ('>=' => $params->{from})  : (),
@@ -226,13 +234,8 @@ sub listsets {
     my ($class, $c) = @_;
     my $params = $c->req->parameters->as_hashref;
 
-    my ($required, $invalid) = $class->_validate_arguments($params, [qw/verb/], [qw/resumptionToken/]);
-    return $c->xml(Shachi::Service::OAI->bad_argument(
-        required => $required, invalid => $invalid,
-    )->toString) if @$required || %$invalid;
-
-    my $doc = Shachi::Service::OAI->list_sets;
-    return $c->xml($doc->toString);
+    # SHACHIでは非対応
+    return $c->xml(Shachi::Service::OAI->no_set_hierarchy(verb => $params->{verb})->toString);
 }
 
 1;

@@ -172,6 +172,16 @@ sub listidentifiers : Tests {
         ok $error;
         is $error->getAttribute('code'), 'cannotDisseminateFormat';
     };
+
+    subtest 'set is invalid' => sub {
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=ListIdentifiers&metadataPrefix=olac&set=aa:bb');
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('ListIdentifiers');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'noSetHierarchy';
+    };
 }
 
 sub listmetadataformats : Tests {
@@ -224,7 +234,7 @@ sub listmetadataformats : Tests {
     };
 }
 
-sub listidentifiers : Tests {
+sub listrecords : Tests {
     subtest 'normal request' => sub {
         create_resource;
         my $mech = create_mech;
@@ -265,23 +275,26 @@ sub listidentifiers : Tests {
         ok $error;
         is $error->getAttribute('code'), 'cannotDisseminateFormat';
     };
+
+    subtest 'set is invalid' => sub {
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=ListRecords&metadataPrefix=olac&set=aa:bb');
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('ListRecords');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'noSetHierarchy';
+    };
 }
 
 sub listsets : Tests {
     subtest 'normal request' => sub {
         my $mech = create_mech;
-        $mech->get_ok('/olac/oai2?verb=ListSets');
-        my $doc = $mech->xml_doc;
-        ok $doc->getElementsByTagName('ListSets');
-    };
-
-    subtest 'bad argument' => sub {
-        my $mech = create_mech;
-        $mech->get('/olac/oai2?verb=ListSets&metadataPrefix=olac');
+        $mech->get('/olac/oai2?verb=ListSets');
         my $doc = $mech->xml_doc;
         ok ! $doc->getElementsByTagName('ListSets');
         my $error = $doc->getElementsByTagName('error')->[0];
         ok $error;
-        is $error->getAttribute('code'), 'badArgument';
+        is $error->getAttribute('code'), 'noSetHierarchy';
     };
 }
