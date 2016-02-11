@@ -255,6 +255,7 @@ sub _add_resource_metadata {
     my ($doc, $parent, $metadata, $opts) = @_;
 
     if ( $opts->{value_type} ) {
+        return unless $metadata->value;
         my $name = $opts->{value_type} . ':' . $metadata->value->value_type;
         my $content = $metadata->description;
         if ( $content =~ /^([CTGDON]-(?:\d{6})): / ) {
@@ -270,7 +271,7 @@ sub _add_resource_metadata {
             } elsif ( $opts->{type} eq 'olac:ISO639-3' ) {
                 $metadata->language->code;
             } else {
-                $metadata->value->value;
+                $metadata->value && $metadata->value->value;
             }
         };
         my $value = $opts->{code} ? $metadata->description : $metadata->content;
@@ -370,12 +371,12 @@ sub resource_metadata_map {
         # <xs:element name="relation" substitutionGroup="dc:relation"/>
         { name => 'coverage_temporal', tag => 'dc:coverage' },
         { name => 'rights', tag => 'dc:rights' },
-        { name => 'title_alternative', tag => 'dcterm:alternative' },
-        { name => 'date_created', tag => 'dcterm:created' },
-        { name => 'date_issued', tag => 'dcterm:issued' },
-        { name => 'date_modified', tag => 'dcterm:modified' },
-        { name => 'format_extent', tag => 'dcterm:extent' },
-        { name => 'format_medium', tag => 'dcterm:medium' },
+        { name => 'title_alternative', tag => 'dcterms:alternative' },
+        { name => 'date_created', tag => 'dcterms:created' },
+        { name => 'date_issued', tag => 'dcterms:issued' },
+        { name => 'date_modified', tag => 'dcterms:modified' },
+        { name => 'format_extent', tag => 'dcterms:extent' },
+        { name => 'format_medium', tag => 'dcterms:medium' },
         { name => 'format_encoding', tag => 'dc:format',
           type => 'shachi:encoding' },
         { name => 'format_markup', tag => 'dc:format',
@@ -385,10 +386,10 @@ sub resource_metadata_map {
         # isVersionOf, hasVersion, isReplacedBy, replaces, isRequiredBy
         # requires, isPartOf, hasPart, isReferencedBy, references
         # isFormatOf, hasFormat, conformsTo
-        { name => 'relation', value_type => 'dcterm' },
+        { name => 'relation', value_type => 'dcterms' },
         { name => 'relation_utilization', tag => 'dc:relation',
           type => 'shachi:utilization' },
-        { name => 'coverage_spacial', tag => 'dcterm:spatial' },
+        { name => 'coverage_spacial', tag => 'dcterms:spatial' },
     ];
 }
 
