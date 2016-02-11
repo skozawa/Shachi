@@ -256,7 +256,7 @@ sub _add_resource_metadata {
 
     if ( $opts->{value_type} ) {
         return unless $metadata->value;
-        my $name = $opts->{value_type} . ':' . $metadata->value->value_type;
+        my $name = $opts->{value_type} . ':' . $metadata->value->value;
         my $content = $metadata->description;
         if ( $content =~ /^([CTGDON]-(?:\d{6})): / ) {
             $content = 'oai:shachi.org:' . $1;
