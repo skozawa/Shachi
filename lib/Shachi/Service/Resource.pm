@@ -272,6 +272,33 @@ sub embed_resource_metadata {
     return $resources;
 }
 
+sub embed_resource_metadata_list {
+    args my $class     => 'ClassName',
+         my $db        => { isa => 'Shachi::Database' },
+         my $resources => { isa => 'Shachi::Model::List' },
+         my $language  => { isa => 'Shachi::Model::Language' },
+         my $args      => { isa => 'HashRef', default => {} };
+
+    my $metadata_list = delete $args->{metadata_list};
+    $metadata_list ||= Shachi::Service::Metadata->find_shown_metadata(db => $db);
+
+    my $resource_metadata_list = Shachi::Service::Resource::Metadata->find_resource_metadata(
+        db => $db, resources => $resources, metadata_list => $metadata_list,
+        language => $language, args => { with_value => 1, with_language => 1, %$args },
+    );
+    my $metadata_list_by_resource_id = $resource_metadata_list->hash_by('resource_id');
+
+    foreach my $resource ( @$resources ) {
+        my $list = Shachi::Model::List->new(
+            list => [ $metadata_list_by_resource_id->get_all($resource->id) ]
+        );
+        $list = $list->grep(sub {
+            $_->metadata_name eq METADATA_TITLE || $_->metadata_name eq METADATA_IDENTIFIER
+        }) if $args->{only_public} && !$resource->is_public;
+        $resource->metadata_list($list);
+    }
+}
+
 sub update_shachi_id {
     args my $class => 'ClassName',
          my $db    => { isa => 'Shachi::Database' },

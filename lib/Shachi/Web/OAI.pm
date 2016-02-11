@@ -181,6 +181,10 @@ sub listrecords {
     }
 
     my $resources = $c->db->shachi->table('resource')->offset(0)->limit(200)->list;
+    Shachi::Service::Resource->embed_resource_metadata_list(
+        db => $c->db, resources => $resources, language => $c->english,
+        args => { only_public => 1 },
+    );
     my $doc = Shachi::Service::OAI->list_records(resources => $resources);
     $c->xml($doc->toString);
 }
