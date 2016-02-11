@@ -374,3 +374,35 @@ sub list_sets : Tests {
 
     ok $doc->getElementsByTagName('ListSets');
 }
+
+sub bad_verb : Tests {
+    my $doc = Shachi::Service::OAI->bad_verb(verb => 'aaa');
+    ok $doc->getElementsByTagName('SCRIPT');
+    ok $doc->getElementsByTagName('responseDate');
+    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
+
+    my $error = $doc->getElementsByTagName('error')->[0];
+    ok $error;
+    is $error->getAttribute('code'), 'badVerb';
+    is $error->textContent, "The verb 'aaa' provided in the request is illegal";
+}
+
+sub bad_argument : Tests {
+    my $doc = Shachi::Service::OAI->bad_argument(args => {
+        'aaa' => 'bbb',
+        'ccc' => 'ddd',
+    });
+    ok $doc->getElementsByTagName('SCRIPT');
+    ok $doc->getElementsByTagName('responseDate');
+    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
+
+    my $error1 = $doc->getElementsByTagName('error')->[0];
+    ok $error1;
+    is $error1->getAttribute('code'), 'badArgument';
+    is $error1->textContent, "The argument 'aaa' (value='bbb') included in the request is not valid";
+
+    my $error2 = $doc->getElementsByTagName('error')->[1];
+    ok $error2;
+    is $error2->getAttribute('code'), 'badArgument';
+    is $error2->textContent, "The argument 'ccc' (value='ddd') included in the request is not valid";
+}

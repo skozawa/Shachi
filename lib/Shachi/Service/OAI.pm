@@ -521,4 +521,34 @@ sub list_sets {
     return $doc;
 }
 
+# error methods
+sub bad_verb {
+    args my $class => 'ClassName',
+         my $verb  => { isa => 'Str', default => '' };
+
+    my ($doc, $oai) = _create_xml_base;
+    _addChild($doc, $oai, 'error', {
+        value => "The verb '$verb' provided in the request is illegal",
+        attributes => { code  => 'badVerb' },
+    });
+
+    return $doc;
+}
+
+sub bad_argument {
+    args my $class => 'ClassName',
+         my $args  => { isa => 'HashRef' };
+
+    my ($doc, $oai) = _create_xml_base;
+    foreach my $key ( sort keys %$args ) {
+        my $value = $args->{$key};
+        _addChild($doc, $oai, 'error', {
+            value => "The argument '$key' (value='$value') included in the request is not valid",
+            attributes => { code  => 'badArgument' },
+        });
+    }
+
+    return $doc;
+}
+
 1;
