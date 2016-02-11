@@ -222,6 +222,49 @@ sub listmetadataformats : Tests {
     };
 }
 
+sub listidentifiers : Tests {
+    subtest 'normal request' => sub {
+        create_resource;
+        my $mech = create_mech;
+        $mech->get_ok('/olac/oai2?verb=ListRecords&metadataPrefix=olac');
+        my $doc = $mech->xml_doc;
+        ok $doc->getElementsByTagName('ListRecords');
+    };
+
+    subtest 'invalid argument' => sub {
+        my $resource = create_resource;
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=ListRecords&metadataPrefix=olac&identifier=AA');
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('ListRecords');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'badArgument';
+    };
+
+    subtest 'lack required argument' => sub {
+        my $resource = create_resource;
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=ListRecords');
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('ListRecords');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'badArgument';
+    };
+
+    subtest 'invalid metadataPrefix' => sub {
+        my $resource = create_resource;
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=ListRecords&metadataPrefix=oc');
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('ListRecords');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'cannotDisseminateFormat';
+    };
+}
+
 sub listsets : Tests {
     subtest 'normal request' => sub {
         my $mech = create_mech;

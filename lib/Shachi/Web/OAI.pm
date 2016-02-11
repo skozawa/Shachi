@@ -160,6 +160,31 @@ sub listmetadataformats {
     return $c->xml($doc->toString);
 }
 
+# required: metadataPrefix
+# optional: from, until, set
+# exclusive: resumptionToken
+# error: badArgument, badResumptionToken, cannotDisseminateFormat, noRecordsMatch, noSetHierarchy
+sub listrecords {
+    my ($class, $c) = @_;
+    my $params = $c->req->parameters->as_hashref;
+
+    my ($required, $invalid) = $class->_validate_arguments($params, [qw/verb metadataPrefix/], [qw/from until set/]);
+    return $c->xml(Shachi::Service::OAI->bad_argument(
+        required => $required, invalid => $invalid,
+    )->toString) if @$required || %$invalid;
+
+    unless ( $class->_validate_metadata_prefix($params->{metadataPrefix}) ) {
+        return $c->xml(Shachi::Service::OAI->cannot_disseminate_format(
+            verb => $params->{verb}, metadata_prefix => $params->{metadataPrefix},
+            opts => { identifier => $params->{identifier} }
+        )->toString);
+    }
+
+    my $resources = $c->db->shachi->table('resource')->offset(0)->limit(200)->list;
+    my $doc = Shachi::Service::OAI->list_records(resources => $resources);
+    $c->xml($doc->toString);
+}
+
 # exclusive: resumptionToken
 # error: badArgument, badResumptionToken, noSetHierarchy
 sub listsets {
