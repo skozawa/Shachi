@@ -388,23 +388,37 @@ sub bad_verb : Tests {
 }
 
 sub bad_argument : Tests {
-    my $doc = Shachi::Service::OAI->bad_argument(
-        required => [qw/aaa/],
-        invalid  => { 'ccc' => 'ddd' },
-    );
-    ok $doc->getElementsByTagName('SCRIPT');
-    ok $doc->getElementsByTagName('responseDate');
-    is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
+    subtest 'required and invalid arguments' => sub {
+        my $doc = Shachi::Service::OAI->bad_argument(
+            required => [qw/aaa/],
+            invalid  => { 'ccc' => 'ddd' },
+        );
+        ok $doc->getElementsByTagName('SCRIPT');
+        ok $doc->getElementsByTagName('responseDate');
+        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
 
-    my $error1 = $doc->getElementsByTagName('error')->[0];
-    ok $error1;
-    is $error1->getAttribute('code'), 'badArgument';
-    is $error1->textContent, "The required argument 'aaa' is missing in the request";
+        my $error1 = $doc->getElementsByTagName('error')->[0];
+        ok $error1;
+        is $error1->getAttribute('code'), 'badArgument';
+        is $error1->textContent, "The required argument 'aaa' is missing in the request";
 
-    my $error2 = $doc->getElementsByTagName('error')->[1];
-    ok $error2;
-    is $error2->getAttribute('code'), 'badArgument';
-    is $error2->textContent, "The argument 'ccc' (value='ddd') included in the request is not valid";
+        my $error2 = $doc->getElementsByTagName('error')->[1];
+        ok $error2;
+        is $error2->getAttribute('code'), 'badArgument';
+        is $error2->textContent, "The argument 'ccc' (value='ddd') included in the request is not valid";
+    };
+
+    subtest 'bad arguement' => sub {
+        my $doc = Shachi::Service::OAI->bad_argument(required => [], invalid  => {});
+        ok $doc->getElementsByTagName('SCRIPT');
+        ok $doc->getElementsByTagName('responseDate');
+        is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
+
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'badArgument';
+        is $error->textContent, "The request includes illegal arguments, is missing required arguments, include a repeated argument, or values for arguments have an illegal syntax.";
+    };
 }
 
 sub bad_resumption_token : Tests {

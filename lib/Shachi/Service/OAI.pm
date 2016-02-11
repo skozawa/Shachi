@@ -557,6 +557,12 @@ sub bad_argument {
             attributes => { code  => 'badArgument' },
         });
     }
+    if ( ! @$required && ! %$invalid ) {
+        _addChild($doc, $oai, 'error', {
+            value => "The request includes illegal arguments, is missing required arguments, include a repeated argument, or values for arguments have an illegal syntax.",
+            attributes => { code => 'badArgument' },
+        });
+    }
 
     return $doc;
 }
