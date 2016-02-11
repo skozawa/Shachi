@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           elementFormDefault="qualified"
+           attributeFormDefault="qualified">
+
+  <xs:import namespace="http://purl.org/dc/elements/1.1/"
+             schemaLocation="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+
+  <xs:annotation>
+    <xs:appinfo>
+      <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
+        <shortName>input-device</shortName>
+        <longName>Code for Input Device</longName>
+        <versionDate>2016-02-07</versionDate>
+        <description></description>
+        <appliesTo>description</appliesTo>
+        <documentation></documentation>
+      </olac-extension>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:complexType name="input-device">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dc:SimpleLiteral">
+        <xs:attribute name="code" type="input-device-vocab" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="input-device-vocab">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="desktop_microphone"/>
+      <xs:enumeration value="close_talking_microphone"/>
+      <xs:enumeration value="lapel_microphone"/>
+      <xs:enumeration value="fixed_line_telephone"/>
+      <xs:enumeration value="mobile_phone"/>
+      <xs:enumeration value="broadcast"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dc="http://purl.org/dc/elements/1.1/"
+           elementFormDefault="qualified"
+           attributeFormDefault="qualified">
+
+  <xs:import namespace="http://purl.org/dc/elements/1.1/"
+             schemaLocation="http://dublincore.org/schemas/xmls/qdc/dc.xsd"/>
+
+  <xs:annotation>
+    <xs:appinfo>
+      <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
+        <shortName>speaker-number</shortName>
+        <longName>Code for Speaker Number</longName>
+        <versionDate>2016-02-07</versionDate>
+        <description></description>
+        <appliesTo>contributor</appliesTo>
+        <documentation></documentation>
+      </olac-extension>
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:complexType name="speaker-number">
+    <xs:complexContent mixed="true">
+      <xs:extension base="dc:SimpleLiteral">
+        <xs:attribute name="code" type="speaker-number-vocab" use="optional"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="speaker-number-vocab">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="number_of_female_speakers"/>
+      <xs:enumeration value="number_of_male_speakers"/>
+      <xs:enumeration value="number_of_total_speakers"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
