@@ -178,3 +178,22 @@ sub listmetadataformats : Tests {
         is $error->getAttribute('code'), 'badArgument';
     };
 }
+
+sub listsets : Tests {
+    subtest 'normal request' => sub {
+        my $mech = create_mech;
+        $mech->get_ok('/olac/oai2?verb=ListSets');
+        my $doc = $mech->xml_doc;
+        ok $doc->getElementsByTagName('ListSets');
+    };
+
+    subtest 'bad argument' => sub {
+        my $mech = create_mech;
+        $mech->get('/olac/oai2?verb=ListSets&metadataPrefix=olac');
+        my $doc = $mech->xml_doc;
+        ok ! $doc->getElementsByTagName('ListSets');
+        my $error = $doc->getElementsByTagName('error')->[0];
+        ok $error;
+        is $error->getAttribute('code'), 'badArgument';
+    };
+}

@@ -135,4 +135,19 @@ sub listmetadataformats {
     return $c->xml($doc->toString);
 }
 
+# exclusive: resumptionToken
+# error: badArgument, badResumptionToken, noSetHierarchy
+sub listsets {
+    my ($class, $c) = @_;
+    my $params = $c->req->parameters->as_hashref;
+
+    my ($required, $invalid) = $class->_validate_arguments($params, [qw/verb/], [qw/resumptionToken/]);
+    return $c->xml(Shachi::Service::OAI->bad_argument(
+        required => $required, invalid => $invalid,
+    )->toString) if @$required || %$invalid;
+
+    my $doc = Shachi::Service::OAI->list_sets;
+    return $c->xml($doc->toString);
+}
+
 1;
