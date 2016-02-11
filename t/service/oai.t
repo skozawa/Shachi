@@ -312,6 +312,40 @@ sub list_identifiers : Tests {
         $headers->[3]->getElementsByTagName('identifier')->[0]->textContent, 'T-000004';
         $headers->[4]->getElementsByTagName('identifier')->[0]->textContent, 'O-000005';
     };
+
+    subtest 'resource identifiers with resumptionTOken' => sub {
+        my $resources = Shachi::Model::List->new(list => [ map {
+            create_resource(resource_subject => $_)
+        } qw/corpus dictionary glossary thesaurus test/ ]);
+
+        my $db = Shachi::Database->new;
+        my $doc = Shachi::Service::OAI->list_identifiers(
+            resources => $resources, resumptionToken => 'aaaaa',
+        );
+
+        ok $doc->getElementsByTagName('SCRIPT');
+        ok $doc->getElementsByTagName('responseDate');
+        my $request = $doc->getElementsByTagName('request')->[0];
+        is $request->textContent, 'http://shachi.org/olac/oai2';
+        is $request->getAttribute('verb'), 'ListIdentifiers';
+        is $request->getAttribute('metadataPrefix'), 'olac';
+
+        my $list_identifiers = $doc->getElementsByTagName('ListIdentifiers')->[0];
+        ok $list_identifiers;
+
+        my $headers = $list_identifiers->getElementsByTagName('header');
+        is $headers->size, 5;
+
+        $headers->[0]->getElementsByTagName('identifier')->[0]->textContent, 'C-000001';
+        $headers->[1]->getElementsByTagName('identifier')->[0]->textContent, 'D-000002';
+        $headers->[2]->getElementsByTagName('identifier')->[0]->textContent, 'G-000003';
+        $headers->[3]->getElementsByTagName('identifier')->[0]->textContent, 'T-000004';
+        $headers->[4]->getElementsByTagName('identifier')->[0]->textContent, 'O-000005';
+
+        my $token = $list_identifiers->getElementsByTagName('resumptionToken')->[0];
+        ok $token;
+        is $token->textContent, 'aaaaa';
+    };
 }
 
 sub list_metadata_formats : Tests {
@@ -342,7 +376,9 @@ sub list_records : Tests {
         create_resource(resource_subject => $_)
     } qw/corpus dictionary glossary thesaurus test/ ]);
 
-    my $doc = Shachi::Service::OAI->list_records(resources => $resources);
+    my $doc = Shachi::Service::OAI->list_records(
+        resources => $resources, resumptionToken => 'bbbbb',
+    );
 
     ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
@@ -361,6 +397,10 @@ sub list_records : Tests {
         ok $record->getElementsByTagName('identifier');
         ok $record->getElementsByTagName('metadata');
     }
+
+    my $token = $list_records->getElementsByTagName('resumptionToken')->[0];
+    ok $token;
+    is $token->textContent, 'bbbbb';
 }
 
 sub list_sets : Tests {

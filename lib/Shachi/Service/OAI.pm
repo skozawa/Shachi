@@ -466,7 +466,8 @@ sub identify {
 sub list_identifiers {
     args my $class     => 'ClassName',
          my $resources => { isa => 'Shachi::Model::List' },
-         my $metadata_prefix => { isa => 'Str', default => 'olac' };
+         my $metadata_prefix => { isa => 'Str', default => 'olac' },
+         my $resumptionToken => { isa => 'Str', default => '' };
 
     my ($doc, $oai) = _create_xml_base({
         verb => 'ListIdentifiers',
@@ -475,6 +476,9 @@ sub list_identifiers {
 
     my $list_identifiers = _addChild($doc, $oai, 'ListIdentifiers');
     $list_identifiers->addChild(_resource_header($doc, $_)) for @$resources;
+    _addChild($doc, $list_identifiers, 'resumptionToken', {
+        value => $resumptionToken
+    }) if $resumptionToken;
 
     return $doc;
 }
@@ -498,7 +502,8 @@ sub list_metadata_formats {
 sub list_records {
     args my $class     => 'ClassName',
          my $resources => { isa => 'Shachi::Model::List' },
-         my $metadata_prefix => { isa => 'Str', default => 'olac' };
+         my $metadata_prefix => { isa => 'Str', default => 'olac' },
+         my $resumptionToken => { isa => 'Str', default => '' };
 
     my ($doc, $oai) = _create_xml_base({
         verb => 'ListRecords',
@@ -511,6 +516,9 @@ sub list_records {
         $record->addChild(_resource_header($doc, $resource));
         $record->addChild(_resource_metadata($doc, $resource));
     }
+    _addChild($doc, $list_records, 'resumptionToken', {
+        value => $resumptionToken
+    }) if $resumptionToken;
 
     return $doc;
 }
