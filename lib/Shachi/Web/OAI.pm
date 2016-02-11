@@ -5,6 +5,8 @@ use List::MoreUtils qw/any/;
 use Shachi::Service::OAI;
 use Shachi::Service::Resource;
 use DateTime::Format::W3CDTF;
+use Data::MessagePack;
+use MIME::Base64;
 
 my $w3c = DateTime::Format::W3CDTF->new;
 
@@ -65,6 +67,23 @@ sub _validate_identifier {
 sub _validate_metadata_prefix {
     my ($class, $metadata_prefix) = @_;
     return $metadata_prefix eq 'olac';
+}
+
+sub encode_resumption_token {
+    my ($class, $args) = @_;
+    my $hash = {
+        m => $args->{metadataPrefix} || '',
+        f => $args->{from} ? $args->{from}->epoch : 0,
+        u => $args->{until} ? $args->{until}->epoch : 0,
+        o => $args->{offset} || 0,
+        e => time + 60 * 60 * 30,
+    };
+    encode_base64(Data::MessagePack->pack($hash));
+}
+
+sub decode_resumption_token {
+    my ($class, $token) = @_;
+    eval { Data::MessagePack->unpack(decode_base64($token)) };
 }
 
 # required: identifier, metadataPrefix

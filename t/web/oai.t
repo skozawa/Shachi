@@ -1,5 +1,6 @@
 package t::Shachi::Web::OAI;
 use t::test;
+use DateTime;
 
 sub _require : Test(startup => 1) {
     use_ok 'Shachi::Web::OAI';
@@ -55,6 +56,27 @@ sub _validate_identifier : Tests {
     ok Shachi::Web::OAI->_validate_identifier('oai:shachi.org:N-000011');
     ok ! Shachi::Web::OAI->_validate_identifier('oai:shachi:N-000012');
     ok ! Shachi::Web::OAI->_validate_identifier('N-000001');
+}
+
+sub encode_decode_resumption_token : Tests {
+    my $from  = DateTime->now->clone->subtract(hours => 20);
+    my $until = DateTime->now->clone->subtract(hours => 2);
+    my $now = time;
+    my $args = {
+        metadataPrefix => 'olac',
+        from   => $from,
+        until  => $until,
+        offset => 200,
+    };
+
+    my $resumptionToken = Shachi::Web::OAI->encode_resumption_token($args);
+    is_deeply Shachi::Web::OAI->decode_resumption_token($resumptionToken), {
+        m => 'olac',
+        f => $from->epoch,
+        u => $until->epoch,
+        o => 200,
+        e => $now + 60 * 60 * 30,
+    };
 }
 
 sub identify : Tests {
