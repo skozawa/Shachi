@@ -216,7 +216,9 @@ sub _resource_header {
     my ($doc, $resource) = @_;
     my $header = $doc->createElement('header');
     _addChild($doc, $header, 'identifier', { value => $resource->oai_identifier });
-    _addChild($doc, $header, 'datestamp', { value => _format_datetime($resource->modified) });
+    _addChild($doc, $header, 'datestamp', {
+        value => _format_datetime($resource->modified->clone->set_time_zone('UTC'))
+    });
     return $header;
 }
 
