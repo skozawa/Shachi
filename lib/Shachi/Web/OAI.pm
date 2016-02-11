@@ -138,9 +138,9 @@ sub getrecord {
         opts => { metadataPrefix => $params->{metadataPrefix} },
     )->toString) unless $resource;
 
-    my $resource_detail = Shachi::Service::Resource->find_resource_detail(
-        db => $c->db, id => $resource->id, language => $c->english,
-        args => { with_language => 1 },
+    Shachi::Service::Resource->embed_resource_metadata_list(
+        db => $c->db, resources => $resource->as_list, language => $c->english,
+        args => { only_public => 1 },
     );
     my $doc = Shachi::Service::OAI->get_record(resource => $resource);
     return $c->xml($doc->toString);
