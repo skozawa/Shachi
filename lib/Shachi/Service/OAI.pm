@@ -260,10 +260,9 @@ sub _add_resource_metadata {
         }
         _addChild($doc, $parent, $name, { value => $content });
     } elsif ( $opts->{type} ) {
-        my $code = $opts->{code};
-        my $value = do {
-            if ( !$code ) {
-                $metadata->content;
+        my $code = do {
+            if ( !$opts->{code} ) {
+                # nop
             } elsif ( $opts->{type} eq 'olac:language' ) {
                 $lang_code_map->{$metadata->language->code};
             } elsif ( $opts->{type} eq 'olac:ISO639-3' ) {
@@ -271,11 +270,17 @@ sub _add_resource_metadata {
             } else {
                 $metadata->value->value;
             }
-        } or next;
-        my $args = { attributes => { 'xsi:type' => $opts->{type} } };
-        $args->{value} = $value unless $code;
-        $args->{attributes}->{$code} = $value if $code;
-        _addChild($doc, $parent, $opts->{tag}, $args);
+        };
+        my $value = $opts->{code} ? $metadata->description : $metadata->content;
+        return unless $code || $value;
+
+        _addChild($doc, $parent, $opts->{tag}, {
+            $value ? (value => $value) : (),
+            attributes => {
+                'xsi:type' => $opts->{type},
+                $code ? ($opts->{code} => $code) : (),
+            }
+        });
     } else {
         my $value = $opts->{value} ?
             $metadata->value->value : $metadata->content;
