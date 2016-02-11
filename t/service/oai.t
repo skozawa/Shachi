@@ -406,3 +406,20 @@ sub bad_argument : Tests {
     is $error2->getAttribute('code'), 'badArgument';
     is $error2->textContent, "The argument 'ccc' (value='ddd') included in the request is not valid";
 }
+
+sub id_does_not_exist : Tests {
+    my $doc = Shachi::Service::OAI->id_does_not_exist(
+        verb => 'GetRecord', identifier => 'oai:shachi.org:A-000001',
+        opts => { metadataPrefix => 'olac' },
+    );
+    ok $doc->getElementsByTagName('responseDate');
+    my $request = $doc->getElementsByTagName('request')->[0];
+    is $request->getAttribute('verb'), 'GetRecord';
+    is $request->getAttribute('identifier'), 'oai:shachi.org:A-000001';
+    is $request->getAttribute('metadataPrefix'), 'olac';
+
+    my $error = $doc->getElementsByTagName('error')->[0];
+    ok $error;
+    is $error->getAttribute('code'), 'idDoesNotExist';
+    is $error->textContent, "The verb 'oai:shachi.org:A-000001' of the identifier is illegal for this repository";
+}

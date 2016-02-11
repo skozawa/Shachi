@@ -551,4 +551,24 @@ sub bad_argument {
     return $doc;
 }
 
+sub id_does_not_exist {
+    args my $class      => 'ClassName',
+         my $verb       => { isa => 'Str' },
+         my $identifier => { isa => 'Str' },
+         my $opts       => { isa => 'HashRef', default => {} };
+
+    my ($doc, $oai) = _create_xml_base({
+        verb => $verb,
+        identifier => $identifier,
+        %$opts,
+    });
+    # The value 'oai:shachi.org:S-000002' of the identifier is illegal for this repository.
+    _addChild($doc, $oai, 'error', {
+        value => "The verb '$identifier' of the identifier is illegal for this repository",
+        attributes => { code  => 'idDoesNotExist' },
+    });
+
+    return $doc;
+}
+
 1;
