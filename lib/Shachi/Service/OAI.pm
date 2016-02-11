@@ -284,7 +284,7 @@ sub _add_resource_metadata {
     } else {
         my $value = $opts->{value} ?
             $metadata->value->value : $metadata->content;
-        _addChild($doc, $parent, $opts->{tag}, { value => $value });
+        _addChild($doc, $parent, $opts->{tag}, { value => ($opts->{prefix} || '') . $value });
     }
 }
 
@@ -361,6 +361,8 @@ sub resource_metadata_map {
         { name => 'type_sample', tag => 'dc:type',
           type => 'shachi:data-sample' },
         { name => 'identifier', tag => 'dc:identifier' },
+        { name => 'identifier_doi', tag => 'dc:identifier', prefix => 'DOI:' },
+        { name => 'identifier_islrn', tag => 'dc:identifier', prefix => 'ISLRN:' },
         { name => 'source', tag => 'dc:source' },
         # <xs:element name="language" substitutionGroup="dc:language"/>
         # <xs:element name="relation" substitutionGroup="dc:relation"/>
