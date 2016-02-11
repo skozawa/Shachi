@@ -4,6 +4,7 @@ use warnings;
 use List::MoreUtils qw/any/;
 use Shachi::Service::OAI;
 use Shachi::Service::Resource;
+use DateTime;
 use DateTime::Format::W3CDTF;
 use Data::MessagePack;
 use MIME::Base64;
@@ -92,6 +93,20 @@ sub _validate_resumption_token {
     return unless $hash->{e};
     return if $hash->{e} < time;
     return 1;
+}
+
+sub create_args_from_params {
+    my ($class, $params) = @_;
+    my $args = $params->{resumptionToken} ?
+        $class->decode_resumption_token($params->{resumptionToken}) : {};
+    return +{
+        metadataPrefix => $args->{m} || $params->{metadataPrefix},
+        from           => $args->{f} ? DateTime->from_epoch(epoch => $args->{f}) :
+            $class->_validate_datetime($params->{from}) || 0,
+        until          => $args->{u} ? DateTime->from_epoch(epoch => $args->{u}) :
+            $class->_validate_datetime($params->{until}) || DateTime->now,
+        offset         => $args->{o} || 0,
+    };
 }
 
 # required: identifier, metadataPrefix
@@ -184,19 +199,30 @@ sub listidentifiers {
             ) if $params->{set};
     }
 
-    my $conditions = $params->{from} || $params->{until} ? {
+    my $limit = 200;
+    my $args = $class->create_args_from_params($params);
+    my $offset = $args->{offset} || 0;
+    my $conditions = $args->{from} || $args->{until} ? {
         modified => {
-            $params->{from}  ? ('>=' => $params->{from})  : (),
-            $params->{until} ? ('<'  => $params->{until}) : (),
+            $args->{from}  ? ('>=' => $args->{from})  : (),
+            $args->{until} ? ('<'  => $args->{until}) : (),
         },
     } : {};
-    my $offset = 0;
-    my $limit = 200;
 
     my $resources = $c->db->shachi->table('resource')->search($conditions)
         ->order_by('id asc')->offset($offset)->limit($limit)->list;
-    my $doc = Shachi::Service::OAI->list_identifiers(resources => $resources);
-    $c->xml($doc->toString);
+
+    return $c->xml(Shachi::Service::OAI->no_records_match(
+        verb => $params->{verb},
+    )->toString) if $resources->size == 0;
+
+    $args->{offset} += $limit;
+    my $token = $resources->size == $limit ? $class->encode_resumption_token($args) : '';
+    $c->xml( Shachi::Service::OAI->list_identifiers(
+        resources => $resources,
+        metadata_prefix => $args->{metadataPrefix},
+        resumptionToken => $token,
+    )->toString );
 }
 
 # optional: identifier
@@ -262,23 +288,35 @@ sub listrecords {
             ) if $params->{set};
     }
 
-    my $conditions = $params->{from} || $params->{until} ? {
+    my $limit = 200;
+    my $args = $class->create_args_from_params($params);
+    my $offset = $args->{offset} || 0;
+    my $conditions = $args->{from} || $args->{until} ? {
         modified => {
-            $params->{from}  ? ('>=' => $params->{from})  : (),
-            $params->{until} ? ('<'  => $params->{until}) : (),
+            $args->{from}  ? ('>=' => $args->{from})  : (),
+            $args->{until} ? ('<'  => $args->{until}) : (),
         },
     } : {};
-    my $offset = 0;
-    my $limit = 200;
 
     my $resources = $c->db->shachi->table('resource')->search($conditions)
         ->order_by('id asc')->offset($offset)->limit($limit)->list;
+
+    return $c->xml(Shachi::Service::OAI->no_records_match(
+        verb => $params->{verb},
+    )->toString) if $resources->size == 0;
+
     Shachi::Service::Resource->embed_resource_metadata_list(
         db => $c->db, resources => $resources, language => $c->english,
         args => { only_public => 1 },
     );
-    my $doc = Shachi::Service::OAI->list_records(resources => $resources);
-    $c->xml($doc->toString);
+
+    $args->{offset} += $limit;
+    my $token = $resources->size == $limit ? $class->encode_resumption_token($args) : '';
+    $c->xml( Shachi::Service::OAI->list_records(
+        resources => $resources,
+        metadata_prefix => $args->{metadataPrefix},
+        resumptionToken => $token,
+    )->toString );
 }
 
 # exclusive: resumptionToken
