@@ -21,13 +21,37 @@ sub _validate_verb {
         qw/GetRecord Identify ListIdentifiers ListMetadataFormats ListRecords ListSets/;
 }
 
+sub _validate_arguments {
+    my ($class, $params, $required, $optional) = @_;
+    return (
+        $class->_invalid_required_arguments($params, $required),
+        $class->_invalid_arguments($params, [ @$required, @$optional ]),
+    );
+}
+
+sub _invalid_required_arguments {
+    my ($class, $params, $required) = @_;
+    return [ grep { !$params->{$_} } @$required ];
+}
+
+sub _invalid_arguments {
+    my ($class, $params, $allow) = @_;
+    my $allow_map = +{ map { $_ => 1 } @$allow };
+    return +{ map {
+        $allow_map->{$_} ? () : ($_ => $params->{$_})
+    } keys %$params };
+}
+
+# error: badArgument
 sub identify {
     my ($class, $c) = @_;
     my $params = $c->req->parameters->as_hashref;
-    delete $params->{verb};
 
-    if ( %$params ) {
-        return $c->xml(Shachi::Service::OAI->bad_argument(args => $params)->toString);
+    my ($required, $invalid) = $class->_validate_arguments($params, [qw/verb/], []);
+    if ( @$required || %$invalid ) {
+        return $c->xml(Shachi::Service::OAI->bad_argument(
+            required => $required, invalid => $invalid,
+        )->toString);
     }
 
     my $doc = Shachi::Service::OAI->identify;

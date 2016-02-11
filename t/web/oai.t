@@ -31,6 +31,26 @@ sub _validate_verb : Tests {
     ok ! Shachi::Web::OAI->_validate_verb('aaaa');
 }
 
+sub _invalid_required_arguments : Tests {
+    is_deeply Shachi::Web::OAI->_invalid_required_arguments(
+        { verb => 'Identify' }, [qw/verb/],
+    ), [];
+
+    is_deeply Shachi::Web::OAI->_invalid_required_arguments(
+        { verb => 'RetRecord', metadataPrefix => 'olac' }, [qw/verb metadataPrefix identifier/],
+    ), [qw/identifier/];
+}
+
+sub _invalid_arguments : Tests {
+    is_deeply Shachi::Web::OAI->_invalid_arguments(
+        { verb => 'Identify' }, [qw/verb/],
+    ), {};
+
+    is_deeply Shachi::Web::OAI->_invalid_arguments(
+        { verb => 'Identify', metadataPrefix => 'olac' }, [qw/verb/],
+    ), { metadataPrefix => 'olac' };
+}
+
 sub identify : Tests {
     subtest 'normal' => sub {
         my $mech = create_mech;

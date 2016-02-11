@@ -537,11 +537,18 @@ sub bad_verb {
 
 sub bad_argument {
     args my $class => 'ClassName',
-         my $args  => { isa => 'HashRef' };
+         my $required => { isa => 'ArrayRef' },
+         my $invalid  => { isa => 'HashRef' };
 
     my ($doc, $oai) = _create_xml_base;
-    foreach my $key ( sort keys %$args ) {
-        my $value = $args->{$key};
+    foreach my $key ( @$required ) {
+        _addChild($doc, $oai, 'error', {
+            value => "The required argument '$key' is missing in the request",
+            attributes => { code => 'badArgument' },
+        });
+    }
+    foreach my $key ( sort keys %$invalid ) {
+        my $value = $invalid->{$key};
         _addChild($doc, $oai, 'error', {
             value => "The argument '$key' (value='$value') included in the request is not valid",
             attributes => { code  => 'badArgument' },

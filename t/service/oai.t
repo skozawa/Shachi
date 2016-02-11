@@ -388,10 +388,10 @@ sub bad_verb : Tests {
 }
 
 sub bad_argument : Tests {
-    my $doc = Shachi::Service::OAI->bad_argument(args => {
-        'aaa' => 'bbb',
-        'ccc' => 'ddd',
-    });
+    my $doc = Shachi::Service::OAI->bad_argument(
+        required => [qw/aaa/],
+        invalid  => { 'ccc' => 'ddd' },
+    );
     ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
     is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
@@ -399,7 +399,7 @@ sub bad_argument : Tests {
     my $error1 = $doc->getElementsByTagName('error')->[0];
     ok $error1;
     is $error1->getAttribute('code'), 'badArgument';
-    is $error1->textContent, "The argument 'aaa' (value='bbb') included in the request is not valid";
+    is $error1->textContent, "The required argument 'aaa' is missing in the request";
 
     my $error2 = $doc->getElementsByTagName('error')->[1];
     ok $error2;
