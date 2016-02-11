@@ -407,6 +407,23 @@ sub bad_argument : Tests {
     is $error2->textContent, "The argument 'ccc' (value='ddd') included in the request is not valid";
 }
 
+sub cannot_disseminate_format : Tests {
+    my $doc = Shachi::Service::OAI->cannot_disseminate_format(
+        verb => 'GetRecord', metadata_prefix => 'olac_dl',
+        opts => { identifier => 'oai:shachi.org:N-000001' },
+    );
+    ok $doc->getElementsByTagName('responseDate');
+    my $request = $doc->getElementsByTagName('request')->[0];
+    is $request->getAttribute('verb'), 'GetRecord';
+    is $request->getAttribute('identifier'), 'oai:shachi.org:N-000001';
+    is $request->getAttribute('metadataPrefix'), 'olac_dl';
+
+    my $error = $doc->getElementsByTagName('error')->[0];
+    ok $error;
+    is $error->getAttribute('code'), 'cannotDisseminateFormat';
+    is $error->textContent, "The metadata format 'olac_dl' given by metadataPrefix is not supported by this repository";
+}
+
 sub id_does_not_exist : Tests {
     my $doc = Shachi::Service::OAI->id_does_not_exist(
         verb => 'GetRecord', identifier => 'oai:shachi.org:A-000001',

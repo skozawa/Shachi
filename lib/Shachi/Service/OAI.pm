@@ -558,6 +558,25 @@ sub bad_argument {
     return $doc;
 }
 
+sub cannot_disseminate_format {
+    args my $class => 'ClassName',
+         my $verb  => { isa => 'Str' },
+         my $metadata_prefix => { isa => 'Str' },
+         my $opts  => { isa => 'HashRef', default => {} };
+
+    my ($doc, $oai) = _create_xml_base({
+        verb => $verb,
+        metadataPrefix => $metadata_prefix,
+        %$opts,
+    });
+    _addChild($doc, $oai, 'error', {
+        value => "The metadata format '$metadata_prefix' given by metadataPrefix is not supported by this repository",
+        attributes => { code => 'cannotDisseminateFormat' },
+    });
+
+    return $doc;
+}
+
 sub id_does_not_exist {
     args my $class      => 'ClassName',
          my $verb       => { isa => 'Str' },
@@ -569,7 +588,6 @@ sub id_does_not_exist {
         identifier => $identifier,
         %$opts,
     });
-    # The value 'oai:shachi.org:S-000002' of the identifier is illegal for this repository.
     _addChild($doc, $oai, 'error', {
         value => "The verb '$identifier' of the identifier is illegal for this repository",
         attributes => { code  => 'idDoesNotExist' },
