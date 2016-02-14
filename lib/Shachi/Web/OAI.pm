@@ -11,6 +11,11 @@ use MIME::Base64;
 
 my $w3c = DateTime::Format::W3CDTF->new;
 
+sub default {
+    my ($class, $c) = @_;
+    return $c->html_locale('olac.html');
+}
+
 sub oai2 {
     my ($class, $c) = @_;
     my $verb = $c->req->param('verb') || '';

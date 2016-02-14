@@ -6,6 +6,11 @@ sub _require : Test(startup => 1) {
     use_ok 'Shachi::Web::OAI';
 }
 
+sub default : Tests {
+    my $mech = create_mech;
+    $mech->get_ok("/olac/");
+}
+
 sub oai2 : Tests {
     subtest 'badverb' => sub {
         my $mech = create_mech;

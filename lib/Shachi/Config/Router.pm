@@ -90,6 +90,10 @@ my $router = Router::Simple::Declare::router {
     };
 
     # OAI
+    connect '/olac/' => {
+        dispatch => 'Shachi::Web::OAI',
+        action   => 'default',
+    };
     connect '/olac/oai2' => {
         dispatch => 'Shachi::Web::OAI',
         action   => 'oai2',
