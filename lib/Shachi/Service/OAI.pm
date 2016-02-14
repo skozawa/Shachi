@@ -186,7 +186,6 @@ sub _create_xml_base {
         'xsi:schemaLocation' => 'http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd',
     } });
     _addChildren($doc, $oai, [
-        ['SCRIPT'],
         ['responseDate', { value => _format_datetime($now) }],
         ['request', { value => 'http://shachi.org/olac/oai2', attributes => $attrs } ]
     ]);

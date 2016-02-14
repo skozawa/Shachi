@@ -98,7 +98,6 @@ sub get_record : Tests {
 
         my $doc = Shachi::Service::OAI->get_record(resource => $resource_detail);
 
-        ok $doc->getElementsByTagName('SCRIPT');
         ok $doc->getElementsByTagName('responseDate');
         my $request = $doc->getElementsByTagName('request')->[0];
         is $request->textContent, 'http://shachi.org/olac/oai2';
@@ -201,7 +200,6 @@ sub get_record : Tests {
         my $resource = create_resource;
         my $doc = Shachi::Service::OAI->get_record(resource => $resource);
 
-        ok $doc->getElementsByTagName('SCRIPT');
         ok $doc->getElementsByTagName('responseDate');
         is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
 
@@ -227,7 +225,6 @@ sub get_record : Tests {
 sub identify : Tests {
     my $doc = Shachi::Service::OAI->identify;
 
-    ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
     my $request = $doc->getElementsByTagName('request')->[0];
     is $request->textContent, 'http://shachi.org/olac/oai2';
@@ -293,7 +290,6 @@ sub list_identifiers : Tests {
         my $db = Shachi::Database->new;
         my $doc = Shachi::Service::OAI->list_identifiers(resources => $resources);
 
-        ok $doc->getElementsByTagName('SCRIPT');
         ok $doc->getElementsByTagName('responseDate');
         my $request = $doc->getElementsByTagName('request')->[0];
         is $request->textContent, 'http://shachi.org/olac/oai2';
@@ -323,7 +319,6 @@ sub list_identifiers : Tests {
             resources => $resources, resumptionToken => 'aaaaa',
         );
 
-        ok $doc->getElementsByTagName('SCRIPT');
         ok $doc->getElementsByTagName('responseDate');
         my $request = $doc->getElementsByTagName('request')->[0];
         is $request->textContent, 'http://shachi.org/olac/oai2';
@@ -351,7 +346,6 @@ sub list_identifiers : Tests {
 sub list_metadata_formats : Tests {
     my $doc = Shachi::Service::OAI->list_metadata_formats;
 
-    ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
     my $request = $doc->getElementsByTagName('request')->[0];
     is $request->textContent, 'http://shachi.org/olac/oai2';
@@ -380,7 +374,6 @@ sub list_records : Tests {
         resources => $resources, resumptionToken => 'bbbbb',
     );
 
-    ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
     my $request = $doc->getElementsByTagName('request')->[0];
     is $request->textContent, 'http://shachi.org/olac/oai2';
@@ -406,7 +399,6 @@ sub list_records : Tests {
 sub list_sets : Tests {
     my $doc = Shachi::Service::OAI->list_sets;
 
-    ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
     my $request = $doc->getElementsByTagName('request')->[0];
     is $request->textContent, 'http://shachi.org/olac/oai2';
@@ -417,7 +409,6 @@ sub list_sets : Tests {
 
 sub bad_verb : Tests {
     my $doc = Shachi::Service::OAI->bad_verb(verb => 'aaa');
-    ok $doc->getElementsByTagName('SCRIPT');
     ok $doc->getElementsByTagName('responseDate');
     is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
 
@@ -433,7 +424,6 @@ sub bad_argument : Tests {
             required => [qw/aaa/],
             invalid  => { 'ccc' => 'ddd' },
         );
-        ok $doc->getElementsByTagName('SCRIPT');
         ok $doc->getElementsByTagName('responseDate');
         is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
 
@@ -450,7 +440,6 @@ sub bad_argument : Tests {
 
     subtest 'bad arguement' => sub {
         my $doc = Shachi::Service::OAI->bad_argument(required => [], invalid  => {});
-        ok $doc->getElementsByTagName('SCRIPT');
         ok $doc->getElementsByTagName('responseDate');
         is $doc->getElementsByTagName('request')->[0]->textContent, 'http://shachi.org/olac/oai2';
 
