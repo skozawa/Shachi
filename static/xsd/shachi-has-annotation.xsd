@@ -12,7 +12,7 @@
       <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
         <shortName>has-annotation</shortName>
         <longName>Code for Has-Annotation</longName>
-        <versionDate>2016-02-07</versionDate>
+        <versionDate>2016-02-15</versionDate>
         <description>Describe whether the resource has annotation or not</description>
         <appliesTo>type</appliesTo>
         <documentation></documentation>

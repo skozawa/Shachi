@@ -12,7 +12,7 @@
       <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
         <shortName>mono-multi-lingual</shortName>
         <longName>Code for Monolingual/Multilingual</longName>
-        <versionDate>2016-02-07</versionDate>
+        <versionDate>2016-02-15</versionDate>
         <description>Describe whether the resource is monolingual or multilingual.</description>
         <appliesTo>subject</appliesTo>
         <documentation></documentation>

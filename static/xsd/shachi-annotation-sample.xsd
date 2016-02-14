@@ -12,7 +12,7 @@
       <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
         <shortName>annotation-sample</shortName>
         <longName>Code for Annotation Sample</longName>
-        <versionDate>2016-02-07</versionDate>
+        <versionDate>2016-02-15</versionDate>
         <description>Describe annotation samples in the resource</description>
         <appliesTo>type</appliesTo>
         <documentation></documentation>

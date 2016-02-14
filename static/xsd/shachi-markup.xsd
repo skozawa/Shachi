@@ -12,8 +12,8 @@
       <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
         <shortName>encoding</shortName>
         <longName>Code for Markups</longName>
-        <versionDate>2016-02-07</versionDate>
-        <description></description>
+        <versionDate>2016-02-15</versionDate>
+        <description>Describe the markup of the resource</description>
         <appliesTo>format</appliesTo>
         <documentation></documentation>
       </olac-extension>

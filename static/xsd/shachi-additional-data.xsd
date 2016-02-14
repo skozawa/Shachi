@@ -12,8 +12,8 @@
       <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
         <shortName>additional-data</shortName>
         <longName>Code for Additional Data</longName>
-        <versionDate>2016-02-07</versionDate>
-        <description></description>
+        <versionDate>2016-02-15</versionDate>
+        <description>Describe the additional data of the resource</description>
         <appliesTo>description</appliesTo>
         <documentation></documentation>
       </olac-extension>

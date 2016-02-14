@@ -12,8 +12,8 @@
       <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
         <shortName>sentence</shortName>
         <longName>Code for Sentences</longName>
-        <versionDate>2016-02-07</versionDate>
-        <description></description>
+        <versionDate>2016-02-15</versionDate>
+        <description>Describe whether the sentence in the resource is short, long or isolated words</description>
         <appliesTo>type</appliesTo>
         <documentation></documentation>
       </olac-extension>

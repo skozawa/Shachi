@@ -12,7 +12,7 @@
       <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
         <shortName>resource-subject</shortName>
         <longName>Code for Dictionary/Thesaurus/Glossary/Thesaurus</longName>
-        <versionDate>2016-02-07</versionDate>
+        <versionDate>2016-02-15</versionDate>
         <description>Describe whether the resource is a dictionary, a thesaurus, a glossary, or a thesaurus.</description>
         <appliesTo>subject</appliesTo>
         <documentation></documentation>

@@ -12,7 +12,7 @@
       <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
         <shortName>mother-tongue</shortName>
         <longName>Code for Native/Non-native</longName>
-        <versionDate>2016-02-07</versionDate>
+        <versionDate>2016-02-15</versionDate>
         <description>Describe whether the subjects are native/non-native.</description>
         <appliesTo>contributor</appliesTo>
         <documentation></documentation>

@@ -12,8 +12,8 @@
       <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
         <shortName>speaker-number</shortName>
         <longName>Code for Speaker Number</longName>
-        <versionDate>2016-02-07</versionDate>
-        <description></description>
+        <versionDate>2016-02-15</versionDate>
+        <description>Describe the number of speakers in the resource</description>
         <appliesTo>contributor</appliesTo>
         <documentation></documentation>
       </olac-extension>

@@ -12,7 +12,7 @@
       <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
         <shortName>sampling-rate</shortName>
         <longName>Sampling Rate of the Resource</longName>
-        <versionDate>2016-02-07</versionDate>
+        <versionDate>2016-02-15</versionDate>
         <description>Describe about the sampling rate of the resource.</description>
         <appliesTo>description</appliesTo>
         <documentation></documentation>

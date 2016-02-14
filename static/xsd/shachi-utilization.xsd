@@ -12,8 +12,8 @@
       <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
         <shortName>utilization</shortName>
         <longName>Code for Resource Utilizations</longName>
-        <versionDate>2016-02-07</versionDate>
-        <description></description>
+        <versionDate>2016-02-15</versionDate>
+        <description>Describe the utilization information of the resource</description>
         <appliesTo>relation</appliesTo>
         <documentation></documentation>
       </olac-extension>

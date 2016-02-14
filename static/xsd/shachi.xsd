@@ -10,7 +10,7 @@
     <xs:documentation xml:lang="en">
       SHACHI extensions XML Schema
       XML Schema for http://shachi.org/olac/ namespace
-      Shunsuke Kozawa, 2016-02-07
+      Shunsuke Kozawa, 2016-02-15
     </xs:documentation>
   </xs:annotation>
 

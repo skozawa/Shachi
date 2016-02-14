@@ -12,8 +12,8 @@
       <olac-extension xmlns="http://www.language-archives.org/OLAC/1.1/olac-extension.xsd">
         <shortName>data-sample</shortName>
         <longName>Code for Data Sample</longName>
-        <versionDate>2016-02-07</versionDate>
-        <description></description>
+        <versionDate>2016-02-15</versionDate>
+        <description>Describe the data sample in the resource</description>
         <appliesTo>type</appliesTo>
         <documentation></documentation>
       </olac-extension>
