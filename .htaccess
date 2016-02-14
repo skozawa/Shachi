@@ -70,6 +70,10 @@ RewriteRule (.*) http://shachi.org/$1 [R=301,L]
 RewriteCond %{HTTP_HOST} ^facet.shachi.org$ [NC]
 RewriteRule .* http://shachi.org/resources/facet [R=301,L]
 
+# olac.shachi.org -> shachi.org
+RewriteCond %{HTTP_HOST} ^olac.shachi.org$ [NC]
+RewriteRule .* http://shachi.org/olac/ [R=301,L]
+
 # www.shachi.org -> shachi.org
 RewriteCond %{HTTP_HOST} ^www.shachi.org$ [NC]
 RewriteRule (.*) http://shachi.org/$1 [R=301,L]
