@@ -107,10 +107,11 @@ sub find_resource_detail {
         db => $db, resources => $resource->as_list, metadata_list => $metadata_list,
         language => $language, args => { with_value => 1, %$args },
     );
-    # ELRA, LDCからの自動取得データは取得しないように
+    # ELRA, LDCのデータはpriceは非公開
     $resource_metadata_list = $resource_metadata_list->grep(sub {
-        $_->metadata_name eq METADATA_TITLE || $_->metadata_name eq METADATA_IDENTIFIER
-    }) if $args->{only_public} && !$resource->is_public;
+        $_->metadata_name ne METADATA_DESCRIPTION_PRICE
+    }) if !$resource->is_public;
+
 
     $resource->metadata_list($resource_metadata_list);
 
@@ -257,7 +258,7 @@ sub embed_resource_metadata {
 
     my $metadata_by_resource_id = $metadata_list->hash_by('resource_id');
     foreach my $resource ( @$resources ) {
-        next if $args->{only_public} && !$resource->is_public;
+        next if $name eq METADATA_DESCRIPTION_PRICE && !$resource->is_public;
         my @list = $metadata_by_resource_id->get_all($resource->id);
         next unless @list;
         my $target_list = [ grep { $_->language_id == $list[-1]->language_id } @list ];
@@ -292,9 +293,10 @@ sub embed_resource_metadata_list {
         my $list = Shachi::Model::List->new(
             list => [ $metadata_list_by_resource_id->get_all($resource->id) ]
         );
+        # ELRA, LDCのデータはpriceは非公開
         $list = $list->grep(sub {
-            $_->metadata_name eq METADATA_TITLE || $_->metadata_name eq METADATA_IDENTIFIER
-        }) if $args->{only_public} && !$resource->is_public;
+            $_->metadata_name ne METADATA_DESCRIPTION_PRICE
+        }) if !$resource->is_public;
         $resource->metadata_list($list);
     }
 }

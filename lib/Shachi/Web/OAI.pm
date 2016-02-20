@@ -145,7 +145,6 @@ sub getrecord {
 
     Shachi::Service::Resource->embed_resource_metadata_list(
         db => $c->db, resources => $resource->as_list, language => $c->english,
-        args => { only_public => 1 },
     );
     my $doc = Shachi::Service::OAI->get_record(resource => $resource);
     return $c->xml($doc->toString);
@@ -312,7 +311,6 @@ sub listrecords {
 
     Shachi::Service::Resource->embed_resource_metadata_list(
         db => $c->db, resources => $resources, language => $c->english,
-        args => { only_public => 1 },
     );
 
     $args->{offset} += $limit;

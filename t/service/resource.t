@@ -101,17 +101,18 @@ sub find_resource_detail : Tests {
         my $metadata_list = Shachi::Model::List->new(list => [
             create_metadata(name => METADATA_TITLE),
             create_metadata(name => METADATA_DESCRIPTION),
+            create_metadata(name => METADATA_DESCRIPTION_PRICE),
             create_metadata(name => METADATA_IDENTIFIER),
             create_metadata(name => METADATA_LANGUAGE_AREA),
             create_metadata(value_type => VALUE_TYPE_STYLE),
         ]);
         create_resource_metadata(resource => $resource, language => $language,
-                                 metadata => $metadata_list->[$_]) for (0..2);
+                                 metadata => $metadata_list->[$_]) for (0..3);
         set_language_area($resource, LANGUAGE_AREA_ASIA, $english);
         set_language_area($resource, LANGUAGE_AREA_JAPAN, $english);
         my $value = create_metadata_value(value_type => VALUE_TYPE_STYLE);
         create_resource_metadata(resource => $resource, language => $english,
-                                 metadata => $metadata_list->[4], value_id => $value->id);
+                                 metadata => $metadata_list->[5], value_id => $value->id);
 
         return ($metadata_list, $language);
     };
@@ -128,9 +129,10 @@ sub find_resource_detail : Tests {
             args => { metadata_list => $metadata_list },
         );
         is $found_resource->id, $resource->id;
-        is $found_resource->metadata_list->size, 3;
+        is $found_resource->metadata_list->size, 4;
         is scalar @{$found_resource->metadata_list_by_name(METADATA_TITLE)}, 1;
         is scalar @{$found_resource->metadata_list_by_name(METADATA_DESCRIPTION)}, 1;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_DESCRIPTION_PRICE)}, 1;
         is scalar @{$found_resource->metadata_list_by_name(METADATA_IDENTIFIER)}, 1;
         is $found_resource->annotator->id, $annotator->id;
     };
@@ -146,9 +148,10 @@ sub find_resource_detail : Tests {
             args => { metadata_list => $metadata_list, fillin_english => 1 },
         );
         is $found_resource->id, $resource->id;
-        is $found_resource->metadata_list->size, 6;
+        is $found_resource->metadata_list->size, 7;
         is scalar @{$found_resource->metadata_list_by_name(METADATA_TITLE)}, 1;
         is scalar @{$found_resource->metadata_list_by_name(METADATA_DESCRIPTION)}, 1;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_DESCRIPTION_PRICE)}, 1;
         is scalar @{$found_resource->metadata_list_by_name(METADATA_IDENTIFIER)}, 1;
         is scalar @{$found_resource->metadata_list_by_name(METADATA_LANGUAGE_AREA)}, 2;
         is scalar @{$found_resource->metadata_list_by_name($metadata_list->last->name)}, 1;
@@ -156,7 +159,7 @@ sub find_resource_detail : Tests {
         is $found_resource->annotator->id, $annotator->id;
     };
 
-    subtest 'find normally with only public' => sub {
+    subtest 'find normally not include price' => sub {
         truncate_db_with_setup;
         my $annotator = create_annotator;
         my $resource = create_resource(annotator => $annotator, status => STATUS_LIMITED_BY_ELRA);
@@ -164,12 +167,13 @@ sub find_resource_detail : Tests {
 
         my ($found_resource, $ml) = Shachi::Service::Resource->find_resource_detail(
             db => $db, id => $resource->id, language => $language,
-            args => { metadata_list => $metadata_list, only_public => 1 },
+            args => { metadata_list => $metadata_list },
         );
         is $found_resource->id, $resource->id;
-        is $found_resource->metadata_list->size, 2;
+        is $found_resource->metadata_list->size, 3;
         is scalar @{$found_resource->metadata_list_by_name(METADATA_TITLE)}, 1;
-        is scalar @{$found_resource->metadata_list_by_name(METADATA_DESCRIPTION)}, 0;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_DESCRIPTION)}, 1;
+        is scalar @{$found_resource->metadata_list_by_name(METADATA_DESCRIPTION_PRICE)}, 0;
         is scalar @{$found_resource->metadata_list_by_name(METADATA_IDENTIFIER)}, 1;
         is $found_resource->annotator->id, $annotator->id;
     };
@@ -369,33 +373,6 @@ sub embed_relations : Tests {
         is $resources->[1]->relations->[0]->language_id, $english->id;
         is scalar @{$resources->[2]->relations || []}, 1;
         is $resources->[2]->relations->[0]->language_id, $language->id;
-    };
-
-    subtest 'embed with only_public' => sub {
-        my $values = [ map { create_metadata_value } (0..5) ];
-        my $resources = Shachi::Model::List->new(list => [
-            create_resource(status => STATUS_PUBLIC),
-            create_resource(status => STATUS_LIMITED_BY_LDC),
-            create_resource(status => STATUS_PRIVATE),
-        ]);
-        my $language = create_language;
-        for ( [0, 0], [1, 1], [1, 2], [1, 3], [2, 4], [2, 5] ) {
-            create_resource_metadata(
-                resource => $resources->[$_->[0]], language => $language,
-                metadata => $relation_metadata, value_id => $values->[$_->[1]]->id,
-            );
-        }
-
-        my $db = Shachi::Database->new;
-        Shachi::Service::Resource->embed_relations(
-            db => $db, resources => $resources, language => $language,
-            args => { only_public => 1 },
-        );
-
-        is scalar @{$resources->[0]->relations || []}, 1;
-        is $resources->[0]->relations->[0]->value->id, $values->[0]->id;
-        is scalar @{$resources->[1]->relations || []}, 0;
-        is scalar @{$resources->[2]->relations || []}, 0;
     };
 }
 
