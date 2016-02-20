@@ -286,7 +286,7 @@ sub _add_resource_metadata {
     } else {
         my $value = $opts->{value} ?
             $metadata->value->value : $metadata->content;
-        _addChild($doc, $parent, $opts->{tag}, { value => ($opts->{prefix} || '') . $value });
+        _addChild($doc, $parent, $opts->{tag}, { value => ($opts->{prefix} || '') . ($value || '')});
     }
 }
 
