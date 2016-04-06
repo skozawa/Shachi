@@ -110,7 +110,7 @@ sub find_resource_detail {
     # ELRA, LDCのデータはpriceは非公開
     $resource_metadata_list = $resource_metadata_list->grep(sub {
         $_->metadata_name ne METADATA_DESCRIPTION_PRICE
-    }) if !$resource->is_public;
+    }) if !$resource->is_public && !$args->{from_admin};
 
 
     $resource->metadata_list($resource_metadata_list);

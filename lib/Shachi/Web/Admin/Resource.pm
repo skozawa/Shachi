@@ -18,7 +18,7 @@ sub find_by_id {
     my $resource_id = $c->route->{resource_id};
     my ($resource, $metadata_list) = Shachi::Service::Resource->find_resource_detail(
         db => $c->db, id => $resource_id, language => $c->admin_lang,
-        args => { with_value => 1 },
+        args => { with_value => 1, from_admin => 1 },
     );
     return $c->throw_not_found unless $resource;
 
