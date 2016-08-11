@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "description": "Language Resource Metadata Database",
   "author": "Shunsuke Kozawa",
+  "license": "UNLICENSED",
+  "private": true,
   "repository": "git@github.com:skozawa/Shachi.git",
   "devDependencies": {
     "gulp": "^3.8.10",
