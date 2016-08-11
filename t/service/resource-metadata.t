@@ -108,9 +108,12 @@ sub create_multi_from_json : Tests {
             );
             is $items->size, scalar @{$json->{$key}}, "$key size";
             my $first_item = $json->{$key}->[0];
-            is $items->[0]->content, $first_item->{content}, "$key content" if $first_item->{content};
-            is $items->[0]->description, $first_item->{description}, "$key description" if $first_item->{description};
-            is $items->[0]->value_id, $first_item->{value_id}, "$key value_id" if $first_item->{value_id};
+            is $items->[0]->content, defined $first_item->{content} ? $first_item->{content} :
+                $metadata_list->{$key}->default_values->{content}, "$key content";
+            is $items->[0]->description, defined $first_item->{description} ? $first_item->{description} :
+                $metadata_list->{$key}->default_values->{description}, "$key description";
+            is $items->[0]->value_id, defined $first_item->{value_id} ? $first_item->{value_id} :
+                $metadata_list->{$key}->default_values->{value_id}, "$key value_id";
         }
     };
 }
@@ -153,6 +156,7 @@ sub update_multi_from_json : Tests {
         );
         is $items->size, 1;
         is $items->first->content, 'test corpus';
+        is $items->first->description, undef;
     };
 
     subtest 'update resource_subject' => sub {
