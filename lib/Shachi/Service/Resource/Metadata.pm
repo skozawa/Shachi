@@ -97,6 +97,7 @@ sub _create_insert_data_from_json {
     foreach my $metadata ( @$metadata_list ) {
         my $items = $json->{$metadata->name};
         next unless $items && @$items;
+        my $default_values = $metadata->default_values;
         foreach my $item ( @$items ) {
             # INPUT_TYPE_LANGUAGEの場合はcontentからvalue_idを補完する
             if ( $metadata->input_type eq INPUT_TYPE_LANGUAGE ) {
@@ -107,9 +108,9 @@ sub _create_insert_data_from_json {
                 resource_id   => $resource_id,
                 metadata_name => $metadata->name,
                 language_id   => $language->id,
-                value_id      => $item->{value_id} || 0,
-                content       => $item->{content} || '',
-                description   => $item->{description} || '',
+                value_id      => $item->{value_id}    || $default_values->{value_id},
+                content       => $item->{content}     || $default_values->{content},
+                description   => $item->{description} || $default_values->{description},
             };
         }
     }

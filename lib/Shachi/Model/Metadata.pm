@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use parent qw/Shachi::Model/;
 use Exporter::Lite;
+use List::MoreUtils qw/any/;
 
 use constant {
     METADATA_TITLE => 'title',
@@ -89,6 +90,21 @@ use constant KEYWORD_SEARCH_METADATA_NAMES => [
     METADATA_DESCRIPTION, METADATA_TYPE_PURPOSE
 ];
 
+use constant HAS_CONTENT_INPUT_TYPE => {
+    INPUT_TYPE_TEXT()     => 1,
+    INPUT_TYPE_TEXTAREA() => 1,
+    INPUT_TYPE_DATE()     => 1,
+    INPUT_TYPE_RANGE()    => 1,
+};
+
+use constant HAS_DESCRIPTION_INPUT_TYPE => {
+    INPUT_TYPE_SELECT()   => 1,
+    INPUT_TYPE_RELATION() => 1,
+    INPUT_TYPE_LANGUAGE() => 1,
+    INPUT_TYPE_DATE()     => 1,
+    INPUT_TYPE_RANGE()    => 1,
+};
+
 our @EXPORT = qw/
     METADATA_TITLE METADATA_TITLE_ABBREVIATION METADATA_TITLE_ALTERNATIVE
     METADATA_DESCRIPTION METADATA_DESCRIPTION_PRICE METADATA_SUBJECT_RESOURCE_SUBJECT
@@ -127,5 +143,15 @@ sub allow_statistics {
             $self->input_type eq INPUT_TYPE_LANGUAGE;
     return 0;
 }
+
+sub default_values {
+    my $self = shift;
+    +{
+        value_id    => 0,
+        content     => HAS_CONTENT_INPUT_TYPE->{$self->input_type} ? '' : undef,
+        description => HAS_DESCRIPTION_INPUT_TYPE->{$self->input_type} ? '' : undef,
+    };
+}
+
 
 1;
