@@ -92,6 +92,7 @@ my @records = $doc->getElementsByTagName('oai:record');
 my $db = Shachi::Database->new;
 my $english = Shachi::Service::Language->find_by_code(db => $db, code => 'eng');
 my $annotator = Shachi::Service::Annotator->find_by_id(db => $db, id => $config->{annotator_id});
+my $metadata_by_name = $db->shachi->table('metadata')->search({})->list->hash_by('name');
 
 die 'Not Found english' unless $english;
 die 'Not Found annotator' unless $annotator;
@@ -268,13 +269,15 @@ sub _get_new_metadata_type {
 
 sub create_data {
     my ($resource, $name, $args) = @_;
+    my $metadata = $metadata_by_name->{$name};
+    my $default_values = $metadata->default_values;
     return +{
         resource_id   => $resource->id,
         language_id   => $english->id,
         metadata_name => $name,
-        value_id      => $args->{value_id} || 0,
-        content       => $args->{content} || '',
-        description   => $args->{description} || '',
+        value_id      => $args->{value_id} || $default_values->{value_id},
+        content       => $args->{content} || $default_values->{content},
+        description   => $args->{description} || $default_values->{description},
     };
 }
 
