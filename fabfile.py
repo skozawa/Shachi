@@ -1,7 +1,6 @@
 from fabric.api import *
 # For Sakura FreeBSD
 env.shell = "/usr/local/bin/bash -l -c"
-env.hosts = ['sidb@sidb.sakura.ne.jp']
 home_dir = '/home/sidb/www/Shachi'
 pidfile = './pid'
 
