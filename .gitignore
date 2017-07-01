@@ -1,6 +1,7 @@
 /local/
 /node_modules/
 config/db.production
+config/hosts
 fabfile.pyc
 .htpasswd
 /log/

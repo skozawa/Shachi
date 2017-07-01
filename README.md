@@ -13,6 +13,12 @@ carton install
 npm install
 ```
 
+# deploy
+```
+fab --hosts=`cat config/hosts` update
+fab --hosts=`cat config/hosts` restart
+```
+
 # local
 ```
 ./script/localup
